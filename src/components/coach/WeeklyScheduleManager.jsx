@@ -97,7 +97,7 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-7 gap-2">
         {DAYS.map((day, i) => {
           const date = weekDates[i];
           const dateStr = format(date, "yyyy-MM-dd");
@@ -116,8 +116,8 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
               }`}
               onClick={() => handleOpenEdit(i)}
             >
-              <p className="text-xs font-semibold text-muted-foreground">{day}</p>
-              <p className="text-xs text-muted-foreground">{format(date, "d")}</p>
+              <p className="text-xs font-semibold text-muted-foreground truncate">{day}</p>
+              <p className="text-xs text-muted-foreground font-medium">{format(date, "d")}</p>
               {practice ? (
                 <div className="mt-2 flex-1 flex flex-col gap-1">
                   <p className="text-xs font-semibold text-foreground line-clamp-2">{practice.title}</p>
@@ -134,8 +134,8 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
 
       {/* Edit Modal */}
       {editingDay && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-card rounded-2xl border border-border p-6 max-w-md w-full max-h-96 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-sm my-8">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">
                 {DAYS[editingDay.index]} – {format(parseISO(editingDay.date), "MMM d")}
