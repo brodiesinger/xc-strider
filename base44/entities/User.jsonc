@@ -1,0 +1,15 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "athlete",
+        "coach"
+      ],
+      "default": "athlete",
+      "description": "Role of the user in the team"
+    }
+  }
+}
