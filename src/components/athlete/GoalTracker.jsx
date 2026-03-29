@@ -61,10 +61,23 @@ export default function GoalTracker({ workouts, userEmail }) {
     e.preventDefault();
     setSaving(true);
     const typeConfig = GOAL_TYPES.find((t) => t.value === form.type);
+    let targetValue = parseFloat(form.target);
+
+    if (form.type !== "weekly_miles") {
+      const parts = form.target.split(":").map(Number);
+      if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
+        alert("Please enter time in MM:SS format");
+        setSaving(false);
+        return;
+      }
+      const [mins, secs] = parts;
+      targetValue = mins + secs / 60;
+    }
+
     const newGoal = await base44.entities.Goal.create({
       athlete_email: userEmail,
       type: form.type,
-      target: parseFloat(form.target),
+      target: targetValue,
       label: form.label || `${typeConfig.label}: ${form.target} ${typeConfig.unit}`,
       deadline: form.deadline || undefined,
       completed: false,
@@ -113,17 +126,27 @@ export default function GoalTracker({ workouts, userEmail }) {
             </select>
           </div>
           <div className="space-y-1">
-            <Label>Target Value</Label>
-            <Input type="number" step="0.1" min="0" placeholder="e.g. 30" value={form.target} onChange={(e) => set("target", e.target.value)} required />
+            <Label>
+              {form.type === "weekly_miles" ? "Target Value" : "Target Time"}
+            </Label>
+            {form.type === "weekly_miles" ? (
+              <Input type="number" step="0.1" min="0" placeholder="e.g. 30" value={form.target} onChange={(e) => set("target", e.target.value)} required />
+            ) : (
+              <Input type="text" placeholder="e.g. 24:30" value={form.target} onChange={(e) => set("target", e.target.value)} required />
+            )}
           </div>
-          <div className="space-y-1">
-            <Label>Label (optional)</Label>
-            <Input placeholder="e.g. Run 30 miles/week" value={form.label} onChange={(e) => set("label", e.target.value)} />
-          </div>
-          <div className="space-y-1">
-            <Label>Deadline (optional)</Label>
-            <Input type="date" value={form.deadline} onChange={(e) => set("deadline", e.target.value)} />
-          </div>
+          {form.type === "weekly_miles" && (
+            <>
+              <div className="space-y-1">
+                <Label>Label (optional)</Label>
+                <Input placeholder="e.g. Run 30 miles/week" value={form.label} onChange={(e) => set("label", e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Deadline (optional)</Label>
+                <Input type="date" value={form.deadline} onChange={(e) => set("deadline", e.target.value)} />
+              </div>
+            </>
+          )}
           <Button type="submit" size="sm" disabled={saving} className="w-full">
             {saving ? "Saving..." : "Add Goal"}
           </Button>
