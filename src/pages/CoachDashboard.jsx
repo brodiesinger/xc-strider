@@ -57,16 +57,19 @@ export default function CoachDashboard() {
 
   const loadTeamAndRoster = async (me) => {
     if (!me.team_id) return;
-    const teams = await base44.entities.Team.list();
-    const found = teams.find((t) => t.id === me.team_id);
-    if (found) {
-      setTeam(found);
-      const [workouts] = await Promise.all([
-        base44.entities.Workout.filter({ team_id: me.team_id }, "-date", 500),
-        fetchAnnouncements(me.team_id),
-        fetchSchedule(me.team_id),
-      ]);
-      setAthletes(buildAthleteRoster(workouts));
+    try {
+      const found = await base44.entities.Team.get(me.team_id);
+      if (found) {
+        setTeam(found);
+        const [workouts] = await Promise.all([
+          base44.entities.Workout.filter({ team_id: me.team_id }, "-date", 500),
+          fetchAnnouncements(me.team_id),
+          fetchSchedule(me.team_id),
+        ]);
+        setAthletes(buildAthleteRoster(workouts));
+      }
+    } catch (err) {
+      console.error("Error loading team:", err);
     }
   };
 
