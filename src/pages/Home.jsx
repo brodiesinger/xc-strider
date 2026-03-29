@@ -23,6 +23,7 @@ const features = [
 ];
 
 export default function Home() {
+  const signup = () => base44.auth.redirectToLogin("/dashboard");
   const login = () => base44.auth.redirectToLogin("/dashboard");
 
   return (
@@ -60,7 +61,7 @@ export default function Home() {
             Track workouts, manage your roster, and watch your runners improve — all in one place.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button size="lg" onClick={login} className="w-full sm:w-auto px-8 rounded-xl gap-2">
+            <Button size="lg" onClick={signup} className="w-full sm:w-auto px-8 rounded-xl gap-2">
               Get started
               <ArrowRight className="w-4 h-4" />
             </Button>
