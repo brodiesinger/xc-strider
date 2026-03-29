@@ -13,6 +13,7 @@ import NotificationBell from "@/components/shared/NotificationBell";
 import InjuryRiskTab from "@/components/athlete/insights/InjuryRiskTab";
 import AIInjuryChat from "@/components/athlete/insights/AIInjuryChat";
 import SmartRecoveryTab from "@/components/athlete/insights/SmartRecoveryTab";
+import RacePRManager from "@/components/athlete/RacePRManager";
 
 const TABS = [
   { id: "mileage", label: "Weekly Mileage" },
@@ -153,6 +154,7 @@ export default function AthleteDashboard() {
             </div>
           ) : (
             <div className="space-y-6">
+              <RacePRManager userEmail={user?.email} />
               <PRTracker workouts={workouts} />
               <GoalTracker workouts={workouts} userEmail={user?.email} />
             </div>

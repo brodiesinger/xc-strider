@@ -1,0 +1,29 @@
+{
+  "name": "RacePR",
+  "type": "object",
+  "properties": {
+    "athlete_email": {
+      "type": "string",
+      "description": "Email of the athlete"
+    },
+    "distance": {
+      "type": "string",
+      "enum": [
+        "5K",
+        "10K",
+        "Half Marathon",
+        "Marathon"
+      ],
+      "description": "Race distance"
+    },
+    "time_minutes": {
+      "type": "number",
+      "description": "Fastest race time in minutes"
+    }
+  },
+  "required": [
+    "athlete_email",
+    "distance",
+    "time_minutes"
+  ]
+}

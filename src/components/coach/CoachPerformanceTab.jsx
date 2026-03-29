@@ -58,30 +58,7 @@ function computeGoalProgress(goal, workouts) {
   }
 }
 
-function AthletePerformanceCard({ athlete, workouts, goals }) {
-  const prs = useMemo(() => {
-    if (!workouts.length) return [];
-    const distanceMap = new Map();
-    for (const w of workouts) {
-      if (!w.distance || !w.time_minutes) continue;
-      const key = w.distance.toFixed(1);
-      if (!distanceMap.has(key) || w.time_minutes < distanceMap.get(key).time_minutes) {
-        distanceMap.set(key, w);
-      }
-    }
-    return Array.from(distanceMap.entries())
-      .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
-      .map(([dist, w]) => ({ dist: parseFloat(dist), workout: w }));
-  }, [workouts]);
-
-  const bestPaceWorkout = useMemo(() => {
-    return workouts
-      .filter((w) => w.distance > 0 && w.time_minutes > 0)
-      .reduce((best, w) => {
-        if (!best) return w;
-        return w.time_minutes / w.distance < best.time_minutes / best.distance ? w : best;
-      }, null);
-  }, [workouts]);
+function AthletePerformanceCard({ athlete, workouts, goals, racePRs }) {
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
@@ -119,35 +96,22 @@ function AthletePerformanceCard({ athlete, workouts, goals }) {
         <p className="text-xs text-muted-foreground">No goals set</p>
       )}
 
-      {/* PRs */}
-      {bestPaceWorkout && (
-        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-          <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-            <Trophy className="w-3.5 h-3.5" />
-            Best Pace
-          </p>
-          <p className="font-bold text-primary">
-            {formatPace(bestPaceWorkout.time_minutes, bestPaceWorkout.distance)}
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {bestPaceWorkout.distance} mi · {format(parseISO(bestPaceWorkout.date), "MMM d")}
-          </p>
-        </div>
-      )}
-
-      {prs.length > 0 && (
+      {/* Race PRs */}
+      {racePRs.length > 0 ? (
         <div className="space-y-1">
           <p className="text-xs font-semibold text-foreground flex items-center gap-1 text-muted-foreground">
-            <TrendingDown className="w-3.5 h-3.5" />
-            Top Times
+            <Trophy className="w-3.5 h-3.5" />
+            Race PRs
           </p>
-          {prs.slice(0, 3).map(({ dist, workout: w }) => (
-            <div key={dist} className="flex items-center justify-between text-xs rounded-lg bg-muted p-2">
-              <span className="font-medium">{dist} mi</span>
-              <span className="text-primary">{formatTime(w.time_minutes)}</span>
+          {racePRs.map((pr) => (
+            <div key={pr.id} className="flex items-center justify-between text-xs rounded-lg bg-primary/5 border border-primary/20 p-2">
+              <span className="font-medium text-foreground">{pr.distance}</span>
+              <span className="text-primary font-bold">{formatTime(pr.time_minutes)}</span>
             </div>
           ))}
         </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">No race PRs recorded</p>
       )}
     </div>
   );
@@ -162,11 +126,12 @@ export default function CoachPerformanceTab({ athletes, teamId }) {
       setLoading(true);
       const data = {};
       for (const athlete of athletes) {
-        const [workouts, goals] = await Promise.all([
+        const [workouts, goals, racePRs] = await Promise.all([
           base44.entities.Workout.filter({ athlete_email: athlete.email }, "-date", 100).catch(() => []),
           base44.entities.Goal.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
+          base44.entities.RacePR.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
         ]);
-        data[athlete.email] = { workouts, goals };
+        data[athlete.email] = { workouts, goals, racePRs };
       }
       setAthleteData(data);
       setLoading(false);
@@ -194,6 +159,7 @@ export default function CoachPerformanceTab({ athletes, teamId }) {
           athlete={athlete}
           workouts={athleteData[athlete.email]?.workouts || []}
           goals={athleteData[athlete.email]?.goals || []}
+          racePRs={athleteData[athlete.email]?.racePRs || []}
         />
       ))}
     </div>
