@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { TreePine, Timer, Users, TrendingUp, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,8 +23,125 @@ const features = [
 ];
 
 export default function Home() {
-  const signup = () => base44.auth.redirectToLogin("/dashboard");
-  const login = () => base44.auth.redirectToLogin("/dashboard");
+  const [showRoleSelect, setShowRoleSelect] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [teamName, setTeamName] = useState("");
+  const [setupStep, setSetupStep] = useState(null); // "role", "teamName", or null
+
+  const handleGetStarted = () => {
+    setShowRoleSelect(true);
+    setSetupStep("role");
+  };
+
+  const handleRoleSelect = (role) => {
+    setSelectedRole(role);
+    if (role === "coach") {
+      setSetupStep("teamName");
+    } else {
+      // Athletes go straight to login
+      sessionStorage.setItem("selectedRole", "athlete");
+      base44.auth.redirectToLogin("/athlete");
+    }
+  };
+
+  const handleTeamSubmit = (e) => {
+    e.preventDefault();
+    if (!teamName.trim()) return;
+    sessionStorage.setItem("selectedRole", "coach");
+    sessionStorage.setItem("teamName", teamName);
+    base44.auth.redirectToLogin("/coach");
+  };
+
+  if (showRoleSelect && setupStep) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-primary font-bold text-base">
+              <TreePine className="w-4 h-4" />
+              XC Team App
+            </div>
+            <Button size="sm" onClick={() => base44.auth.redirectToLogin("/")} className="rounded-lg">
+              Sign in
+            </Button>
+          </div>
+        </header>
+
+        <section className="flex-1 flex items-center justify-center px-4 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-md space-y-6"
+          >
+            <button
+              onClick={() => {
+                setShowRoleSelect(false);
+                setSetupStep(null);
+                setSelectedRole(null);
+                setTeamName("");
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              ← Back
+            </button>
+
+            {setupStep === "role" && (
+              <div className="space-y-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">Choose your role</h1>
+                  <p className="text-muted-foreground mt-1">What are you signing up as?</p>
+                </div>
+
+                <button
+                  onClick={() => handleRoleSelect("athlete")}
+                  className="w-full rounded-xl border-2 border-border p-6 text-left hover:border-primary/50 hover:bg-primary/5 transition-all"
+                >
+                  <h3 className="font-semibold text-foreground text-lg">Athlete</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Join a team with a coach</p>
+                </button>
+
+                <button
+                  onClick={() => handleRoleSelect("coach")}
+                  className="w-full rounded-xl border-2 border-border p-6 text-left hover:border-primary/50 hover:bg-primary/5 transition-all"
+                >
+                  <h3 className="font-semibold text-foreground text-lg">Coach</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Create a team and manage athletes</p>
+                </button>
+              </div>
+            )}
+
+            {setupStep === "teamName" && (
+              <form onSubmit={handleTeamSubmit} className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">Create Your Team</h2>
+                  <p className="text-sm text-muted-foreground mt-1">What's your team name?</p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Team Name</label>
+                  <input
+                    type="text"
+                    placeholder="E.g. Varsity XC"
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    className="w-full px-3 py-2 rounded-md border border-input bg-transparent text-sm"
+                    required
+                  />
+                </div>
+
+                <Button type="submit" className="w-full rounded-lg">
+                  Continue to Sign Up
+                </Button>
+              </form>
+            )}
+          </motion.div>
+        </section>
+      </div>
+    );
+  }
+
+  const signup = () => handleGetStarted();
+  const login = () => base44.auth.redirectToLogin("/");
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -70,7 +187,7 @@ export default function Home() {
             </Button>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
-            Athletes and coaches use the same sign-in — you'll be directed to the right dashboard automatically.
+            Choose your role and you'll be directed to the right dashboard.
           </p>
         </motion.div>
       </section>
