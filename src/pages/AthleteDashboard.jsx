@@ -5,7 +5,6 @@ import JoinTeam from "@/components/athlete/JoinTeam";
 import NavBar from "@/components/shared/NavBar";
 import TabNav from "@/components/shared/TabNav";
 import WeeklyMileage from "@/components/athlete/WeeklyMileage";
-import PRTracker from "@/components/athlete/PRTracker";
 import TeamDashboardView from "@/components/shared/TeamDashboardView";
 
 import GoalTracker from "@/components/athlete/GoalTracker";
@@ -155,7 +154,6 @@ export default function AthleteDashboard() {
           ) : (
             <div className="space-y-6">
               <RacePRManager userEmail={user?.email} />
-              <PRTracker workouts={workouts} />
               <GoalTracker workouts={workouts} userEmail={user?.email} />
             </div>
           )
