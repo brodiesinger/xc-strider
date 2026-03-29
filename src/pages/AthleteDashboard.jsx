@@ -18,10 +18,9 @@ export default function AthleteDashboard() {
   const [loadingUser, setLoadingUser] = useState(true);
 
   const fetchWorkouts = async (me) => {
+    if (!me?.email) return;
     setLoadingWorkouts(true);
-    const data = me
-      ? await base44.entities.Workout.filter({ athlete_email: me.email }, "-date", 50)
-      : await base44.entities.Workout.list("-date", 50);
+    const data = await base44.entities.Workout.filter({ athlete_email: me.email }, "-date", 50);
     setWorkouts(data);
     setLoadingWorkouts(false);
   };

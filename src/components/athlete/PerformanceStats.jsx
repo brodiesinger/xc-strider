@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { startOfWeek, parseISO, isAfter } from "date-fns";
+import { startOfWeek, format } from "date-fns";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
@@ -18,12 +18,12 @@ function getWeeklyChartData(workouts, numWeeks = 8) {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 7);
 
+    // Compare as "yyyy-MM-dd" strings to avoid UTC/local timezone mismatches
+    const startStr = format(weekStart, "yyyy-MM-dd");
+    const endStr = format(weekEnd, "yyyy-MM-dd");
+
     const miles = workouts
-      .filter((w) => {
-        if (!w.date) return false;
-        const d = parseISO(w.date);
-        return d >= weekStart && d < weekEnd;
-      })
+      .filter((w) => w.date && w.date >= startStr && w.date < endStr)
       .reduce((sum, w) => sum + (w.distance || 0), 0);
 
     const label = `${weekStart.getMonth() + 1}/${weekStart.getDate()}`;
@@ -35,8 +35,9 @@ function getWeeklyChartData(workouts, numWeeks = 8) {
 // Current week mileage (Mon–Sun)
 function currentWeekMiles(workouts) {
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const startStr = format(weekStart, "yyyy-MM-dd");
   return workouts
-    .filter((w) => w.date && isAfter(parseISO(w.date), weekStart))
+    .filter((w) => w.date && w.date >= startStr)
     .reduce((sum, w) => sum + (w.distance || 0), 0);
 }
 
