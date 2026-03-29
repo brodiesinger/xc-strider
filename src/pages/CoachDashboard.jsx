@@ -82,13 +82,20 @@ export default function CoachDashboard() {
           setLoading(false);
           return;
         }
-        setUser(me);
-        if (me.role !== "coach") {
+        
+        let user = me;
+        if (me.role !== "coach" && sessionStorage.getItem("selectedRole") === "coach") {
+          await base44.auth.updateMe({ role: "coach" });
+          user = await base44.auth.me();
+        }
+        
+        setUser(user);
+        if (user.role !== "coach") {
           setAccessDenied(true);
           setLoading(false);
           return;
         }
-        await loadTeamAndRoster(me);
+        await loadTeamAndRoster(user);
       } catch (err) {
         console.error("Auth error:", err);
         setAccessDenied(true);
