@@ -73,7 +73,7 @@ export default function CoachDashboard() {
     if (found) {
       setTeam(found);
       const [users, workouts] = await Promise.all([
-        base44.entities.User.filter({ team_id: me.team_id }, "-created_date", 100),
+        base44.entities.User.filter({ team_id: me.team_id, role: "athlete" }, "-created_date", 100),
         base44.entities.Workout.filter({ team_id: me.team_id }, "-date", 500),
         fetchAnnouncements(me.team_id),
         fetchSchedule(me.team_id),
