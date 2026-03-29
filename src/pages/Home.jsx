@@ -1,9 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { TreePine, Timer, Users, TrendingUp } from "lucide-react";
-import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import { base44 } from "@/api/base44Client";
 
 const features = [
   {
@@ -46,26 +45,23 @@ export default function Home() {
               The home base for your cross-country team — track workouts,
               manage your roster, and watch your runners improve.
             </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
-          >
-            <Button
-              size="lg"
-              className="px-8"
-              onClick={() => base44.auth.redirectToLogin("/dashboard")}
-            >
-              Sign In
-            </Button>
-            <Link to="/dashboard">
-              <Button size="lg" variant="outline" className="px-8">
-                Go to Dashboard
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button
+                size="lg"
+                className="px-8 rounded-xl"
+                onClick={() => base44.auth.redirectToLogin("/dashboard")}
+              >
+                Sign in
               </Button>
-            </Link>
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-8 rounded-xl"
+                onClick={() => base44.auth.redirectToLogin("/dashboard")}
+              >
+                Create account
+              </Button>
+            </div>
           </motion.div>
 
           {/* Decorative line */}
