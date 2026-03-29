@@ -1,0 +1,28 @@
+{
+  "name": "Workout",
+  "type": "object",
+  "properties": {
+    "distance": {
+      "type": "number",
+      "description": "Distance in miles"
+    },
+    "time_minutes": {
+      "type": "number",
+      "description": "Duration in minutes"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about the workout"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the workout"
+    }
+  },
+  "required": [
+    "distance",
+    "time_minutes",
+    "date"
+  ]
+}
