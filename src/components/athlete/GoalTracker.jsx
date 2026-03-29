@@ -155,8 +155,8 @@ export default function GoalTracker({ workouts, userEmail }) {
                     />
                   </div>
                   <span className="text-xs text-muted-foreground shrink-0">
-                    {g.type === "pace"
-                      ? `${formatPaceDisplay(g.progress.current)} / ${formatPaceDisplay(g.target)}`
+                    {(g.type === "5k_goal" || g.type === "2mile_goal" || g.type === "1mile_goal")
+                      ? `${g.progress.current ?? 0} / ${g.target} min`
                       : `${g.progress.current ?? 0} / ${g.target}`}
                   </span>
                 </div>
