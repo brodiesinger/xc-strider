@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [mode, setMode] = useState(null);
   const [athleteCode, setAthleteCode] = useState("");
   const [coachCode, setCoachCode] = useState("");
+  const [teamName, setTeamName] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [coachCreated, setCoachCreated] = useState(false);
@@ -72,11 +73,15 @@ export default function Dashboard() {
   const handleCoachSignup = async (e) => {
     e.preventDefault();
     setError("");
+    if (!teamName.trim()) {
+      setError("Please enter a team name");
+      return;
+    }
     setSubmitting(true);
     try {
       const code = generateCode();
       const newTeam = await base44.entities.Team.create({
-        name: `${user.full_name || user.email}'s Team`,
+        name: teamName,
         join_code: code,
         coach_email: user.email,
       });
@@ -191,6 +196,16 @@ export default function Dashboard() {
               </div>
 
               <form onSubmit={handleCoachSignup} className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label>Team Name</Label>
+                  <Input
+                    placeholder="E.g. varsity XC"
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    required
+                  />
+                </div>
+
                 {error && <p className="text-sm text-destructive">{error}</p>}
 
                 <Button type="submit" disabled={submitting} className="w-full">
