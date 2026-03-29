@@ -40,9 +40,10 @@ export default function CoachDashboard() {
 
   const loadTeamAndRoster = async (me) => {
     if (!me.team_id) return false;
-    const teams = await base44.entities.Team.filter({ id: me.team_id });
-    if (teams.length > 0) {
-      setTeam(teams[0]);
+    const teams = await base44.entities.Team.list();
+    const found = teams.find((t) => t.id === me.team_id);
+    if (found) {
+      setTeam(found);
       const [workouts] = await Promise.all([
         base44.entities.Workout.filter({ team_id: me.team_id }, "-date", 500),
         fetchAnnouncements(me.team_id),

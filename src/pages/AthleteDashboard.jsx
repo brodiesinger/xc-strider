@@ -31,12 +31,10 @@ export default function AthleteDashboard() {
 
   const loadTeam = async (me) => {
     if (!me.team_id) return null;
-    const teams = await base44.entities.Team.filter({ id: me.team_id });
-    if (teams.length > 0) {
-      setTeam(teams[0]);
-      return teams[0];
-    }
-    return null;
+    const teams = await base44.entities.Team.list();
+    const found = teams.find((t) => t.id === me.team_id) || null;
+    if (found) setTeam(found);
+    return found;
   };
 
   useEffect(() => {

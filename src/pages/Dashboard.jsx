@@ -19,8 +19,6 @@ export default function Dashboard() {
     setUser(me);
   };
 
-  const handleLogout = () => base44.auth.logout("/");
-
   // Show spinner while loading
   if (!user) {
     return (
