@@ -85,12 +85,18 @@ export default function Dashboard() {
         join_code: code,
         coach_email: user.email,
       });
-      await base44.auth.updateMe({ role: "coach", team_id: newTeam.id });
-      setCoachCode(code);
-      setCoachCreated(true);
+      if (newTeam && newTeam.id) {
+        await base44.auth.updateMe({ role: "coach", team_id: newTeam.id });
+        setCoachCode(code);
+        setCoachCreated(true);
+        setSubmitting(false);
+      } else {
+        setError("Team creation failed - invalid response");
+        setSubmitting(false);
+      }
     } catch (err) {
       console.error("Team creation error:", err);
-      setError("Failed to create team");
+      setError(err.message || "Failed to create team");
       setSubmitting(false);
     }
   };
