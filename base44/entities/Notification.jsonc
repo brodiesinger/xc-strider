@@ -1,0 +1,38 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user this notification is for"
+    },
+    "message": {
+      "type": "string",
+      "description": "Notification message"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "success",
+        "ai"
+      ],
+      "default": "info",
+      "description": "Type of notification"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the notification has been read"
+    },
+    "link_label": {
+      "type": "string",
+      "description": "Optional action label"
+    }
+  },
+  "required": [
+    "user_email",
+    "message"
+  ]
+}

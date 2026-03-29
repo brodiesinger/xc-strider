@@ -7,10 +7,15 @@ import TabNav from "@/components/shared/TabNav";
 import WeeklyMileage from "@/components/athlete/WeeklyMileage";
 import PRTracker from "@/components/athlete/PRTracker";
 import TeamDashboardView from "@/components/shared/TeamDashboardView";
+import AITrainingSuggestions from "@/components/athlete/AITrainingSuggestions";
+import InjuryRiskWarning from "@/components/athlete/InjuryRiskWarning";
+import GoalTracker from "@/components/athlete/GoalTracker";
+import NotificationBell from "@/components/shared/NotificationBell";
 
 const TABS = [
   { id: "mileage", label: "Weekly Mileage" },
   { id: "performance", label: "Performance" },
+  { id: "insights", label: "Insights" },
   { id: "team", label: "Team Dashboard" },
 ];
 
@@ -111,10 +116,15 @@ export default function AthleteDashboard() {
           transition={{ duration: 0.4 }}
           className="mb-6"
         >
-          <h1 className="text-2xl font-bold text-foreground">
-            {user ? `Hey, ${user.full_name || user.email.split("@")[0]} 👋` : "Loading..."}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">{team.name}</p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">
+                {user ? `Hey, ${user.full_name || user.email.split("@")[0]} 👋` : "Loading..."}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">{team.name}</p>
+            </div>
+            <NotificationBell userEmail={user?.email} />
+          </div>
         </motion.div>
 
         <TabNav tabs={TABS} active={activeTab} onChange={setActiveTab} />
@@ -141,6 +151,14 @@ export default function AthleteDashboard() {
           ) : (
             <PRTracker workouts={workouts} />
           )
+        )}
+
+        {activeTab === "insights" && (
+          <div className="space-y-5">
+            <InjuryRiskWarning workouts={workouts} />
+            <AITrainingSuggestions workouts={workouts} />
+            <GoalTracker workouts={workouts} userEmail={user?.email} />
+          </div>
         )}
 
         {activeTab === "team" && (

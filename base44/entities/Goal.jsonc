@@ -1,0 +1,44 @@
+{
+  "name": "Goal",
+  "type": "object",
+  "properties": {
+    "athlete_email": {
+      "type": "string",
+      "description": "Email of the athlete who set this goal"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "weekly_miles",
+        "total_miles",
+        "pace",
+        "race_distance"
+      ],
+      "description": "Type of goal"
+    },
+    "target": {
+      "type": "number",
+      "description": "Target value (miles, pace in min/mi, etc.)"
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable goal label"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date",
+      "description": "Target date to achieve the goal"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the goal has been achieved"
+    }
+  },
+  "required": [
+    "athlete_email",
+    "type",
+    "target",
+    "label"
+  ]
+}
