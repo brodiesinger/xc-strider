@@ -152,7 +152,10 @@ export default function AthleteDashboard() {
               <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
             </div>
           ) : (
-            <PRTracker workouts={workouts} />
+            <div className="space-y-6">
+              <PRTracker workouts={workouts} />
+              <GoalTracker workouts={workouts} userEmail={user?.email} />
+            </div>
           )
         )}
 
@@ -185,8 +188,6 @@ export default function AthleteDashboard() {
               {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user?.email} />}
               {insightTab === "chat" && <AIInjuryChat workouts={workouts} />}
               {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
-
-              <GoalTracker workouts={workouts} userEmail={user?.email} />
             </div>
           )
         )}
