@@ -37,11 +37,11 @@ function computeProgress(goal, workouts) {
   }
 }
 
-function formatPaceDisplay(minPerMi) {
-  if (!minPerMi) return "—";
-  const m = Math.floor(minPerMi);
-  const s = Math.round((minPerMi - m) * 60);
-  return `${m}:${s.toString().padStart(2, "0")} /mi`;
+function formatTimeDisplay(minutes) {
+  if (!minutes) return "—";
+  const m = Math.floor(minutes);
+  const s = Math.round((minutes - m) * 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
 export default function GoalTracker({ workouts, userEmail }) {
@@ -78,8 +78,7 @@ export default function GoalTracker({ workouts, userEmail }) {
       athlete_email: userEmail,
       type: form.type,
       target: targetValue,
-      label: form.label || `${typeConfig.label}: ${form.target} ${typeConfig.unit}`,
-      deadline: form.deadline || undefined,
+      label: typeConfig.label,
       completed: false,
     });
     setGoals((prev) => [newGoal, ...prev]);
@@ -168,13 +167,11 @@ export default function GoalTracker({ workouts, userEmail }) {
                   </div>
                   <span className="text-xs text-muted-foreground shrink-0">
                     {(g.type === "5k_goal" || g.type === "2mile_goal" || g.type === "1mile_goal")
-                      ? `${g.progress.current ?? 0} / ${g.target} min`
+                      ? `${formatTimeDisplay(g.progress.current)} / ${formatTimeDisplay(g.target)}`
                       : `${g.progress.current ?? 0} / ${g.target}`}
                   </span>
                 </div>
-                {g.deadline && (
-                  <p className="text-xs text-muted-foreground">Target: {format(parseISO(g.deadline), "MMM d, yyyy")}</p>
-                )}
+
               </div>
             );
           })}
