@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,9 +13,14 @@ const empty = () => ({
   date: format(new Date(), "yyyy-MM-dd"),
 });
 
-export default function WorkoutForm({ onSaved }) {
+export default function WorkoutForm({ onSaved, teamId }) {
   const [form, setForm] = useState(empty());
   const [saving, setSaving] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then(setUser);
+  }, []);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -27,6 +32,9 @@ export default function WorkoutForm({ onSaved }) {
       time_minutes: parseFloat(form.time_minutes),
       notes: form.notes,
       date: form.date,
+      team_id: teamId || null,
+      athlete_email: user?.email || null,
+      athlete_name: user?.full_name || null,
     });
     setSaving(false);
     setForm(empty());

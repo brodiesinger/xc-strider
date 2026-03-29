@@ -95,7 +95,7 @@ export default function AthleteDashboard() {
           className="rounded-2xl border border-border bg-card p-6"
         >
           <h2 className="font-semibold text-foreground mb-5">Log a Workout</h2>
-          <WorkoutForm onSaved={fetchWorkouts} />
+          <WorkoutForm onSaved={fetchWorkouts} teamId={team?.id} />
         </motion.section>
 
         <motion.section

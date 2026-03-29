@@ -11,7 +11,7 @@ export default function AthleteWorkouts({ athlete }) {
     const loadWorkouts = async () => {
       setLoading(true);
       const data = await base44.entities.Workout.filter(
-        { created_by: athlete.email },
+        { athlete_email: athlete.email },
         "-date",
         100
       );

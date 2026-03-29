@@ -7,6 +7,21 @@ import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
 import CreateTeam from "@/components/coach/CreateTeam";
 import TeamHeader from "@/components/coach/TeamHeader";
 
+// Build a deduplicated athlete list from workouts since coaches can't list all users
+function buildAthleteRoster(workouts) {
+  const map = new Map();
+  for (const w of workouts) {
+    if (w.athlete_email && !map.has(w.athlete_email)) {
+      map.set(w.athlete_email, {
+        id: w.athlete_email,
+        email: w.athlete_email,
+        full_name: w.athlete_name || null,
+      });
+    }
+  }
+  return Array.from(map.values());
+}
+
 export default function CoachDashboard() {
   const [user, setUser] = useState(null);
   const [team, setTeam] = useState(null);
@@ -15,13 +30,13 @@ export default function CoachDashboard() {
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
 
-  const loadTeamAndAthletes = async (me) => {
+  const loadTeamAndRoster = async (me) => {
     if (!me.team_id) return;
     const teams = await base44.entities.Team.filter({ id: me.team_id });
     if (teams.length > 0) {
       setTeam(teams[0]);
-      const users = await base44.entities.User.filter({ team_id: me.team_id });
-      setAthletes(users.filter((u) => u.role === "athlete"));
+      const workouts = await base44.entities.Workout.filter({ team_id: me.team_id }, "-date", 500);
+      setAthletes(buildAthleteRoster(workouts));
     }
   };
 
@@ -34,14 +49,15 @@ export default function CoachDashboard() {
         setLoading(false);
         return;
       }
-      await loadTeamAndAthletes(me);
+      await loadTeamAndRoster(me);
       setLoading(false);
     };
     init();
   }, []);
 
-  const handleTeamCreated = (newTeam) => {
+  const handleTeamCreated = async (newTeam) => {
     setTeam(newTeam);
+    setAthletes([]); // fresh team, no athletes yet
   };
 
   if (loading) {

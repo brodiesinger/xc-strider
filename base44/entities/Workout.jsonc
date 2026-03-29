@@ -18,6 +18,18 @@
       "type": "string",
       "format": "date",
       "description": "Date of the workout"
+    },
+    "team_id": {
+      "type": "string",
+      "description": "Team this workout belongs to"
+    },
+    "athlete_email": {
+      "type": "string",
+      "description": "Email of the athlete who logged this workout"
+    },
+    "athlete_name": {
+      "type": "string",
+      "description": "Display name of the athlete"
     }
   },
   "required": [
