@@ -15,15 +15,18 @@ export default function CreateTeam({ user, onTeamCreated }) {
   const handleCreate = async (e) => {
     e.preventDefault();
     setSaving(true);
-    const join_code = generateCode();
-    const team = await base44.entities.Team.create({
-      name,
-      join_code,
-      coach_email: user.email,
-    });
-    await base44.auth.updateMe({ team_id: team.id });
-    setSaving(false);
-    onTeamCreated(team);
+    try {
+      const join_code = generateCode();
+      const team = await base44.entities.Team.create({
+        name,
+        join_code,
+        coach_email: user.email,
+      });
+      await base44.auth.updateMe({ team_id: team.id });
+      onTeamCreated(team);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

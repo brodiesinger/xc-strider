@@ -14,15 +14,18 @@ export default function JoinTeam({ onTeamJoined }) {
     e.preventDefault();
     setSaving(true);
     setError("");
-    const teams = await base44.entities.Team.filter({ join_code: code.trim().toUpperCase() });
-    if (teams.length === 0) {
-      setError("Invalid join code. Please check with your coach.");
+    try {
+      const teams = await base44.entities.Team.filter({ join_code: code.trim().toUpperCase() });
+      if (teams.length === 0) {
+        setError("Invalid join code. Please check with your coach.");
+        return;
+      }
+      const team = teams[0];
+      await base44.auth.updateMe({ team_id: team.id });
+      onTeamJoined(team);
+    } finally {
       setSaving(false);
-      return;
     }
-    const team = teams[0];
-    await base44.auth.updateMe({ team_id: team.id });
-    onTeamJoined(team);
   };
 
   return (

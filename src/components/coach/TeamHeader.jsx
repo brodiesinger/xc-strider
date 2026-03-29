@@ -4,8 +4,18 @@ import { Copy, Check } from "lucide-react";
 export default function TeamHeader({ team }) {
   const [copied, setCopied] = useState(false);
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(team.join_code);
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(team.join_code);
+    } catch {
+      // Fallback for non-HTTPS or clipboard permission denied
+      const el = document.createElement("textarea");
+      el.value = team.join_code;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

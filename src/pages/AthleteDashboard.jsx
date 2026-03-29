@@ -15,6 +15,7 @@ export default function AthleteDashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [loadingWorkouts, setLoadingWorkouts] = useState(true);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchWorkouts = async (me) => {
     if (!me?.email) return;
@@ -39,13 +40,19 @@ export default function AthleteDashboard() {
 
   useEffect(() => {
     const init = async () => {
-      const me = await base44.auth.me();
-      setUser(me);
-      const loadedTeam = await loadTeam(me);
-      setLoadingUser(false);
-      if (loadedTeam) {
-        await Promise.all([fetchWorkouts(me), fetchAnnouncements(loadedTeam.id)]);
-      } else {
+      try {
+        const me = await base44.auth.me();
+        setUser(me);
+        const loadedTeam = await loadTeam(me);
+        setLoadingUser(false);
+        if (loadedTeam) {
+          await Promise.all([fetchWorkouts(me), fetchAnnouncements(loadedTeam.id)]);
+        } else {
+          setLoadingWorkouts(false);
+        }
+      } catch (e) {
+        setError("Failed to load your dashboard. Please refresh.");
+        setLoadingUser(false);
         setLoadingWorkouts(false);
       }
     };
@@ -58,6 +65,14 @@ export default function AthleteDashboard() {
     setUser(me);
     await Promise.all([fetchWorkouts(me), fetchAnnouncements(joinedTeam.id)]);
   };
+
+  if (error) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center text-center px-6">
+        <p className="text-destructive text-sm">{error}</p>
+      </div>
+    );
+  }
 
   if (loadingUser) {
     return (

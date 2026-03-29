@@ -27,18 +27,21 @@ export default function WorkoutForm({ onSaved, teamId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    await base44.entities.Workout.create({
-      distance: parseFloat(form.distance),
-      time_minutes: parseFloat(form.time_minutes),
-      notes: form.notes,
-      date: form.date,
-      team_id: teamId || null,
-      athlete_email: user?.email || null,
-      athlete_name: user?.full_name || null,
-    });
-    setSaving(false);
-    setForm(empty());
-    onSaved();
+    try {
+      await base44.entities.Workout.create({
+        distance: parseFloat(form.distance),
+        time_minutes: parseFloat(form.time_minutes),
+        notes: form.notes,
+        date: form.date,
+        team_id: teamId || null,
+        athlete_email: user?.email || null,
+        athlete_name: user?.full_name || null,
+      });
+      setForm(empty());
+      onSaved();
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

@@ -39,7 +39,7 @@ export default function CoachDashboard() {
   };
 
   const loadTeamAndRoster = async (me) => {
-    if (!me.team_id) return false;
+    if (!me.team_id) return;
     const teams = await base44.entities.Team.list();
     const found = teams.find((t) => t.id === me.team_id);
     if (found) {

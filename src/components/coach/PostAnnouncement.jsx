@@ -11,14 +11,17 @@ export default function PostAnnouncement({ teamId, coachName, onPosted }) {
     e.preventDefault();
     if (!message.trim()) return;
     setSaving(true);
-    await base44.entities.Announcement.create({
-      message: message.trim(),
-      team_id: teamId,
-      coach_name: coachName,
-    });
-    setMessage("");
-    setSaving(false);
-    onPosted();
+    try {
+      await base44.entities.Announcement.create({
+        message: message.trim(),
+        team_id: teamId,
+        coach_name: coachName,
+      });
+      setMessage("");
+      onPosted();
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
