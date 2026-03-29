@@ -74,6 +74,11 @@ export default function CoachDashboard() {
     const init = async () => {
       try {
         const me = await base44.auth.me();
+        if (!me) {
+          setAccessDenied(true);
+          setLoading(false);
+          return;
+        }
         setUser(me);
         if (me.role !== "coach") {
           setAccessDenied(true);
@@ -81,6 +86,9 @@ export default function CoachDashboard() {
           return;
         }
         await loadTeamAndRoster(me);
+      } catch (err) {
+        console.error("Auth error:", err);
+        setAccessDenied(true);
       } finally {
         setLoading(false);
       }
@@ -138,7 +146,7 @@ export default function CoachDashboard() {
               </p>
             </div>
 
-            {!team ? (
+            {!team && user ? (
               <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
             ) : (
               <>
