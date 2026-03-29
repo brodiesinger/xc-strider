@@ -4,6 +4,7 @@ import { TreePine, LogOut, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import RoleSetup from "@/components/auth/RoleSetup";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -12,10 +13,29 @@ export default function Dashboard() {
     base44.auth.me().then(setUser);
   }, []);
 
+  const handleRoleComplete = async () => {
+    const me = await base44.auth.me();
+    setUser(me);
+  };
+
   const handleLogout = () => base44.auth.logout("/");
 
-  const dashboardPath = user?.role === "coach" ? "/coach" : "/athlete";
-  const dashboardLabel = user?.role === "coach" ? "Coach Dashboard" : "Athlete Dashboard";
+  // Show spinner while loading
+  if (!user) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // New users with no role — prompt role selection
+  if (!user.role) {
+    return <RoleSetup onComplete={handleRoleComplete} />;
+  }
+
+  const dashboardPath = user.role === "coach" ? "/coach" : "/athlete";
+  const dashboardLabel = user.role === "coach" ? "Coach Dashboard" : "Athlete Dashboard";
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,27 +58,18 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {user ? (
-            <>
-              <h1 className="text-3xl font-bold text-foreground mb-2">
-                Welcome, {user.full_name || user.email}
-              </h1>
-              <p className="text-sm text-muted-foreground capitalize mb-10">
-                Role: {user.role || "athlete"}
-              </p>
-
-              <Link to={dashboardPath}>
-                <Button className="gap-2">
-                  Go to {dashboardLabel}
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            </>
-          ) : (
-            <div className="flex justify-center py-20">
-              <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
-            </div>
-          )}
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Welcome, {user.full_name || user.email}
+          </h1>
+          <p className="text-sm text-muted-foreground capitalize mb-10">
+            Role: {user.role}
+          </p>
+          <Link to={dashboardPath}>
+            <Button className="gap-2">
+              Go to {dashboardLabel}
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </Link>
         </motion.div>
       </main>
     </div>

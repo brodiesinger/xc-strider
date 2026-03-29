@@ -16,9 +16,11 @@ export default function AthleteDashboard() {
   const [loadingWorkouts, setLoadingWorkouts] = useState(true);
   const [loadingUser, setLoadingUser] = useState(true);
 
-  const fetchWorkouts = async () => {
+  const fetchWorkouts = async (me) => {
     setLoadingWorkouts(true);
-    const data = await base44.entities.Workout.list("-date", 50);
+    const data = me
+      ? await base44.entities.Workout.filter({ athlete_email: me.email }, "-date", 50)
+      : await base44.entities.Workout.list("-date", 50);
     setWorkouts(data);
     setLoadingWorkouts(false);
   };
@@ -45,7 +47,7 @@ export default function AthleteDashboard() {
       const loadedTeam = await loadTeam(me);
       setLoadingUser(false);
       if (loadedTeam) {
-        await Promise.all([fetchWorkouts(), fetchAnnouncements(loadedTeam.id)]);
+        await Promise.all([fetchWorkouts(me), fetchAnnouncements(loadedTeam.id)]);
       } else {
         setLoadingWorkouts(false);
       }
@@ -57,7 +59,7 @@ export default function AthleteDashboard() {
     setTeam(joinedTeam);
     const me = await base44.auth.me();
     setUser(me);
-    await Promise.all([fetchWorkouts(), fetchAnnouncements(joinedTeam.id)]);
+    await Promise.all([fetchWorkouts(me), fetchAnnouncements(joinedTeam.id)]);
   };
 
   if (loadingUser) {

@@ -22,6 +22,7 @@ export default function CreateTeam({ user, onTeamCreated }) {
       coach_email: user.email,
     });
     await base44.auth.updateMe({ team_id: team.id });
+    setSaving(false);
     onTeamCreated(team);
   };
 

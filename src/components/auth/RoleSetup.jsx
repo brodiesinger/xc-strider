@@ -27,6 +27,7 @@ export default function RoleSetup({ onComplete }) {
     if (!selected) return;
     setSaving(true);
     await base44.auth.updateMe({ role: selected });
+    setSaving(false);
     onComplete();
   };
 
