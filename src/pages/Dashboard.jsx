@@ -24,16 +24,21 @@ export default function Dashboard() {
 
   useEffect(() => {
     const init = async () => {
-      const me = await base44.auth.me();
-      setUser(me);
-      setLoading(false);
+      try {
+        const me = await base44.auth.me();
+        setUser(me);
 
-      if (me.role && me.role !== "") {
-        if (me.role === "coach") {
-          navigate("/coach");
-        } else if (me.role === "athlete") {
-          navigate("/athlete");
+        if (me.role && me.role !== "") {
+          if (me.role === "coach") {
+            navigate("/coach");
+          } else if (me.role === "athlete") {
+            navigate("/athlete");
+          }
         }
+      } catch (err) {
+        console.error("Auth error:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -49,7 +54,7 @@ export default function Dashboard() {
     }
     setSubmitting(true);
     try {
-      const teams = await base44.entities.Team.list();
+      const teams = await base44.entities.Team.list().catch(() => []);
       const team = teams.find((t) => t.join_code === athleteCode.toUpperCase());
       if (!team) {
         setError("Invalid join code");
@@ -58,7 +63,7 @@ export default function Dashboard() {
       }
       await base44.auth.updateMe({ role: "athlete", team_id: team.id });
       navigate("/athlete");
-    } catch {
+    } catch (err) {
       setError("Failed to join team");
       setSubmitting(false);
     }
@@ -78,7 +83,8 @@ export default function Dashboard() {
       await base44.auth.updateMe({ role: "coach", team_id: newTeam.id });
       setCoachCode(code);
       setCoachCreated(true);
-    } catch {
+    } catch (err) {
+      console.error("Team creation error:", err);
       setError("Failed to create team");
       setSubmitting(false);
     }
