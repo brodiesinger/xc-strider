@@ -156,6 +156,26 @@ export default function Dashboard() {
                 onClick={async () => {
                   setMode("coach");
                   await base44.auth.updateMe({ role: "coach" });
+                  // Auto-create a default team
+                  setTimeout(async () => {
+                    try {
+                      const code = generateCode();
+                      const me = await base44.auth.me();
+                      const newTeam = await base44.entities.Team.create({
+                        name: `${me.full_name || me.email.split('@')[0]}'s Team`,
+                        join_code: code,
+                        coach_email: me.email,
+                      });
+                      if (newTeam && newTeam.id) {
+                        await base44.auth.updateMe({ team_id: newTeam.id });
+                        setCoachCode(code);
+                        setCoachCreated(true);
+                      }
+                    } catch (err) {
+                      console.error("Auto-team creation error:", err);
+                      setMode("coach");
+                    }
+                  }, 100);
                 }}
                 className="w-full rounded-xl border-2 border-border p-6 text-left hover:border-primary/50 hover:bg-primary/5 transition-all"
               >
