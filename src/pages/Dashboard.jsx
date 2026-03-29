@@ -151,7 +151,7 @@ export default function Dashboard() {
                 <p className="text-sm text-muted-foreground mt-1">Create a team and manage athletes</p>
               </button>
             </div>
-          ) : mode === "athlete" && !coachCreated ? (
+          ) : mode === "athlete" ? (
             <div className="space-y-6">
               <button
                 onClick={() => setMode(null)}
@@ -182,7 +182,7 @@ export default function Dashboard() {
                 </Button>
               </form>
             </div>
-          ) : mode === "coach" && !coachCreated ? (
+          ) : mode === "coach" ? (
             <div className="space-y-6">
               <button
                 onClick={() => setMode(null)}
