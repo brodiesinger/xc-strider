@@ -68,6 +68,9 @@ export default function Home() {
               Sign in
             </Button>
           </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Athletes and coaches use the same sign-in — you'll be directed to the right dashboard automatically.
+          </p>
         </motion.div>
       </section>
 
