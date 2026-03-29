@@ -8,8 +8,9 @@ import { startOfWeek, format, parseISO } from "date-fns";
 
 const GOAL_TYPES = [
   { value: "weekly_miles", label: "Weekly Miles", unit: "mi/week" },
-  { value: "total_miles", label: "Total Miles", unit: "mi" },
-  { value: "pace", label: "Target Pace", unit: "min/mi" },
+  { value: "5k_goal", label: "5K Goal", unit: "minutes" },
+  { value: "2mile_goal", label: "2 Mile Goal", unit: "minutes" },
+  { value: "1mile_goal", label: "1 Mile Goal", unit: "minutes" },
 ];
 
 function computeProgress(goal, workouts) {
@@ -19,17 +20,14 @@ function computeProgress(goal, workouts) {
       const val = workouts.filter((w) => w.date && w.date >= weekStart).reduce((s, w) => s + (w.distance || 0), 0);
       return { current: parseFloat(val.toFixed(1)), pct: Math.min(100, (val / goal.target) * 100) };
     }
-    case "total_miles": {
-      const val = workouts.reduce((s, w) => s + (w.distance || 0), 0);
-      return { current: parseFloat(val.toFixed(1)), pct: Math.min(100, (val / goal.target) * 100) };
-    }
-    case "pace": {
+    case "5k_goal":
+    case "2mile_goal":
+    case "1mile_goal": {
+      const distanceMap = { "5k_goal": 5, "2mile_goal": 2, "1mile_goal": 1 };
+      const distance = distanceMap[goal.type];
       const best = workouts
-        .filter((w) => w.distance > 0 && w.time_minutes > 0)
-        .reduce((b, w) => {
-          const p = w.time_minutes / w.distance;
-          return !b || p < b ? p : b;
-        }, null);
+        .filter((w) => w.distance === distance && w.time_minutes > 0)
+        .reduce((b, w) => !b || w.time_minutes < b ? w.time_minutes : b, null);
       if (!best) return { current: null, pct: 0 };
       const pct = Math.min(100, (goal.target / best) * 100);
       return { current: parseFloat(best.toFixed(2)), pct };
