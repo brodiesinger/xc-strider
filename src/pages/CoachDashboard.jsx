@@ -20,28 +20,17 @@ const TABS = [
   { id: "team", label: "Team Dashboard" },
 ];
 
-function buildAthleteRoster(users, workouts) {
+function buildAthleteRoster(workouts) {
   const map = new Map();
-  
-  // Add all athletes from User entity
-  for (const u of users) {
-    if (u.email && !map.has(u.email)) {
-      map.set(u.email, {
-        id: u.email,
-        email: u.email,
-        full_name: u.full_name || null,
+  for (const w of workouts) {
+    if (w.athlete_email && !map.has(w.athlete_email)) {
+      map.set(w.athlete_email, {
+        id: w.athlete_email,
+        email: w.athlete_email,
+        full_name: w.athlete_name || null,
       });
     }
   }
-  
-  // Fill in names from workouts if not already set
-  for (const w of workouts) {
-    if (w.athlete_email && map.has(w.athlete_email) && !map.get(w.athlete_email).full_name && w.athlete_name) {
-      const athlete = map.get(w.athlete_email);
-      athlete.full_name = w.athlete_name;
-    }
-  }
-  
   return Array.from(map.values());
 }
 
@@ -77,7 +66,7 @@ export default function CoachDashboard() {
         fetchAnnouncements(me.team_id),
         fetchSchedule(me.team_id),
       ]);
-      setAthletes(buildAthleteRoster([], workouts));
+      setAthletes(buildAthleteRoster(workouts));
     }
   };
 
