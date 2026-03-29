@@ -87,8 +87,9 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
           <Button size="sm" variant="outline" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}>
             <ChevronLeft className="w-3.5 h-3.5" />
           </Button>
-          <span className="text-sm font-medium text-muted-foreground min-w-48 text-center">
-            {format(currentWeekStart, "MMM d")} – {format(addDays(currentWeekStart, 6), "MMM d, yyyy")}
+          <span className="text-xs sm:text-sm font-medium text-muted-foreground text-center">
+            <span className="hidden sm:inline">{format(currentWeekStart, "MMM d")} – {format(addDays(currentWeekStart, 6), "MMM d, yyyy")}</span>
+            <span className="sm:hidden">{format(currentWeekStart, "M/d")}–{format(addDays(currentWeekStart, 6), "M/d")}</span>
           </span>
           <Button size="sm" variant="outline" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -97,7 +98,7 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
         {DAYS.map((day, i) => {
           const date = weekDates[i];
           const dateStr = format(date, "yyyy-MM-dd");
@@ -145,20 +146,20 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
               </button>
             </div>
 
-            <form onSubmit={handleSave} className="space-y-3">
-              <div className="space-y-1">
+            <form onSubmit={handleSave} className="space-y-3.5">
+              <div className="space-y-1.5">
                 <Label>Practice Title</Label>
                 <Input placeholder="e.g. Tempo Run" value={form.title} onChange={(e) => set("title", e.target.value)} required />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label>Time</Label>
                 <Input placeholder="e.g. 3:30 PM" value={form.time} onChange={(e) => set("time", e.target.value)} />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label>Location</Label>
                 <Input placeholder="e.g. Track" value={form.location} onChange={(e) => set("location", e.target.value)} />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label>Notes</Label>
                 <Textarea placeholder="Workout details..." value={form.notes} onChange={(e) => set("notes", e.target.value)} rows={2} />
               </div>
