@@ -1,0 +1,34 @@
+{
+  "name": "DailyCheckin",
+  "type": "object",
+  "properties": {
+    "athlete_email": {
+      "type": "string",
+      "description": "Email of the athlete"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the check-in"
+    },
+    "soreness": {
+      "type": "number",
+      "description": "Soreness level 1-10"
+    },
+    "pain": {
+      "type": "number",
+      "description": "Pain level 1-10"
+    },
+    "energy": {
+      "type": "number",
+      "description": "Energy level 1-10"
+    }
+  },
+  "required": [
+    "athlete_email",
+    "date",
+    "soreness",
+    "pain",
+    "energy"
+  ]
+}

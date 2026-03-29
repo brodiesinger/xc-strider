@@ -8,9 +8,11 @@ import WeeklyMileage from "@/components/athlete/WeeklyMileage";
 import PRTracker from "@/components/athlete/PRTracker";
 import TeamDashboardView from "@/components/shared/TeamDashboardView";
 
-import InjuryRiskWarning from "@/components/athlete/InjuryRiskWarning";
 import GoalTracker from "@/components/athlete/GoalTracker";
 import NotificationBell from "@/components/shared/NotificationBell";
+import InjuryRiskTab from "@/components/athlete/insights/InjuryRiskTab";
+import AIInjuryChat from "@/components/athlete/insights/AIInjuryChat";
+import SmartRecoveryTab from "@/components/athlete/insights/SmartRecoveryTab";
 
 const TABS = [
   { id: "mileage", label: "Weekly Mileage" },
@@ -29,6 +31,7 @@ export default function AthleteDashboard() {
   const [loadingWorkouts, setLoadingWorkouts] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("mileage");
+  const [insightTab, setInsightTab] = useState("risk");
 
   const fetchWorkouts = async (me) => {
     if (!me?.email) return;
@@ -159,8 +162,29 @@ export default function AthleteDashboard() {
               <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="space-y-5">
-              <InjuryRiskWarning workouts={workouts} />
+            <div className="space-y-4">
+              {/* Insight sub-tabs */}
+              <div className="flex gap-1 bg-muted rounded-xl p-1">
+                {[
+                  { id: "risk", label: "🛡️ Injury Risk" },
+                  { id: "chat", label: "💬 AI Assistant" },
+                  { id: "recovery", label: "⚡ Recovery" },
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setInsightTab(t.id)}
+                    className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors ${
+                      insightTab === t.id ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user?.email} />}
+              {insightTab === "chat" && <AIInjuryChat workouts={workouts} />}
+              {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
 
               <GoalTracker workouts={workouts} userEmail={user?.email} />
             </div>
