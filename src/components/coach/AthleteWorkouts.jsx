@@ -8,7 +8,7 @@ export default function AthleteWorkouts({ athlete }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const loadWorkouts = async () => {
       setLoading(true);
       const data = await base44.entities.Workout.filter(
         { created_by: athlete.email },
@@ -18,8 +18,8 @@ export default function AthleteWorkouts({ athlete }) {
       setWorkouts(data);
       setLoading(false);
     };
-    fetch();
-  }, [athlete.id]);
+    loadWorkouts();
+  }, [athlete.email]);
 
   return (
     <div>
