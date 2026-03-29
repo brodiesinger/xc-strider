@@ -113,7 +113,7 @@ export default function CoachDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavBar />
+      <NavBar title={team ? team.name : "XC Team App"} subtitle={team ? `Code: ${team.join_code}` : null} />
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         {selectedAthlete ? (
           <>
@@ -139,7 +139,6 @@ export default function CoachDashboard() {
               <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
             ) : (
               <>
-                <TeamHeader team={team} />
                 <TabNav tabs={TABS} active={activeTab} onChange={setActiveTab} />
 
                 {activeTab === "roster" && (

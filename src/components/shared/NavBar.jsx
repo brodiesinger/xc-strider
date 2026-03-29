@@ -3,13 +3,16 @@ import { TreePine, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 
-export default function NavBar({ title }) {
+export default function NavBar({ title, subtitle }) {
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur-sm">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-primary font-bold text-base">
-          <TreePine className="w-4 h-4" />
-          <span>{title || "XC Team App"}</span>
+        <div className="flex items-center gap-2">
+          <TreePine className="w-4 h-4 text-primary" />
+          <div>
+            <p className="text-primary font-bold text-sm">{title || "XC Team App"}</p>
+            {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+          </div>
         </div>
         <Button
           variant="ghost"
