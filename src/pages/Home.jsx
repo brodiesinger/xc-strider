@@ -44,11 +44,16 @@ export default function Home() {
     }
   };
 
-  const handleTeamSubmit = (e) => {
+  const handleTeamSubmit = async (e) => {
     e.preventDefault();
     if (!teamName.trim()) return;
     sessionStorage.setItem("selectedRole", "coach");
     sessionStorage.setItem("teamName", teamName);
+    try {
+      await base44.auth.updateMe({ role: "coach" });
+    } catch (err) {
+      // User not authenticated yet, will set role after login
+    }
     base44.auth.redirectToLogin("/coach");
   };
 
