@@ -1,6 +1,5 @@
 import React from "react";
 import { format, parseISO } from "date-fns";
-import { Megaphone } from "lucide-react";
 
 export default function AnnouncementFeed({ announcements }) {
   if (announcements.length === 0) {

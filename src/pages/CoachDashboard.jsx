@@ -38,7 +38,7 @@ export default function CoachDashboard() {
   };
 
   const loadTeamAndRoster = async (me) => {
-    if (!me.team_id) return;
+    if (!me.team_id) return false;
     const teams = await base44.entities.Team.filter({ id: me.team_id });
     if (teams.length > 0) {
       setTeam(teams[0]);
@@ -59,8 +59,11 @@ export default function CoachDashboard() {
         setLoading(false);
         return;
       }
-      await loadTeamAndRoster(me);
-      setLoading(false);
+      try {
+        await loadTeamAndRoster(me);
+      } finally {
+        setLoading(false);
+      }
     };
     init();
   }, []);

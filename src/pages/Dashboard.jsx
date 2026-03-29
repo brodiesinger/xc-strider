@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { TreePine, LogOut, User, Shield } from "lucide-react";
+import { TreePine, LogOut, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -13,9 +14,11 @@ export default function Dashboard() {
 
   const handleLogout = () => base44.auth.logout("/");
 
+  const dashboardPath = user?.role === "coach" ? "/coach" : "/athlete";
+  const dashboardLabel = user?.role === "coach" ? "Coach Dashboard" : "Athlete Dashboard";
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav */}
       <header className="border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-primary font-bold text-lg">
@@ -29,7 +32,6 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Content */}
       <main className="max-w-5xl mx-auto px-6 py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -38,33 +40,19 @@ export default function Dashboard() {
         >
           {user ? (
             <>
-              <div className="flex items-center gap-4 mb-10">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <User className="w-7 h-7 text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground">
-                    Welcome, {user.full_name || user.email}
-                  </h1>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <Shield className="w-3.5 h-3.5 text-accent" />
-                    <span className="text-sm text-muted-foreground capitalize">
-                      {user.role || "athlete"}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <h1 className="text-3xl font-bold text-foreground mb-2">
+                Welcome, {user.full_name || user.email}
+              </h1>
+              <p className="text-sm text-muted-foreground capitalize mb-10">
+                Role: {user.role || "athlete"}
+              </p>
 
-              <div className="grid md:grid-cols-2 gap-5">
-                <div className="rounded-2xl border border-border bg-card p-6">
-                  <h2 className="font-semibold text-card-foreground mb-1">Account</h2>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                </div>
-                <div className="rounded-2xl border border-border bg-card p-6">
-                  <h2 className="font-semibold text-card-foreground mb-1">Role</h2>
-                  <p className="text-sm text-muted-foreground capitalize">{user.role || "athlete"}</p>
-                </div>
-              </div>
+              <Link to={dashboardPath}>
+                <Button className="gap-2">
+                  Go to {dashboardLabel}
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </Link>
             </>
           ) : (
             <div className="flex justify-center py-20">
