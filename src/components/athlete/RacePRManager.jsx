@@ -4,7 +4,7 @@ import { Trophy, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const DISTANCES = ["5K", "10K", "Half Marathon", "Marathon"];
+const DISTANCES = ["5K", "2 Mile", "1 Mile"];
 
 function formatTime(minutes) {
   if (!minutes) return "—";

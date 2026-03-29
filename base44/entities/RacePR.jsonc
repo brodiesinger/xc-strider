@@ -10,9 +10,8 @@
       "type": "string",
       "enum": [
         "5K",
-        "10K",
-        "Half Marathon",
-        "Marathon"
+        "2 Mile",
+        "1 Mile"
       ],
       "description": "Race distance"
     },
