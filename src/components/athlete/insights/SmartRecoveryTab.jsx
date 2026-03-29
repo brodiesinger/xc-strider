@@ -104,8 +104,7 @@ Recent workouts (last 7): ${recent || "none"}
 This week mileage: ${thisWeek.toFixed(1)} mi, Last week: ${lastWeek.toFixed(1)} mi
 Today's check-in: ${checkin ? `Soreness ${checkin.soreness}/10, Pain ${checkin.pain}/10, Energy ${checkin.energy}/10` : "Not completed"}
 
-Give 3-4 specific, practical recovery recommendations for tomorrow. Be concise and direct. Output as a JSON array like:
-[{"text": "recommendation here"}, ...]`;
+Give 3-4 specific, practical recovery recommendations for tomorrow. Be concise and direct.`;
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,

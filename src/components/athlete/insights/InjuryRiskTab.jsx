@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { ShieldCheck, ShieldAlert, AlertTriangle } from "lucide-react";
-import { startOfWeek, subWeeks, parseISO, format, isToday } from "date-fns";
+import { startOfWeek, subWeeks, parseISO, format } from "date-fns";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 
@@ -55,7 +55,8 @@ function calcRisk(workouts, checkin) {
   }
 
   // Long run spike
-  const avg = workouts.slice(0, 20).reduce((s, w) => s + (w.distance || 0), 0) / Math.min(workouts.length, 20);
+  const sampleSize = Math.min(workouts.length, 20);
+  const avg = sampleSize > 0 ? workouts.slice(0, 20).reduce((s, w) => s + (w.distance || 0), 0) / sampleSize : 0;
   const spike = recent7.find((w) => w.distance > avg * 1.8);
   if (spike) {
     warnings.push(`A recent ${spike.distance} mi run is well above your average (${avg.toFixed(1)} mi). Allow extra recovery.`);
