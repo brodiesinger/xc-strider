@@ -135,18 +135,7 @@ export default function GoalTracker({ workouts, userEmail }) {
               <Input type="text" placeholder="e.g. 24:30" value={form.target} onChange={(e) => set("target", e.target.value)} required />
             )}
           </div>
-          {form.type === "weekly_miles" && (
-            <>
-              <div className="space-y-1">
-                <Label>Label (optional)</Label>
-                <Input placeholder="e.g. Run 30 miles/week" value={form.label} onChange={(e) => set("label", e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>Deadline (optional)</Label>
-                <Input type="date" value={form.deadline} onChange={(e) => set("deadline", e.target.value)} />
-              </div>
-            </>
-          )}
+
           <Button type="submit" size="sm" disabled={saving} className="w-full">
             {saving ? "Saving..." : "Add Goal"}
           </Button>
