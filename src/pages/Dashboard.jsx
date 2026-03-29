@@ -142,7 +142,10 @@ export default function Dashboard() {
               </div>
 
               <button
-                onClick={() => setMode("athlete")}
+                onClick={async () => {
+                  setMode("athlete");
+                  await base44.auth.updateMe({ role: "athlete" });
+                }}
                 className="w-full rounded-xl border-2 border-border p-6 text-left hover:border-primary/50 hover:bg-primary/5 transition-all"
               >
                 <h3 className="font-semibold text-foreground text-lg">Athlete Sign Up</h3>
@@ -150,7 +153,10 @@ export default function Dashboard() {
               </button>
 
               <button
-                onClick={() => setMode("coach")}
+                onClick={async () => {
+                  setMode("coach");
+                  await base44.auth.updateMe({ role: "coach" });
+                }}
                 className="w-full rounded-xl border-2 border-border p-6 text-left hover:border-primary/50 hover:bg-primary/5 transition-all"
               >
                 <h3 className="font-semibold text-foreground text-lg">Coach Sign Up</h3>
