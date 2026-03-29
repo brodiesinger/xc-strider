@@ -7,11 +7,13 @@ import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
 import CreateTeam from "@/components/coach/CreateTeam";
 import TeamHeader from "@/components/coach/TeamHeader";
 import CoachTeamDashboard from "@/components/coach/CoachTeamDashboard";
+import CoachInsightsTab from "@/components/coach/CoachInsightsTab";
 import NavBar from "@/components/shared/NavBar";
 import TabNav from "@/components/shared/TabNav";
 
 const TABS = [
   { id: "roster", label: "Roster" },
+  { id: "insights", label: "Insights" },
   { id: "team", label: "Team Dashboard" },
 ];
 
@@ -142,6 +144,10 @@ export default function CoachDashboard() {
 
                 {activeTab === "roster" && (
                   <AthleteList athletes={athletes} onSelect={setSelectedAthlete} />
+                )}
+
+                {activeTab === "insights" && (
+                  <CoachInsightsTab athletes={athletes} teamId={team.id} />
                 )}
 
                 {activeTab === "team" && (
