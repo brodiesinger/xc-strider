@@ -20,14 +20,21 @@ export default function AthleteDashboard() {
   const fetchWorkouts = async (me) => {
     if (!me?.email) return;
     setLoadingWorkouts(true);
-    const data = await base44.entities.Workout.filter({ athlete_email: me.email }, "-date", 50);
-    setWorkouts(data);
-    setLoadingWorkouts(false);
+    try {
+      const data = await base44.entities.Workout.filter({ athlete_email: me.email }, "-date", 50);
+      setWorkouts(data);
+    } finally {
+      setLoadingWorkouts(false);
+    }
   };
 
   const fetchAnnouncements = async (teamId) => {
-    const data = await base44.entities.Announcement.filter({ team_id: teamId }, "-created_date", 20);
-    setAnnouncements(data);
+    try {
+      const data = await base44.entities.Announcement.filter({ team_id: teamId }, "-created_date", 20);
+      setAnnouncements(data);
+    } catch {
+      // non-critical — announcements silently fail
+    }
   };
 
   const loadTeam = async (me) => {

@@ -54,14 +54,14 @@ export default function CoachDashboard() {
 
   useEffect(() => {
     const init = async () => {
-      const me = await base44.auth.me();
-      setUser(me);
-      if (me.role !== "coach") {
-        setAccessDenied(true);
-        setLoading(false);
-        return;
-      }
       try {
+        const me = await base44.auth.me();
+        setUser(me);
+        if (me.role !== "coach") {
+          setAccessDenied(true);
+          setLoading(false);
+          return;
+        }
         await loadTeamAndRoster(me);
       } finally {
         setLoading(false);
