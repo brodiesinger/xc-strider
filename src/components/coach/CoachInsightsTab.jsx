@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { ChevronRight, ShieldAlert, ShieldCheck, AlertTriangle } from "lucide-react";
+import { ChevronRight, ShieldAlert, ShieldCheck, AlertTriangle, RotateCw, Zap, Wind } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { format, startOfWeek, subWeeks, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -98,11 +98,57 @@ function AthleteRiskCard({ athlete, workouts, checkin, onSelect }) {
   );
 }
 
+function getRecoveryRecommendation(workouts, checkin) {
+  const now = new Date();
+  const thisWeekStart = startOfWeek(now, { weekStartsOn: 1 });
+  const lastWeekStart = subWeeks(thisWeekStart, 1);
+
+  const thisWeek = getWeekMiles(workouts, thisWeekStart);
+  const lastWeek = getWeekMiles(workouts, lastWeekStart);
+
+  const recent7 = workouts.filter((w) => {
+    if (!w.date) return false;
+    return (now - parseISO(w.date)) / 86400000 <= 7;
+  });
+
+  const daysSinceLastRun = recent7.length > 0 ? (now - parseISO(recent7[0].date)) / 86400000 : 10;
+
+  // High pain or soreness = rest day
+  if (checkin && (checkin.pain >= 6 || checkin.soreness >= 8)) {
+    return { type: "rest", label: "Rest Day", description: "Focus on recovery. No running today.", icon: Wind };
+  }
+
+  // Large mileage jump = easy/cross training
+  if (lastWeek > 0 && thisWeek > lastWeek * 1.15) {
+    return { type: "cross", label: "Cross Training", description: "Easy cross training (cycling, swimming). Keep it light.", icon: RotateCw };
+  }
+
+  // 7+ consecutive days of running = rest day
+  if (recent7.length >= 7) {
+    return { type: "rest", label: "Rest Day", description: "No running. Take a day to recover.", icon: Wind };
+  }
+
+  // Low energy = easy run
+  if (checkin && checkin.energy <= 4) {
+    return { type: "easy", label: "Easy Run", description: "Short, easy run. Keep HR low and pace relaxed.", icon: Zap };
+  }
+
+  // Moderate soreness = easy run or cross training
+  if (checkin && checkin.soreness >= 5) {
+    return { type: "easy", label: "Easy Run", description: "Easy pace. Listen to your body.", icon: Zap };
+  }
+
+  // Default: normal training allowed
+  return { type: "normal", label: "Normal Training", description: "Ready for regular training.", icon: Zap };
+}
+
 function AthleteDetailView({ athlete, workouts, checkin, onBack }) {
   const { level, warnings } = useMemo(() => calcRisk(workouts, checkin), [workouts, checkin]);
   const cfg = LEVEL[level];
   const thisWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
   const thisWeek = getWeekMiles(workouts, thisWeekStart);
+  const recovery = useMemo(() => getRecoveryRecommendation(workouts, checkin), [workouts, checkin]);
+  const RecoveryIcon = recovery.icon;
 
   return (
     <div className="space-y-5">
@@ -134,6 +180,17 @@ function AthleteDetailView({ athlete, workouts, checkin, onBack }) {
             ))}
           </ul>
         )}
+      </div>
+
+      {/* Recovery Recommendation */}
+      <div className={`rounded-2xl border p-5 ${recovery.type === 'rest' ? 'bg-red-50 border-red-200' : recovery.type === 'cross' ? 'bg-blue-50 border-blue-200' : 'bg-primary/5 border-primary/20'}`}>
+        <div className="flex items-center gap-2 mb-2">
+          <RecoveryIcon className={`w-5 h-5 ${recovery.type === 'rest' ? 'text-red-600' : recovery.type === 'cross' ? 'text-blue-600' : 'text-primary'}`} />
+          <span className={`font-bold text-base ${recovery.type === 'rest' ? 'text-red-600' : recovery.type === 'cross' ? 'text-blue-600' : 'text-primary'}`}>
+            {recovery.label}
+          </span>
+        </div>
+        <p className="text-sm text-foreground/80">{recovery.description}</p>
       </div>
 
       {/* Mileage Overview */}
