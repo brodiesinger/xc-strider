@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { TreePine, LogOut, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import AthleteList from "@/components/coach/AthleteList";
@@ -8,6 +8,7 @@ import CreateTeam from "@/components/coach/CreateTeam";
 import TeamHeader from "@/components/coach/TeamHeader";
 import PostAnnouncement from "@/components/coach/PostAnnouncement";
 import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
+import NavBar from "@/components/shared/NavBar";
 
 function buildAthleteRoster(workouts) {
   const map = new Map();
@@ -95,25 +96,9 @@ export default function CoachDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="max-w-2xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-primary font-bold text-lg">
-            <TreePine className="w-5 h-5" />
-            XC Team App
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => base44.auth.logout("/")}
-            className="gap-2 text-muted-foreground"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign out
-          </Button>
-        </div>
-      </header>
+      <NavBar />
 
-      <main className="max-w-2xl mx-auto px-6 py-10 space-y-10">
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8">
         {selectedAthlete ? (
           <>
             <button

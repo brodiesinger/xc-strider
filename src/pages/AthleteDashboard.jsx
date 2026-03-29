@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { TreePine, LogOut } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
 import WorkoutForm from "@/components/athlete/WorkoutForm";
 import WorkoutList from "@/components/athlete/WorkoutList";
 import JoinTeam from "@/components/athlete/JoinTeam";
 import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
 import PerformanceStats from "@/components/athlete/PerformanceStats";
+import NavBar from "@/components/shared/NavBar";
 
 export default function AthleteDashboard() {
   const [user, setUser] = useState(null);
@@ -76,25 +75,9 @@ export default function AthleteDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="max-w-2xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-primary font-bold text-lg">
-            <TreePine className="w-5 h-5" />
-            XC Team App
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => base44.auth.logout("/")}
-            className="gap-2 text-muted-foreground"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign out
-          </Button>
-        </div>
-      </header>
+      <NavBar />
 
-      <main className="max-w-2xl mx-auto px-6 py-10 space-y-10">
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

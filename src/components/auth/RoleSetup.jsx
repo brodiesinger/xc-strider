@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { PersonStanding, Trophy } from "lucide-react";
+import { PersonStanding, Trophy, TreePine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const roles = [
@@ -32,7 +32,11 @@ export default function RoleSetup({ onComplete }) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
+      <div className="flex items-center gap-2 text-primary font-bold mb-8">
+        <TreePine className="w-5 h-5" />
+        XC Team App
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}

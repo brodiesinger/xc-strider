@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { TreePine, LogOut, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import RoleSetup from "@/components/auth/RoleSetup";
+import NavBar from "@/components/shared/NavBar";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -39,20 +40,9 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-primary font-bold text-lg">
-            <TreePine className="w-5 h-5" />
-            XC Team App
-          </div>
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2 text-muted-foreground">
-            <LogOut className="w-4 h-4" />
-            Sign out
-          </Button>
-        </div>
-      </header>
+      <NavBar />
 
-      <main className="max-w-5xl mx-auto px-6 py-16">
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
