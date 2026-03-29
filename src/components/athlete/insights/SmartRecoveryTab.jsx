@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Sparkles, RefreshCw, Zap, Moon, Droplets, Dumbbell, Wind } from "lucide-react";
+import { Zap, Moon, Droplets, Dumbbell, Wind } from "lucide-react";
 import { startOfWeek, subWeeks, parseISO, format } from "date-fns";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -75,8 +75,7 @@ function buildRulesRecommendations(workouts, checkin) {
 
 export default function SmartRecoveryTab({ workouts, userEmail }) {
   const [checkin, setCheckin] = useState(null);
-  const [aiRecs, setAiRecs] = useState(null);
-  const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     if (!userEmail) return;
@@ -88,36 +87,7 @@ export default function SmartRecoveryTab({ workouts, userEmail }) {
 
   const ruleRecs = useMemo(() => buildRulesRecommendations(workouts, checkin), [workouts, checkin]);
 
-  const fetchAI = async () => {
-    setLoading(true);
-    setAiRecs(null);
-    try {
-      const now = new Date();
-      const thisWeekStart = startOfWeek(now, { weekStartsOn: 1 });
-      const thisWeek = getWeekMiles(workouts, thisWeekStart);
-      const lastWeek = getWeekMiles(workouts, subWeeks(thisWeekStart, 1));
-      const recent = workouts.slice(0, 7).map(w => `${w.date}: ${w.distance}mi in ${w.time_minutes}min`).join("; ");
 
-      const prompt = `You are a running coach giving recovery advice to a cross-country athlete.
-
-Recent workouts (last 7): ${recent || "none"}
-This week mileage: ${thisWeek.toFixed(1)} mi, Last week: ${lastWeek.toFixed(1)} mi
-Today's check-in: ${checkin ? `Soreness ${checkin.soreness}/10, Pain ${checkin.pain}/10, Energy ${checkin.energy}/10` : "Not completed"}
-
-Give 3-4 specific, practical recovery recommendations for tomorrow. Be concise and direct.`;
-
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        response_json_schema: {
-          type: "object",
-          properties: { recommendations: { type: "array", items: { type: "object", properties: { text: { type: "string" } } } } }
-        }
-      });
-      setAiRecs(result.recommendations || []);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="space-y-5">
@@ -142,44 +112,7 @@ Give 3-4 specific, practical recovery recommendations for tomorrow. Be concise a
         </div>
       </div>
 
-      {/* AI Recs */}
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-foreground flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-primary" />
-            AI Coach Suggestions
-          </h3>
-          <Button variant="outline" size="sm" onClick={fetchAI} disabled={loading} className="gap-1.5 text-xs">
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            {aiRecs ? "Refresh" : "Generate"}
-          </Button>
-        </div>
 
-        {!aiRecs && !loading && (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            Tap "Generate" to get personalized AI recovery suggestions based on your training.
-          </p>
-        )}
-
-        {loading && (
-          <div className="flex justify-center py-6">
-            <div className="w-5 h-5 border-2 border-border border-t-primary rounded-full animate-spin" />
-          </div>
-        )}
-
-        {aiRecs && (
-          <div className="space-y-2">
-            {aiRecs.map((r, i) => (
-              <div key={i} className="flex gap-3 items-start rounded-xl bg-muted p-3">
-                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-xs font-bold text-primary mt-0.5">
-                  {i + 1}
-                </div>
-                <p className="text-sm text-foreground leading-relaxed">{r.text}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
