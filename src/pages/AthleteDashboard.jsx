@@ -7,6 +7,7 @@ import WorkoutForm from "@/components/athlete/WorkoutForm";
 import WorkoutList from "@/components/athlete/WorkoutList";
 import JoinTeam from "@/components/athlete/JoinTeam";
 import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
+import PerformanceStats from "@/components/athlete/PerformanceStats";
 
 export default function AthleteDashboard() {
   const [user, setUser] = useState(null);
@@ -117,6 +118,17 @@ export default function AthleteDashboard() {
           </motion.section>
         )}
 
+        {!loadingWorkouts && workouts.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.08 }}
+          >
+            <h2 className="font-semibold text-foreground mb-3">Performance</h2>
+            <PerformanceStats workouts={workouts} />
+          </motion.section>
+        )}
+
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -124,7 +136,7 @@ export default function AthleteDashboard() {
           className="rounded-2xl border border-border bg-card p-6"
         >
           <h2 className="font-semibold text-foreground mb-5">Log a Workout</h2>
-          <WorkoutForm onSaved={fetchWorkouts} teamId={team?.id} />
+          <WorkoutForm onSaved={() => fetchWorkouts(user)} teamId={team?.id} />
         </motion.section>
 
         <motion.section
