@@ -28,8 +28,8 @@ export default function WorkoutForm({ onSaved }) {
       notes: form.notes,
       date: form.date,
     });
-    setForm(empty());
     setSaving(false);
+    setForm(empty());
     onSaved();
   };
 
