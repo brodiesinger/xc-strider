@@ -6,7 +6,6 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
 import AthleteDashboard from './pages/AthleteDashboard';
 import CoachDashboard from './pages/CoachDashboard';
 
@@ -37,7 +36,6 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/athlete" element={<AthleteDashboard />} />
       <Route path="/coach" element={<CoachDashboard />} />
       <Route path="*" element={<PageNotFound />} />
