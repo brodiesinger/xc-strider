@@ -16,7 +16,7 @@ function computeProgress(goal, workouts) {
   const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
   switch (goal.type) {
     case "weekly_miles": {
-      const val = workouts.filter((w) => w.date >= weekStart).reduce((s, w) => s + (w.distance || 0), 0);
+      const val = workouts.filter((w) => w.date && w.date >= weekStart).reduce((s, w) => s + (w.distance || 0), 0);
       return { current: parseFloat(val.toFixed(1)), pct: Math.min(100, (val / goal.target) * 100) };
     }
     case "total_miles": {
