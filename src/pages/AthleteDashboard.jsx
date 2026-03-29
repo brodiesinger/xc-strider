@@ -7,7 +7,7 @@ import TabNav from "@/components/shared/TabNav";
 import WeeklyMileage from "@/components/athlete/WeeklyMileage";
 import PRTracker from "@/components/athlete/PRTracker";
 import TeamDashboardView from "@/components/shared/TeamDashboardView";
-import TodaysWorkout from "@/components/athlete/TodaysWorkout";
+
 import InjuryRiskWarning from "@/components/athlete/InjuryRiskWarning";
 import GoalTracker from "@/components/athlete/GoalTracker";
 import NotificationBell from "@/components/shared/NotificationBell";
@@ -161,7 +161,7 @@ export default function AthleteDashboard() {
           ) : (
             <div className="space-y-5">
               <InjuryRiskWarning workouts={workouts} />
-              <TodaysWorkout schedule={schedule} />
+
               <GoalTracker workouts={workouts} userEmail={user?.email} />
             </div>
           )
