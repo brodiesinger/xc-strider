@@ -1,0 +1,36 @@
+{
+  "name": "PracticeSchedule",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title of the practice or event"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the practice"
+    },
+    "time": {
+      "type": "string",
+      "description": "Time of the practice (e.g. 3:30 PM)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location of the practice"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional details or workout description"
+    },
+    "team_id": {
+      "type": "string",
+      "description": "Team this schedule entry belongs to"
+    }
+  },
+  "required": [
+    "title",
+    "date",
+    "team_id"
+  ]
+}
