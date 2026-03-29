@@ -20,17 +20,28 @@ const TABS = [
   { id: "team", label: "Team Dashboard" },
 ];
 
-function buildAthleteRoster(workouts) {
+function buildAthleteRoster(users, workouts) {
   const map = new Map();
-  for (const w of workouts) {
-    if (w.athlete_email && !map.has(w.athlete_email)) {
-      map.set(w.athlete_email, {
-        id: w.athlete_email,
-        email: w.athlete_email,
-        full_name: w.athlete_name || null,
+  
+  // Add all athletes from User entity
+  for (const u of users) {
+    if (u.email && !map.has(u.email)) {
+      map.set(u.email, {
+        id: u.email,
+        email: u.email,
+        full_name: u.full_name || null,
       });
     }
   }
+  
+  // Fill in names from workouts if not already set
+  for (const w of workouts) {
+    if (w.athlete_email && map.has(w.athlete_email) && !map.get(w.athlete_email).full_name && w.athlete_name) {
+      const athlete = map.get(w.athlete_email);
+      athlete.full_name = w.athlete_name;
+    }
+  }
+  
   return Array.from(map.values());
 }
 
@@ -61,12 +72,13 @@ export default function CoachDashboard() {
     const found = teams.find((t) => t.id === me.team_id);
     if (found) {
       setTeam(found);
-      const [workouts] = await Promise.all([
+      const [users, workouts] = await Promise.all([
+        base44.entities.User.filter({ team_id: me.team_id }, "-created_date", 100),
         base44.entities.Workout.filter({ team_id: me.team_id }, "-date", 500),
         fetchAnnouncements(me.team_id),
         fetchSchedule(me.team_id),
       ]);
-      setAthletes(buildAthleteRoster(workouts));
+      setAthletes(buildAthleteRoster(users, workouts));
     }
   };
 
