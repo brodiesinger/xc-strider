@@ -155,8 +155,6 @@ export default function Dashboard() {
               <button
                 onClick={async () => {
                   setMode("coach");
-                  await base44.auth.updateMe({ role: "coach" });
-                  // Auto-create a default team
                   setTimeout(async () => {
                     try {
                       const code = generateCode();
@@ -167,7 +165,7 @@ export default function Dashboard() {
                         coach_email: me.email,
                       });
                       if (newTeam && newTeam.id) {
-                        await base44.auth.updateMe({ team_id: newTeam.id });
+                        await base44.auth.updateMe({ role: "coach", team_id: newTeam.id });
                         setCoachCode(code);
                         setCoachCreated(true);
                       }
