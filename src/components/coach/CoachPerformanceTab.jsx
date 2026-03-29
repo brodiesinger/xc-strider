@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
-import { Trophy, Target, TrendingDown } from "lucide-react";
+import { Trophy, Target } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
 const GOAL_TYPES = {
@@ -78,7 +78,7 @@ function AthletePerformanceCard({ athlete, workouts, goals, racePRs }) {
                   </p>
                   <span className="text-xs font-bold text-primary">
                     {goal.type === "pace"
-                      ? `${formatPace(prog.current * goal.target, goal.target)} / ${formatPace(goal.target, 1)}`
+                      ? `${formatTime(prog.current * 60)} / ${formatTime(goal.target * 60)}`
                       : `${prog.current} / ${goal.target}`}
                   </span>
                 </div>
