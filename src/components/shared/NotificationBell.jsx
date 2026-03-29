@@ -24,6 +24,17 @@ export default function NotificationBell({ userEmail }) {
 
   useEffect(() => { load(); }, [userEmail]);
 
+  // Subscribe to real-time notification changes
+  useEffect(() => {
+    if (!userEmail) return;
+    const unsubscribe = base44.entities.Notification.subscribe((event) => {
+      if (event.data.user_email === userEmail) {
+        load();
+      }
+    });
+    return unsubscribe;
+  }, [userEmail]);
+
   // Close on outside click
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };

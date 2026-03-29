@@ -76,10 +76,10 @@ function calcRisk(workouts, checkin) {
 }
 
 const LEVEL = {
-  safe:   { label: "Low Risk",       color: "text-green-600",  bg: "bg-green-50 border-green-200",       Icon: ShieldCheck  },
-  low:    { label: "Minor Risk",      color: "text-yellow-600", bg: "bg-yellow-50 border-yellow-200",     Icon: AlertTriangle },
-  medium: { label: "Moderate Risk",   color: "text-orange-500", bg: "bg-orange-50 border-orange-200",     Icon: ShieldAlert  },
-  high:   { label: "High Risk",       color: "text-red-600",    bg: "bg-red-50 border-red-200",           Icon: ShieldAlert  },
+  safe:   { label: "Low Risk",       color: "text-primary",  bg: "bg-primary/5 border-primary/20",       Icon: ShieldCheck  },
+  low:    { label: "Minor Risk",      color: "text-accent", bg: "bg-accent/5 border-accent/20",     Icon: AlertTriangle },
+  medium: { label: "Moderate Risk",   color: "text-accent", bg: "bg-accent/10 border-accent/30",     Icon: ShieldAlert  },
+  high:   { label: "High Risk",       color: "text-destructive",    bg: "bg-destructive/5 border-destructive/20",           Icon: ShieldAlert  },
 };
 
 // ── Slider ────────────────────────────────────────────────────────────────────

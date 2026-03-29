@@ -44,6 +44,7 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!form.title.trim()) return;
     setSaving(true);
     try {
       if (editingDay.id) {

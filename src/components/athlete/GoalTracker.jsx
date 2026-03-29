@@ -148,10 +148,10 @@ export default function GoalTracker({ workouts, userEmail }) {
           {goalsWithProgress.map((g) => {
             const done = g.progress.pct >= 100;
             return (
-              <div key={g.id} className={`rounded-xl border p-4 space-y-2 ${done ? "border-green-200 bg-green-50" : "border-border bg-background"}`}>
+              <div key={g.id} className={`rounded-xl border p-4 space-y-2 transition-colors ${done ? "border-primary/30 bg-primary/5" : "border-border bg-background"}`}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    {done && <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />}
+                    {done && <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />}
                     <p className="text-sm font-medium text-foreground">{g.label}</p>
                   </div>
                   <button onClick={() => handleDelete(g.id)} className="text-muted-foreground hover:text-destructive transition-colors">
@@ -161,7 +161,7 @@ export default function GoalTracker({ workouts, userEmail }) {
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all ${done ? "bg-green-500" : "bg-primary"}`}
+                      className={`h-full rounded-full transition-all ${done ? "bg-accent" : "bg-primary"}`}
                       style={{ width: `${g.progress.pct}%` }}
                     />
                   </div>

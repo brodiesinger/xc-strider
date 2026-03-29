@@ -21,9 +21,13 @@ export default function RacePRManager({ userEmail }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userEmail) return;
+    if (!userEmail) {
+      setLoading(false);
+      return;
+    }
     base44.entities.RacePR.filter({ athlete_email: userEmail }, "-created_date", 20)
       .then(setPRs)
+      .catch(() => setPRs([]))
       .finally(() => setLoading(false));
   }, [userEmail]);
 
