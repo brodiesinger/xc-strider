@@ -32,10 +32,12 @@ export default function RacePRManager({ userEmail }) {
     if (!form.time_minutes) return;
     setSaving(true);
     try {
+      const [mins, secs] = form.time_minutes.split(":").map(Number);
+      const totalMinutes = mins + (secs || 0) / 60;
       const newPR = await base44.entities.RacePR.create({
         athlete_email: userEmail,
         distance: form.distance,
-        time_minutes: parseFloat(form.time_minutes),
+        time_minutes: totalMinutes,
       });
       setPRs((prev) => [newPR, ...prev]);
       setForm({ distance: "5K", time_minutes: "" });
@@ -93,12 +95,10 @@ export default function RacePRManager({ userEmail }) {
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-foreground">Time (minutes)</label>
+            <label className="text-xs font-medium text-foreground">Time (MM:SS)</label>
             <Input
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="e.g. 24.5"
+              type="text"
+              placeholder="e.g. 24:30"
               value={form.time_minutes}
               onChange={(e) => setForm((f) => ({ ...f, time_minutes: e.target.value }))}
               required
