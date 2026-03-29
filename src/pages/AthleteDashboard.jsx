@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import WorkoutForm from "@/components/athlete/WorkoutForm";
 import WorkoutList from "@/components/athlete/WorkoutList";
 import JoinTeam from "@/components/athlete/JoinTeam";
+import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
 
 export default function AthleteDashboard() {
   const [user, setUser] = useState(null);
   const [team, setTeam] = useState(null);
   const [workouts, setWorkouts] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [loadingWorkouts, setLoadingWorkouts] = useState(true);
   const [loadingUser, setLoadingUser] = useState(true);
 
@@ -21,19 +23,32 @@ export default function AthleteDashboard() {
     setLoadingWorkouts(false);
   };
 
+  const fetchAnnouncements = async (teamId) => {
+    const data = await base44.entities.Announcement.filter({ team_id: teamId }, "-created_date", 20);
+    setAnnouncements(data);
+  };
+
   const loadTeam = async (me) => {
-    if (!me.team_id) return;
+    if (!me.team_id) return null;
     const teams = await base44.entities.Team.filter({ id: me.team_id });
-    if (teams.length > 0) setTeam(teams[0]);
+    if (teams.length > 0) {
+      setTeam(teams[0]);
+      return teams[0];
+    }
+    return null;
   };
 
   useEffect(() => {
     const init = async () => {
       const me = await base44.auth.me();
       setUser(me);
-      await loadTeam(me);
+      const loadedTeam = await loadTeam(me);
       setLoadingUser(false);
-      await fetchWorkouts();
+      if (loadedTeam) {
+        await Promise.all([fetchWorkouts(), fetchAnnouncements(loadedTeam.id)]);
+      } else {
+        setLoadingWorkouts(false);
+      }
     };
     init();
   }, []);
@@ -42,6 +57,7 @@ export default function AthleteDashboard() {
     setTeam(joinedTeam);
     const me = await base44.auth.me();
     setUser(me);
+    await Promise.all([fetchWorkouts(), fetchAnnouncements(joinedTeam.id)]);
   };
 
   if (loadingUser) {
@@ -87,6 +103,17 @@ export default function AthleteDashboard() {
           </h1>
           <p className="text-sm text-muted-foreground mt-1">{team.name}</p>
         </motion.div>
+
+        {announcements.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.05 }}
+          >
+            <h2 className="font-semibold text-foreground mb-3">Announcements</h2>
+            <AnnouncementFeed announcements={announcements} />
+          </motion.section>
+        )}
 
         <motion.section
           initial={{ opacity: 0, y: 16 }}

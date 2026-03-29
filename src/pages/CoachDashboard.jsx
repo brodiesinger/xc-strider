@@ -6,8 +6,9 @@ import AthleteList from "@/components/coach/AthleteList";
 import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
 import CreateTeam from "@/components/coach/CreateTeam";
 import TeamHeader from "@/components/coach/TeamHeader";
+import PostAnnouncement from "@/components/coach/PostAnnouncement";
+import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
 
-// Build a deduplicated athlete list from workouts since coaches can't list all users
 function buildAthleteRoster(workouts) {
   const map = new Map();
   for (const w of workouts) {
@@ -26,16 +27,25 @@ export default function CoachDashboard() {
   const [user, setUser] = useState(null);
   const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+
+  const fetchAnnouncements = async (teamId) => {
+    const data = await base44.entities.Announcement.filter({ team_id: teamId }, "-created_date", 20);
+    setAnnouncements(data);
+  };
 
   const loadTeamAndRoster = async (me) => {
     if (!me.team_id) return;
     const teams = await base44.entities.Team.filter({ id: me.team_id });
     if (teams.length > 0) {
       setTeam(teams[0]);
-      const workouts = await base44.entities.Workout.filter({ team_id: me.team_id }, "-date", 500);
+      const [workouts] = await Promise.all([
+        base44.entities.Workout.filter({ team_id: me.team_id }, "-date", 500),
+        fetchAnnouncements(me.team_id),
+      ]);
       setAthletes(buildAthleteRoster(workouts));
     }
   };
@@ -55,9 +65,10 @@ export default function CoachDashboard() {
     init();
   }, []);
 
-  const handleTeamCreated = async (newTeam) => {
+  const handleTeamCreated = (newTeam) => {
     setTeam(newTeam);
-    setAthletes([]); // fresh team, no athletes yet
+    setAthletes([]);
+    setAnnouncements([]);
   };
 
   if (loading) {
@@ -99,12 +110,12 @@ export default function CoachDashboard() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-10">
+      <main className="max-w-2xl mx-auto px-6 py-10 space-y-10">
         {selectedAthlete ? (
           <>
             <button
               onClick={() => setSelectedAthlete(null)}
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
               Back to roster
@@ -113,7 +124,7 @@ export default function CoachDashboard() {
           </>
         ) : (
           <>
-            <div className="mb-8">
+            <div>
               <h1 className="text-2xl font-bold text-foreground">Coach Dashboard</h1>
               <p className="text-sm text-muted-foreground mt-1">
                 Welcome, {user?.full_name || user?.email}
@@ -125,7 +136,22 @@ export default function CoachDashboard() {
             ) : (
               <>
                 <TeamHeader team={team} />
-                <AthleteList athletes={athletes} onSelect={setSelectedAthlete} />
+
+                <section>
+                  <h2 className="font-semibold text-foreground mb-3">Announcements</h2>
+                  <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+                    <PostAnnouncement
+                      teamId={team.id}
+                      coachName={user?.full_name || user?.email}
+                      onPosted={() => fetchAnnouncements(team.id)}
+                    />
+                    <AnnouncementFeed announcements={announcements} />
+                  </div>
+                </section>
+
+                <section>
+                  <AthleteList athletes={athletes} onSelect={setSelectedAthlete} />
+                </section>
               </>
             )}
           </>

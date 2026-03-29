@@ -1,0 +1,22 @@
+{
+  "name": "Announcement",
+  "type": "object",
+  "properties": {
+    "message": {
+      "type": "string",
+      "description": "Announcement content"
+    },
+    "team_id": {
+      "type": "string",
+      "description": "Team this announcement belongs to"
+    },
+    "coach_name": {
+      "type": "string",
+      "description": "Display name of the coach who posted"
+    }
+  },
+  "required": [
+    "message",
+    "team_id"
+  ]
+}
