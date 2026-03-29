@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { format, parseISO, isAfter, startOfToday } from "date-fns";
+import { format, parseISO, isBefore, startOfToday } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,10 +42,10 @@ export default function ScheduleManager({ teamId, schedule, onRefresh }) {
 
   const today = startOfToday();
   const upcoming = schedule
-    .filter((s) => s.date && !isAfter(today, parseISO(s.date)))
+    .filter((s) => s.date && !isBefore(parseISO(s.date), today))
     .sort((a, b) => a.date.localeCompare(b.date));
   const past = schedule
-    .filter((s) => s.date && isAfter(today, parseISO(s.date)))
+    .filter((s) => s.date && isBefore(parseISO(s.date), today))
     .sort((a, b) => b.date.localeCompare(a.date));
 
   return (

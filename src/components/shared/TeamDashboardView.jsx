@@ -1,12 +1,12 @@
 import React from "react";
-import { format, parseISO, isAfter, startOfToday } from "date-fns";
+import { format, parseISO, isBefore, startOfToday } from "date-fns";
 import { CalendarDays, MapPin, Clock, Megaphone } from "lucide-react";
 import AnnouncementFeed from "./AnnouncementFeed";
 
 export default function TeamDashboardView({ announcements, schedule }) {
   const today = startOfToday();
   const upcoming = schedule
-    .filter((s) => s.date && !isAfter(today, parseISO(s.date)))
+    .filter((s) => s.date && !isBefore(parseISO(s.date), today))
     .sort((a, b) => a.date.localeCompare(b.date));
 
   return (
