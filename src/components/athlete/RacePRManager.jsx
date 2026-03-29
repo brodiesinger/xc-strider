@@ -32,8 +32,13 @@ export default function RacePRManager({ userEmail }) {
     if (!form.time_minutes) return;
     setSaving(true);
     try {
-      const [mins, secs] = form.time_minutes.split(":").map(Number);
-      const totalMinutes = mins + (secs || 0) / 60;
+      const parts = form.time_minutes.split(":").map(Number);
+      if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
+        alert("Please enter time in MM:SS format");
+        return;
+      }
+      const [mins, secs] = parts;
+      const totalMinutes = mins + secs / 60;
       const newPR = await base44.entities.RacePR.create({
         athlete_email: userEmail,
         distance: form.distance,
