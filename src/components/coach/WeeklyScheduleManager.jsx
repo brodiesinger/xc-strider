@@ -1,0 +1,185 @@
+import React, { useState, useMemo } from "react";
+import { base44 } from "@/api/base44Client";
+import { format, startOfWeek, addDays, parseISO } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
+  const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const [editingDay, setEditingDay] = useState(null);
+  const [form, setForm] = useState({ title: "", time: "", location: "", notes: "" });
+  const [saving, setSaving] = useState(false);
+
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const weekDates = useMemo(() => {
+    return DAYS.map((_, i) => addDays(currentWeekStart, i));
+  }, [currentWeekStart]);
+
+  const scheduleByDate = useMemo(() => {
+    const map = {};
+    weekDates.forEach((d) => {
+      const dateStr = format(d, "yyyy-MM-dd");
+      map[dateStr] = schedule.find((s) => s.date === dateStr) || null;
+    });
+    return map;
+  }, [schedule, weekDates]);
+
+  const handleOpenEdit = (dayIndex) => {
+    const dateStr = format(weekDates[dayIndex], "yyyy-MM-dd");
+    const existing = scheduleByDate[dateStr];
+    if (existing) {
+      setForm({ title: existing.title, time: existing.time || "", location: existing.location || "", notes: existing.notes || "" });
+      setEditingDay({ index: dayIndex, date: dateStr, id: existing.id });
+    } else {
+      setForm({ title: "", time: "", location: "", notes: "" });
+      setEditingDay({ index: dayIndex, date: dateStr, id: null });
+    }
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      if (editingDay.id) {
+        // Update existing
+        await base44.entities.PracticeSchedule.update(editingDay.id, form);
+      } else {
+        // Create new
+        await base44.entities.PracticeSchedule.create({
+          ...form,
+          team_id: teamId,
+          date: editingDay.date,
+        });
+      }
+      setEditingDay(null);
+      setForm({ title: "", time: "", location: "", notes: "" });
+      onRefresh();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!editingDay.id) return;
+    setSaving(true);
+    try {
+      await base44.entities.PracticeSchedule.delete(editingDay.id);
+      setEditingDay(null);
+      setForm({ title: "", time: "", location: "", notes: "" });
+      onRefresh();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-5">
+      {/* Week Navigation */}
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-foreground">Weekly Schedule</h2>
+        <div className="flex items-center gap-3">
+          <Button size="sm" variant="outline" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}>
+            <ChevronLeft className="w-3.5 h-3.5" />
+          </Button>
+          <span className="text-sm font-medium text-muted-foreground min-w-48 text-center">
+            {format(currentWeekStart, "MMM d")} – {format(addDays(currentWeekStart, 6), "MMM d, yyyy")}
+          </span>
+          <Button size="sm" variant="outline" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-7 gap-2">
+        {DAYS.map((day, i) => {
+          const date = weekDates[i];
+          const dateStr = format(date, "yyyy-MM-dd");
+          const practice = scheduleByDate[dateStr];
+          const isToday = format(new Date(), "yyyy-MM-dd") === dateStr;
+
+          return (
+            <div
+              key={i}
+              className={`rounded-lg border-2 p-3 min-h-32 flex flex-col cursor-pointer transition-all ${
+                isToday
+                  ? "border-primary bg-primary/5"
+                  : practice
+                  ? "border-primary/30 bg-card"
+                  : "border-border hover:border-primary/50"
+              }`}
+              onClick={() => handleOpenEdit(i)}
+            >
+              <p className="text-xs font-semibold text-muted-foreground">{day}</p>
+              <p className="text-xs text-muted-foreground">{format(date, "d")}</p>
+              {practice ? (
+                <div className="mt-2 flex-1 flex flex-col gap-1">
+                  <p className="text-xs font-semibold text-foreground line-clamp-2">{practice.title}</p>
+                  {practice.time && <p className="text-xs text-muted-foreground">{practice.time}</p>}
+                  {practice.location && <p className="text-xs text-muted-foreground truncate">{practice.location}</p>}
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-muted-foreground">No practice</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Edit Modal */}
+      {editingDay && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-card rounded-2xl border border-border p-6 max-w-md w-full max-h-96 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-foreground">
+                {DAYS[editingDay.index]} – {format(parseISO(editingDay.date), "MMM d")}
+              </h3>
+              <button onClick={() => setEditingDay(null)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSave} className="space-y-3">
+              <div className="space-y-1">
+                <Label>Practice Title</Label>
+                <Input placeholder="e.g. Tempo Run" value={form.title} onChange={(e) => set("title", e.target.value)} required />
+              </div>
+              <div className="space-y-1">
+                <Label>Time</Label>
+                <Input placeholder="e.g. 3:30 PM" value={form.time} onChange={(e) => set("time", e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Location</Label>
+                <Input placeholder="e.g. Track" value={form.location} onChange={(e) => set("location", e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Notes</Label>
+                <Textarea placeholder="Workout details..." value={form.notes} onChange={(e) => set("notes", e.target.value)} rows={2} />
+              </div>
+
+              <div className="flex gap-2 justify-end pt-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => setEditingDay(null)}>
+                  Cancel
+                </Button>
+                {editingDay.id && (
+                  <Button type="button" variant="destructive" size="sm" onClick={handleDelete} disabled={saving}>
+                    Delete
+                  </Button>
+                )}
+                <Button type="submit" size="sm" disabled={saving}>
+                  {saving ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

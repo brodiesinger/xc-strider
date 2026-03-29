@@ -9,6 +9,7 @@ import TeamHeader from "@/components/coach/TeamHeader";
 import CoachTeamDashboard from "@/components/coach/CoachTeamDashboard";
 import CoachInsightsTab from "@/components/coach/CoachInsightsTab";
 import CoachPerformanceTab from "@/components/coach/CoachPerformanceTab";
+import WeeklyScheduleManager from "@/components/coach/WeeklyScheduleManager";
 import NavBar from "@/components/shared/NavBar";
 import TabNav from "@/components/shared/TabNav";
 
@@ -156,14 +157,17 @@ export default function CoachDashboard() {
                 )}
 
                 {activeTab === "team" && (
-                  <CoachTeamDashboard
-                    team={team}
-                    user={user}
-                    announcements={announcements}
-                    schedule={schedule}
-                    onAnnouncementPosted={() => fetchAnnouncements(team.id)}
-                    onScheduleRefresh={() => fetchSchedule(team.id)}
-                  />
+                  <div className="space-y-6">
+                    <WeeklyScheduleManager teamId={team.id} schedule={schedule} onRefresh={() => fetchSchedule(team.id)} />
+                    <CoachTeamDashboard
+                      team={team}
+                      user={user}
+                      announcements={announcements}
+                      schedule={schedule}
+                      onAnnouncementPosted={() => fetchAnnouncements(team.id)}
+                      onScheduleRefresh={() => fetchSchedule(team.id)}
+                    />
+                  </div>
                 )}
               </>
             )}
