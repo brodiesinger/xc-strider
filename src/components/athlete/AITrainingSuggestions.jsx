@@ -23,6 +23,7 @@ export default function AITrainingSuggestions({ workouts }) {
 
   const generate = async () => {
     setLoading(true);
+    try {
     const summary = buildWorkoutSummary(workouts);
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `You are an expert cross-country running coach. Based on the athlete's recent training data, provide 3 specific, actionable training suggestions for next week. Be concise and practical.\n\nAthlete data:\n${summary}`,
@@ -44,7 +45,9 @@ export default function AITrainingSuggestions({ workouts }) {
       }
     });
     setSuggestions(result.suggestions || []);
-    setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

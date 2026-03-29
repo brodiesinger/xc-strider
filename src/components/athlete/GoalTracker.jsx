@@ -4,7 +4,7 @@ import { Target, Plus, Trash2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { startOfWeek, format } from "date-fns";
+import { startOfWeek, format, parseISO } from "date-fns";
 
 const GOAL_TYPES = [
   { value: "weekly_miles", label: "Weekly Miles", unit: "mi/week" },
@@ -163,7 +163,7 @@ export default function GoalTracker({ workouts, userEmail }) {
                   </span>
                 </div>
                 {g.deadline && (
-                  <p className="text-xs text-muted-foreground">Target: {format(new Date(g.deadline), "MMM d, yyyy")}</p>
+                  <p className="text-xs text-muted-foreground">Target: {format(parseISO(g.deadline), "MMM d, yyyy")}</p>
                 )}
               </div>
             );

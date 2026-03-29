@@ -154,11 +154,17 @@ export default function AthleteDashboard() {
         )}
 
         {activeTab === "insights" && (
-          <div className="space-y-5">
-            <InjuryRiskWarning workouts={workouts} />
-            <AITrainingSuggestions workouts={workouts} />
-            <GoalTracker workouts={workouts} userEmail={user?.email} />
-          </div>
+          loadingWorkouts ? (
+            <div className="flex justify-center py-16">
+              <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="space-y-5">
+              <InjuryRiskWarning workouts={workouts} />
+              <AITrainingSuggestions workouts={workouts} />
+              <GoalTracker workouts={workouts} userEmail={user?.email} />
+            </div>
+          )
         )}
 
         {activeTab === "team" && (

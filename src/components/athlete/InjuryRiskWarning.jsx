@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { ShieldAlert, ShieldCheck, AlertTriangle } from "lucide-react";
-import { startOfWeek, subWeeks, format } from "date-fns";
+import { startOfWeek, subWeeks, format, parseISO } from "date-fns";
 
 function getWeekMiles(workouts, weekStart) {
   const start = format(weekStart, "yyyy-MM-dd");
@@ -11,7 +11,7 @@ function getWeekMiles(workouts, weekStart) {
 }
 
 function analyzeRisk(workouts) {
-  if (workouts.length < 3) return { level: "low", warnings: [] };
+  if (workouts.length < 3) return { level: "safe", warnings: [] };
 
   const warnings = [];
   const now = new Date();
@@ -33,7 +33,7 @@ function analyzeRisk(workouts) {
   const sorted = [...workouts].sort((a, b) => b.date?.localeCompare(a.date));
   const recent7 = sorted.filter((w) => {
     if (!w.date) return false;
-    const d = new Date(w.date);
+    const d = parseISO(w.date);
     return (now - d) / 86400000 <= 7;
   });
   if (recent7.length >= 7) {
