@@ -9,7 +9,11 @@
         "coach"
       ],
       "default": "athlete",
-      "description": "Role of the user in the team"
+      "description": "User role"
+    },
+    "team_id": {
+      "type": "string",
+      "description": "ID of the team this user belongs to"
     }
   }
 }

@@ -4,13 +4,26 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import AthleteList from "@/components/coach/AthleteList";
 import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
+import CreateTeam from "@/components/coach/CreateTeam";
+import TeamHeader from "@/components/coach/TeamHeader";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState(null);
+  const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+
+  const loadTeamAndAthletes = async (me) => {
+    if (!me.team_id) return;
+    const teams = await base44.entities.Team.filter({ id: me.team_id });
+    if (teams.length > 0) {
+      setTeam(teams[0]);
+      const users = await base44.entities.User.filter({ team_id: me.team_id });
+      setAthletes(users.filter((u) => u.role === "athlete"));
+    }
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -21,12 +34,15 @@ export default function CoachDashboard() {
         setLoading(false);
         return;
       }
-      const users = await base44.entities.User.list();
-      setAthletes(users.filter((u) => u.role === "athlete"));
+      await loadTeamAndAthletes(me);
       setLoading(false);
     };
     init();
   }, []);
+
+  const handleTeamCreated = (newTeam) => {
+    setTeam(newTeam);
+  };
 
   if (loading) {
     return (
@@ -49,7 +65,6 @@ export default function CoachDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav */}
       <header className="border-b border-border bg-card">
         <div className="max-w-2xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-primary font-bold text-lg">
@@ -88,7 +103,15 @@ export default function CoachDashboard() {
                 Welcome, {user?.full_name || user?.email}
               </p>
             </div>
-            <AthleteList athletes={athletes} onSelect={setSelectedAthlete} />
+
+            {!team ? (
+              <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
+            ) : (
+              <>
+                <TeamHeader team={team} />
+                <AthleteList athletes={athletes} onSelect={setSelectedAthlete} />
+              </>
+            )}
           </>
         )}
       </main>

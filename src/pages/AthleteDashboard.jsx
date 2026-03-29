@@ -5,11 +5,14 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import WorkoutForm from "@/components/athlete/WorkoutForm";
 import WorkoutList from "@/components/athlete/WorkoutList";
+import JoinTeam from "@/components/athlete/JoinTeam";
 
 export default function AthleteDashboard() {
   const [user, setUser] = useState(null);
+  const [team, setTeam] = useState(null);
   const [workouts, setWorkouts] = useState([]);
   const [loadingWorkouts, setLoadingWorkouts] = useState(true);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   const fetchWorkouts = async () => {
     setLoadingWorkouts(true);
@@ -18,14 +21,43 @@ export default function AthleteDashboard() {
     setLoadingWorkouts(false);
   };
 
+  const loadTeam = async (me) => {
+    if (!me.team_id) return;
+    const teams = await base44.entities.Team.filter({ id: me.team_id });
+    if (teams.length > 0) setTeam(teams[0]);
+  };
+
   useEffect(() => {
-    base44.auth.me().then(setUser);
-    fetchWorkouts();
+    const init = async () => {
+      const me = await base44.auth.me();
+      setUser(me);
+      await loadTeam(me);
+      setLoadingUser(false);
+      await fetchWorkouts();
+    };
+    init();
   }, []);
+
+  const handleTeamJoined = async (joinedTeam) => {
+    setTeam(joinedTeam);
+    const me = await base44.auth.me();
+    setUser(me);
+  };
+
+  if (loadingUser) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!team) {
+    return <JoinTeam onTeamJoined={handleTeamJoined} />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav */}
       <header className="border-b border-border bg-card">
         <div className="max-w-2xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-primary font-bold text-lg">
@@ -45,7 +77,6 @@ export default function AthleteDashboard() {
       </header>
 
       <main className="max-w-2xl mx-auto px-6 py-10 space-y-10">
-        {/* Greeting */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -54,10 +85,9 @@ export default function AthleteDashboard() {
           <h1 className="text-2xl font-bold text-foreground">
             {user ? `Hey, ${user.full_name || user.email.split("@")[0]} 👋` : "Loading..."}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Athlete Dashboard</p>
+          <p className="text-sm text-muted-foreground mt-1">{team.name}</p>
         </motion.div>
 
-        {/* Log Workout */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -68,7 +98,6 @@ export default function AthleteDashboard() {
           <WorkoutForm onSaved={fetchWorkouts} />
         </motion.section>
 
-        {/* Past Workouts */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

@@ -1,0 +1,23 @@
+{
+  "name": "Team",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Team name"
+    },
+    "join_code": {
+      "type": "string",
+      "description": "Unique code athletes use to join the team"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach who created the team"
+    }
+  },
+  "required": [
+    "name",
+    "join_code",
+    "coach_email"
+  ]
+}
