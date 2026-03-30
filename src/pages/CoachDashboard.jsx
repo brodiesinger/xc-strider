@@ -77,6 +77,10 @@ export default function CoachDashboard() {
         await loadTeamAndRoster(me);
       } catch (err) {
         console.error("Auth error:", err);
+        if (err?.status === 401) {
+          base44.auth.redirectToLogin("/coach");
+          return;
+        }
       } finally {
         setLoading(false);
       }
