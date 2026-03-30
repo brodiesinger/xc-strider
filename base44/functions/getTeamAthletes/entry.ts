@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     }
 
     const athletes = await base44.asServiceRole.entities.User.filter(
-      { team_id, role: 'athlete' },
+      { team_id, user_type: 'athlete' },
       'full_name',
       100
     );
