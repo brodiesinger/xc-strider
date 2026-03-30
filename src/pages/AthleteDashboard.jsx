@@ -94,6 +94,8 @@ export default function AthleteDashboard() {
             user={user}
             team={team}
             workouts={workouts}
+            announcements={announcements}
+            schedule={schedule}
             onLogWorkout={() => setLogDrawerOpen(true)}
             onNavigate={setActiveTab}
           />

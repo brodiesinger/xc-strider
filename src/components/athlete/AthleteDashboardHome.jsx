@@ -1,12 +1,16 @@
-import React, { useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Ruler, TrendingUp, Activity, BarChart2, Lightbulb, Users, Zap, Plus } from "lucide-react";
 import { startOfWeek, format } from "date-fns";
+import { AnimatePresence } from "framer-motion";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import NotificationBell from "@/components/shared/NotificationBell";
 import WorkoutList from "@/components/athlete/WorkoutList";
+import AnnouncementCard from "@/components/athlete/AnnouncementCard";
+import TodaysWorkoutCard from "@/components/athlete/TodaysWorkoutCard";
+import { base44 } from "@/api/base44Client";
 
 function getWeeklyChartData(workouts, numWeeks = 8) {
   const now = new Date();
@@ -26,7 +30,48 @@ function getWeeklyChartData(workouts, numWeeks = 8) {
   });
 }
 
-export default function AthleteDashboardHome({ user, team, workouts, onLogWorkout, onNavigate }) {
+export default function AthleteDashboardHome({ user, team, workouts, announcements = [], schedule = [], onLogWorkout, onNavigate }) {
+  const [dismissedAnnouncements, setDismissedAnnouncements] = React.useState([]);
+  const [loadingDismissals, setLoadingDismissals] = React.useState(true);
+
+  // Load dismissed announcements on mount
+  React.useEffect(() => {
+    if (!user?.email) return;
+    const loadDismissals = async () => {
+      try {
+        const dismissed = await base44.entities.DismissedAnnouncement.filter(
+          { user_email: user.email },
+          "-created_date",
+          100
+        );
+        setDismissedAnnouncements(dismissed.map((d) => d.announcement_id));
+      } catch {
+        // If entity doesn't exist yet, continue
+      } finally {
+        setLoadingDismissals(false);
+      }
+    };
+    loadDismissals();
+  }, [user?.email]);
+
+  // Handle announcement dismissal
+  const handleDismissAnnouncement = async (announcementId) => {
+    if (!user?.email) return;
+    try {
+      await base44.entities.DismissedAnnouncement.create({
+        user_email: user.email,
+        announcement_id: announcementId,
+      });
+      setDismissedAnnouncements((prev) => [...prev, announcementId]);
+    } catch (err) {
+      console.error("Failed to dismiss announcement:", err);
+    }
+  };
+
+  // Filter announcements: show only non-dismissed, sorted by newest first
+  const activeAnnouncements = announcements
+    .filter((a) => !dismissedAnnouncements.includes(a.id))
+    .sort((a, b) => (b.created_date || "").localeCompare(a.created_date || ""));
   const thisWeek = useMemo(() => {
     const startStr = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
     return workouts.filter((w) => w.date && w.date >= startStr).reduce((s, w) => s + (w.distance || 0), 0);
@@ -46,6 +91,10 @@ export default function AthleteDashboardHome({ user, team, workouts, onLogWorkou
     [...workouts].sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 5),
   [workouts]);
 
+  // Get today's workout
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const todayWorkout = schedule.find((s) => s.date === todayStr);
+
   return (
     <div className="space-y-6 pb-28">
       {/* Header */}
@@ -64,6 +113,24 @@ export default function AthleteDashboardHome({ user, team, workouts, onLogWorkou
         </div>
         {user && <NotificationBell userEmail={user.email} />}
       </motion.div>
+
+      {/* Announcements */}
+      {!loadingDismissals && activeAnnouncements.length > 0 && (
+        <AnimatePresence>
+          <div className="space-y-2">
+            {activeAnnouncements.map((announcement) => (
+              <AnnouncementCard
+                key={announcement.id}
+                announcement={announcement}
+                onDismiss={handleDismissAnnouncement}
+              />
+            ))}
+          </div>
+        </AnimatePresence>
+      )}
+
+      {/* Today's Workout */}
+      <TodaysWorkoutCard schedule={todayWorkout} />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
