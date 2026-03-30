@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Ruler, TrendingUp, Activity, BarChart2, Lightbulb, Users, Zap } from "lucide-react";
+import { Ruler, TrendingUp, Activity, BarChart2, Lightbulb, Users, Zap, Plus } from "lucide-react";
 import { startOfWeek, format } from "date-fns";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
