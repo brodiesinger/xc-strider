@@ -22,7 +22,7 @@ const TABS = [
 ];
 
 export default function AthleteDashboard() {
-  const { user, isLoadingAuth, navigateToLogin } = useAuth();
+  const { user, isLoadingAuth } = useAuth();
   const [team, setTeam] = useState(null);
   const [workouts, setWorkouts] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -34,8 +34,7 @@ export default function AthleteDashboard() {
 
   // Step 1: assign athlete role if needed
   useEffect(() => {
-    if (isLoadingAuth) return;
-    if (!user) { navigateToLogin(); return; }
+    if (isLoadingAuth || !user) return;
     if (user.role !== "athlete") {
       base44.auth.updateMe({ role: "athlete" });
     }

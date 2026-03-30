@@ -20,7 +20,7 @@ const TABS = [
 ];
 
 export default function CoachDashboard() {
-  const { user, isLoadingAuth, navigateToLogin } = useAuth();
+  const { user, isLoadingAuth } = useAuth();
   const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -32,8 +32,7 @@ export default function CoachDashboard() {
 
   // Step 1: assign coach role if needed
   useEffect(() => {
-    if (isLoadingAuth) return;
-    if (!user) { navigateToLogin(); return; }
+    if (isLoadingAuth || !user) return;
 
     if (user.role !== "coach") {
       base44.auth.updateMe({ role: "coach" }).then(() => setRoleAssigned((v) => !v));
