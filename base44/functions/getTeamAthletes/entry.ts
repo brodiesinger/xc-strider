@@ -1,0 +1,26 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { team_id } = await req.json();
+    if (!team_id) {
+      return Response.json({ error: 'team_id is required' }, { status: 400 });
+    }
+
+    const athletes = await base44.asServiceRole.entities.User.filter(
+      { team_id, role: 'athlete' },
+      'full_name',
+      100
+    );
+
+    return Response.json({ athletes });
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+});

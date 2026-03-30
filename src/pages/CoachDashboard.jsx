@@ -52,8 +52,8 @@ export default function CoachDashboard() {
       fetchSchedule(me.team_id),
     ]);
     try {
-      const users = await base44.entities.User.filter({ team_id: me.team_id, role: "athlete" }, "full_name", 100);
-      setAthletes(users);
+      const res = await base44.functions.invoke("getTeamAthletes", { team_id: found.id });
+      setAthletes(res.data?.athletes || []);
     } catch {
       setAthletes([]);
     }
