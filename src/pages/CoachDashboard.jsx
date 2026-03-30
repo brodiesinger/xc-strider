@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/AuthContext";
 import AthleteList from "@/components/coach/AthleteList";
 import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
 import CreateTeam from "@/components/coach/CreateTeam";
-import TeamHeader from "@/components/coach/TeamHeader";
 import CoachTeamDashboard from "@/components/coach/CoachTeamDashboard";
 import CoachInsightsTab from "@/components/coach/CoachInsightsTab";
 import CoachPerformanceTab from "@/components/coach/CoachPerformanceTab";
@@ -20,16 +19,14 @@ const TABS = [
   { id: "team", label: "Team Dashboard" },
 ];
 
-
-
 export default function CoachDashboard() {
-  const [user, setUser] = useState(null);
+  const { user, isLoadingAuth, navigateToLogin } = useAuth();
   const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [schedule, setSchedule] = useState([]);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingTeam, setLoadingTeam] = useState(false);
   const [activeTab, setActiveTab] = useState("roster");
 
   const fetchAnnouncements = async (teamId) => {
@@ -42,51 +39,43 @@ export default function CoachDashboard() {
     setSchedule(data);
   };
 
-  const loadTeamAndRoster = async (me) => {
-    if (!me.team_id) return;
-    const found = await base44.entities.Team.get(me.team_id);
-    if (!found) return;
-    setTeam(found);
-    await Promise.all([
-      fetchAnnouncements(me.team_id),
-      fetchSchedule(me.team_id),
-    ]);
-    try {
-      const res = await base44.functions.invoke("getTeamAthletes", { team_id: found.id });
-      setAthletes(res.data?.athletes || []);
-    } catch {
-      setAthletes([]);
-    }
-  };
-
   useEffect(() => {
-    const init = async () => {
+    if (isLoadingAuth) return;
+    if (!user) {
+      navigateToLogin();
+      return;
+    }
+
+    // Assign coach role if not set
+    if (!user.role) {
+      base44.auth.updateMe({ role: "coach" });
+    }
+
+    if (!user.team_id) return;
+
+    const loadTeam = async () => {
+      setLoadingTeam(true);
       try {
-        let me = await base44.auth.me();
-        if (!me) {
-          base44.auth.redirectToLogin("/coach");
-          return;
-        }
-        // Assign coach role only if not yet assigned
-        if (!me.role) {
-          await base44.auth.updateMe({ role: "coach" });
-          me = await base44.auth.me();
-        }
-        sessionStorage.removeItem("intended_role");
-        setUser(me);
-        await loadTeamAndRoster(me);
-      } catch (err) {
-        console.error("Auth error:", err);
-        if (err?.status === 401) {
-          base44.auth.redirectToLogin("/coach");
-          return;
+        const found = await base44.entities.Team.get(user.team_id);
+        if (!found) return;
+        setTeam(found);
+        await Promise.all([
+          fetchAnnouncements(user.team_id),
+          fetchSchedule(user.team_id),
+        ]);
+        try {
+          const res = await base44.functions.invoke("getTeamAthletes", { team_id: found.id });
+          setAthletes(res.data?.athletes || []);
+        } catch {
+          setAthletes([]);
         }
       } finally {
-        setLoading(false);
+        setLoadingTeam(false);
       }
     };
-    init();
-  }, []);
+
+    loadTeam();
+  }, [user, isLoadingAuth]);
 
   const handleTeamCreated = (newTeam) => {
     setTeam(newTeam);
@@ -95,13 +84,15 @@ export default function CoachDashboard() {
     setSchedule([]);
   };
 
-  if (loading) {
+  if (isLoadingAuth || loadingTeam) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
+
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -128,7 +119,7 @@ export default function CoachDashboard() {
             </div>
 
             {!team ? (
-              user ? <CreateTeam user={user} onTeamCreated={handleTeamCreated} /> : null
+              <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
             ) : (
               <>
                 <TabNav tabs={TABS} active={activeTab} onChange={setActiveTab} />
