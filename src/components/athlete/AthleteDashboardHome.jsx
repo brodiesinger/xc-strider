@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Ruler, TrendingUp, Activity, BarChart2, Lightbulb, Users, Zap, Plus } from "lucide-react";
+import { Ruler, TrendingUp, Activity, BarChart2, Lightbulb, Users, Zap } from "lucide-react";
 import { startOfWeek, format } from "date-fns";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -118,9 +118,8 @@ export default function AthleteDashboardHome({ user, team, workouts, onLogWorkou
       {/* Quick Actions */}
       <section>
         <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {[
-            { Icon: Plus, label: "Log Run", color: "bg-primary/10 text-primary", action: () => onLogWorkout() },
             { Icon: BarChart2, label: "Performance", color: "bg-blue-100 text-blue-600", action: () => onNavigate("performance") },
             { Icon: Users, label: "Team", color: "bg-accent/15 text-accent", action: () => onNavigate("profile") },
             { Icon: Zap, label: "Recovery", color: "bg-orange-100 text-orange-500", action: () => onNavigate("insights") },
