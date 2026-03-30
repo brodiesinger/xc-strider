@@ -85,58 +85,58 @@ export default function AthleteDashboardHome({ user, team, workouts, onLogWorkou
       </div>
 
       {/* Log Workout CTA */}
-      <button
-        onClick={onLogWorkout}
-        className="w-full rounded-2xl bg-primary text-primary-foreground p-5 flex items-center gap-4 shadow-md active:scale-[0.98] transition-transform"
-      >
-        <div className="w-12 h-12 rounded-full bg-primary-foreground/15 flex items-center justify-center shrink-0">
-          <Plus className="w-6 h-6" />
-        </div>
-        <div className="text-left">
-          <p className="font-bold text-lg leading-tight">Log Workout</p>
-          <p className="text-sm text-primary-foreground/70">Tap to record today's run</p>
-        </div>
-      </button>
+       <button
+         onClick={onLogWorkout}
+         className="w-full rounded-2xl bg-primary text-primary-foreground p-5 flex items-center gap-4 shadow-md active:scale-[0.98] transition-transform"
+       >
+         <div className="w-12 h-12 rounded-full bg-primary-foreground/15 flex items-center justify-center shrink-0">
+           <Plus className="w-6 h-6" />
+         </div>
+         <div className="text-left">
+           <p className="font-bold text-lg leading-tight">Log Workout</p>
+           <p className="text-sm text-primary-foreground/70">Tap to record today's run</p>
+         </div>
+       </button>
 
-      {/* Chart */}
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <p className="text-sm font-semibold text-foreground mb-4">Weekly Mileage</p>
-        <ResponsiveContainer width="100%" height={150}>
-          <BarChart data={chartData} barSize={22}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-            <XAxis dataKey="week" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={24} />
-            <Tooltip
-              formatter={(v) => [`${v} mi`, "Miles"]}
-              contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "0.5rem", fontSize: 12 }}
-            />
-            <Bar dataKey="miles" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+       {/* Quick Actions */}
+       <section>
+         <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
+         <div className="grid grid-cols-3 gap-2">
+           {[
+             { Icon: BarChart2, label: "Performance", color: "bg-blue-100 text-blue-600", action: () => onNavigate("performance") },
+             { Icon: Users, label: "Team", color: "bg-accent/15 text-accent", action: () => onNavigate("profile") },
+             { Icon: Zap, label: "Recovery", color: "bg-orange-100 text-orange-500", action: () => onNavigate("insights") },
+           ].map(({ Icon, label, color, action }) => (
+             <button
+               key={label}
+               onClick={action}
+               className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all"
+             >
+               <div className={`w-9 h-9 rounded-full ${color} flex items-center justify-center`}>
+                 <Icon className="w-4 h-4" />
+               </div>
+               <span className="text-[11px] font-medium text-foreground text-center leading-tight">{label}</span>
+             </button>
+           ))}
+         </div>
+       </section>
 
-      {/* Quick Actions */}
-      <section>
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { Icon: BarChart2, label: "Performance", color: "bg-blue-100 text-blue-600", action: () => onNavigate("performance") },
-            { Icon: Users, label: "Team", color: "bg-accent/15 text-accent", action: () => onNavigate("profile") },
-            { Icon: Zap, label: "Recovery", color: "bg-orange-100 text-orange-500", action: () => onNavigate("insights") },
-          ].map(({ Icon, label, color, action }) => (
-            <button
-              key={label}
-              onClick={action}
-              className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all"
-            >
-              <div className={`w-9 h-9 rounded-full ${color} flex items-center justify-center`}>
-                <Icon className="w-4 h-4" />
-              </div>
-              <span className="text-[11px] font-medium text-foreground text-center leading-tight">{label}</span>
-            </button>
-          ))}
-        </div>
-      </section>
+       {/* Chart */}
+       <div className="rounded-2xl border border-border bg-card p-5">
+         <p className="text-sm font-semibold text-foreground mb-4">Weekly Mileage</p>
+         <ResponsiveContainer width="100%" height={150}>
+           <BarChart data={chartData} barSize={22}>
+             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+             <XAxis dataKey="week" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+             <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={24} />
+             <Tooltip
+               formatter={(v) => [`${v} mi`, "Miles"]}
+               contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "0.5rem", fontSize: 12 }}
+             />
+             <Bar dataKey="miles" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+           </BarChart>
+         </ResponsiveContainer>
+       </div>
 
       {/* Recent Workouts */}
       {recentWorkouts.length > 0 && (
