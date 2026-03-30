@@ -21,9 +21,9 @@ export default function DailyCheckInCard({ onSubmit, isLoading }) {
     <motion.div
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="rounded-2xl border border-border bg-card p-5 space-y-4"
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.25, type: "spring", stiffness: 400, damping: 30 }}
+      className="rounded-2xl border border-border bg-gradient-to-br from-card to-card/95 p-5 space-y-4 shadow-sm"
     >
       <div className="flex items-center gap-2">
         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -129,13 +129,15 @@ export default function DailyCheckInCard({ onSubmit, isLoading }) {
       </div>
 
       {/* Submit Button */}
-      <Button
-        onClick={handleSubmit}
-        disabled={isLoading}
-        className="w-full"
-      >
-        {isLoading ? "Saving..." : "Complete Check-In"}
-      </Button>
+      <motion.div whileTap={{ scale: 0.98 }}>
+        <Button
+          onClick={handleSubmit}
+          disabled={isLoading}
+          className="w-full"
+        >
+          {isLoading ? "Saving..." : "Complete Check-In ✓"}
+        </Button>
+      </motion.div>
     </motion.div>
   );
 }

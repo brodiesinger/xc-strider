@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Users, Activity, Megaphone, ShieldAlert, ChevronRight, CalendarDays } from "lucide-react";
 import { format, startOfWeek } from "date-fns";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import RosterDrawer from "./RosterDrawer";
 import PostAnnouncement from "./PostAnnouncement";
 import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
@@ -20,15 +20,17 @@ function StatCard({ icon: Icon, label, value, sub }) {
 
 function QuickActionBtn({ icon: Icon, label, onClick, color = "bg-primary/10 text-primary" }) {
   return (
-    <button
+    <motion.button
+      whileHover={{ y: -2 }}
+      whileTap={{ y: 0 }}
       onClick={onClick}
-      className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all"
+      className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-colors"
     >
       <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center`}>
         <Icon className="w-5 h-5" />
       </div>
       <span className="text-xs font-medium text-foreground text-center leading-tight">{label}</span>
-    </button>
+    </motion.button>
   );
 }
 
@@ -102,12 +104,15 @@ export default function CoachHomeTab({
       </section>
 
       {/* Post Announcement (collapsible) */}
-      {showAnnouncement && (
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-border bg-card p-5"
-        >
+      <AnimatePresence>
+        {showAnnouncement && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="rounded-2xl border border-border bg-card p-5"
+          >
           <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
             <Megaphone className="w-4 h-4 text-primary" /> Post Announcement
           </h3>
@@ -116,8 +121,9 @@ export default function CoachHomeTab({
             coachName={user?.full_name || user?.email}
             onPosted={() => { onAnnouncementPosted(); setShowAnnouncement(false); }}
           />
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Roster Preview Card */}
       <section>

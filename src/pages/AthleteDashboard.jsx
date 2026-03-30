@@ -77,13 +77,12 @@ export default function AthleteDashboard() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-background">
+        <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
+        <p className="text-sm text-muted-foreground">Loading your dashboard...</p>
       </div>
     );
   }
-
-  const navActiveTab = logDrawerOpen ? activeTab : activeTab;
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,7 +101,7 @@ export default function AthleteDashboard() {
         )}
 
         {activeTab === "performance" && (
-          <div className="space-y-6 pb-28">
+          <div className="space-y-6 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
             <div className="pt-2">
               <h1 className="text-2xl font-bold text-foreground">Performance</h1>
               <p className="text-sm text-muted-foreground mt-0.5">Your PRs and goals</p>
@@ -121,14 +120,15 @@ export default function AthleteDashboard() {
         )}
 
         {activeTab === "insights" && (
-          <div className="space-y-4 pb-28">
+          <div className="space-y-4 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
             <div className="pt-2">
               <h1 className="text-2xl font-bold text-foreground">Insights</h1>
               <p className="text-sm text-muted-foreground mt-0.5">Recovery and injury intel</p>
             </div>
             {loadingWorkouts ? (
-              <div className="flex justify-center py-16">
+              <div className="flex flex-col items-center justify-center py-16 gap-2">
                 <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
+                <p className="text-xs text-muted-foreground">Analyzing your data...</p>
               </div>
             ) : (
               <>
@@ -158,12 +158,14 @@ export default function AthleteDashboard() {
         )}
 
         {activeTab === "profile" && (
-          <AthleteProfileTab
-            user={user}
-            team={team}
-            announcements={announcements}
-            schedule={schedule}
-          />
+          <div className="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+            <AthleteProfileTab
+              user={user}
+              team={team}
+              announcements={announcements}
+              schedule={schedule}
+            />
+          </div>
         )}
       </main>
 

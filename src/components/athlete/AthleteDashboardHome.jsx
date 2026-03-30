@@ -126,8 +126,10 @@ export default function AthleteDashboardHome({ user, team, workouts, announcemen
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const todayWorkout = schedule.find((s) => s.date === todayStr);
 
+  const isLoading = loadingDismissals || checkInLoading;
+
   return (
-    <div className="space-y-6 pb-28">
+    <div className="space-y-6 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -178,7 +180,13 @@ export default function AthleteDashboardHome({ user, team, workouts, announcemen
           { Icon: Activity, label: "Avg / Week", value: `${avgWeekly.toFixed(1)}`, unit: "mi" },
           { Icon: TrendingUp, label: "Total", value: `${total.toFixed(1)}`, unit: "mi" },
         ].map(({ Icon, label, value, unit }) => (
-          <div key={label} className="rounded-2xl border border-border bg-card p-4 flex flex-col gap-1">
+          <motion.div
+            key={label}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="rounded-2xl border border-border bg-gradient-to-br from-card to-card/90 p-4 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow"
+          >
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center mb-1">
               <Icon className="w-4 h-4 text-primary" />
             </div>
@@ -186,50 +194,59 @@ export default function AthleteDashboardHome({ user, team, workouts, announcemen
               {value} <span className="text-xs font-normal text-muted-foreground">{unit}</span>
             </p>
             <p className="text-xs text-muted-foreground">{label}</p>
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* Log Workout CTA */}
-       <button
-         onClick={onLogWorkout}
-         className="w-full rounded-2xl bg-primary text-primary-foreground p-5 flex items-center gap-4 shadow-md active:scale-[0.98] transition-transform"
-       >
-         <div className="w-12 h-12 rounded-full bg-primary-foreground/15 flex items-center justify-center shrink-0">
-           <Plus className="w-6 h-6" />
-         </div>
-         <div className="text-left">
-           <p className="font-bold text-lg leading-tight">Log Workout</p>
-           <p className="text-sm text-primary-foreground/70">Tap to record today's run</p>
-         </div>
-       </button>
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={onLogWorkout}
+        className="w-full rounded-2xl bg-primary text-primary-foreground p-5 flex items-center gap-4 shadow-md transition-transform"
+      >
+        <div className="w-12 h-12 rounded-full bg-primary-foreground/15 flex items-center justify-center shrink-0">
+          <Plus className="w-6 h-6" />
+        </div>
+        <div className="text-left">
+          <p className="font-bold text-lg leading-tight">Log Workout</p>
+          <p className="text-sm text-primary-foreground/70">Tap to record today's run</p>
+        </div>
+      </motion.button>
 
-       {/* Quick Actions */}
-       <section>
-         <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
-         <div className="grid grid-cols-3 gap-2">
-           {[
-             { Icon: BarChart2, label: "Performance", color: "bg-blue-100 text-blue-600", action: () => onNavigate("performance") },
-             { Icon: Users, label: "Team", color: "bg-accent/15 text-accent", action: () => onNavigate("profile") },
-             { Icon: Zap, label: "Recovery", color: "bg-orange-100 text-orange-500", action: () => onNavigate("insights") },
-           ].map(({ Icon, label, color, action }) => (
-             <button
-               key={label}
-               onClick={action}
-               className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all"
-             >
-               <div className={`w-9 h-9 rounded-full ${color} flex items-center justify-center`}>
-                 <Icon className="w-4 h-4" />
-               </div>
-               <span className="text-[11px] font-medium text-foreground text-center leading-tight">{label}</span>
-             </button>
-           ))}
-         </div>
-       </section>
+      {/* Quick Actions */}
+      <section>
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { Icon: BarChart2, label: "Performance", color: "bg-blue-100 text-blue-600", action: () => onNavigate("performance") },
+            { Icon: Users, label: "Team", color: "bg-accent/15 text-accent", action: () => onNavigate("profile") },
+            { Icon: Zap, label: "Recovery", color: "bg-orange-100 text-orange-500", action: () => onNavigate("insights") },
+          ].map(({ Icon, label, color, action }) => (
+            <motion.button
+              key={label}
+              whileHover={{ y: -2 }}
+              whileTap={{ y: 0 }}
+              onClick={action}
+              className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 transition-colors"
+            >
+              <div className={`w-9 h-9 rounded-full ${color} flex items-center justify-center`}>
+                <Icon className="w-4 h-4" />
+              </div>
+              <span className="text-[11px] font-medium text-foreground text-center leading-tight">{label}</span>
+            </motion.button>
+          ))}
+        </div>
+      </section>
 
-       {/* Chart */}
-       <div className="rounded-2xl border border-border bg-card p-5">
-         <p className="text-sm font-semibold text-foreground mb-4">Weekly Mileage</p>
+      {/* Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="rounded-2xl border border-border bg-card p-5"
+      >
+        <p className="text-sm font-semibold text-foreground mb-4">Weekly Mileage</p>
          <ResponsiveContainer width="100%" height={150}>
            <BarChart data={chartData} barSize={22}>
              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
@@ -242,7 +259,7 @@ export default function AthleteDashboardHome({ user, team, workouts, announcemen
              <Bar dataKey="miles" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
            </BarChart>
          </ResponsiveContainer>
-       </div>
+         </motion.div>
 
       {/* Recent Workouts */}
       {recentWorkouts.length > 0 && (

@@ -82,8 +82,9 @@ export default function CoachDashboard() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-background">
+        <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
+        <p className="text-sm text-muted-foreground">Loading your team...</p>
       </div>
     );
   }
@@ -107,11 +108,14 @@ export default function CoachDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
       <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
         {!team ? (
-          <div className="py-8">
-            <h1 className="text-2xl font-bold text-foreground mb-6">Welcome, Coach 👋</h1>
+          <div className="py-8 space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground mb-1">Welcome, Coach 👋</h1>
+              <p className="text-sm text-muted-foreground">Create or manage your team to get started</p>
+            </div>
             <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
           </div>
         ) : (
@@ -131,13 +135,13 @@ export default function CoachDashboard() {
               />
             )}
             {activeTab === "performance" && (
-              <div className="pb-24">
+              <div className="pb-24 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
                 <h1 className="text-2xl font-bold text-foreground mb-6">Performance</h1>
                 <CoachPerformanceTab athletes={athletes} teamId={team.id} />
               </div>
             )}
             {activeTab === "insights" && (
-              <div className="pb-24">
+              <div className="pb-24 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
                 <h1 className="text-2xl font-bold text-foreground mb-6">Insights</h1>
                 <CoachInsightsTab athletes={athletes} teamId={team.id} />
               </div>

@@ -9,9 +9,11 @@ export default function TodaysWorkoutCard({ schedule }) {
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-dashed border-border bg-muted/30 p-4 text-center"
+        transition={{ duration: 0.25 }}
+        className="rounded-2xl border border-dashed border-border bg-muted/30 p-5 text-center"
       >
-        <p className="text-sm text-muted-foreground">No workout assigned yet</p>
+        <p className="text-sm text-muted-foreground font-medium">No workout assigned yet</p>
+        <p className="text-xs text-muted-foreground mt-1">Check back soon for today's practice</p>
       </motion.div>
     );
   }
@@ -20,7 +22,8 @@ export default function TodaysWorkoutCard({ schedule }) {
     <motion.div
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-border bg-card p-4 space-y-3"
+      transition={{ duration: 0.25 }}
+      className="rounded-2xl border border-border bg-gradient-to-br from-primary/5 to-primary/2 p-5 space-y-3 shadow-sm"
     >
       <div className="flex items-start justify-between gap-2">
         <div>

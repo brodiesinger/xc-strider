@@ -4,12 +4,17 @@ import { X, Megaphone } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
 export default function AnnouncementCard({ announcement, onDismiss }) {
+  const handleDismiss = () => {
+    onDismiss(announcement.id);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: 100 }}
-      className="rounded-2xl border border-border bg-card p-4 flex gap-3 relative"
+      exit={{ opacity: 0, x: 100, scale: 0.95 }}
+      transition={{ duration: 0.25, type: "spring", stiffness: 400, damping: 30 }}
+      className="rounded-2xl border border-border bg-gradient-to-br from-accent/5 to-accent/2 p-4 flex gap-3 relative shadow-sm hover:shadow-md transition-shadow"
     >
       <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
         <Megaphone className="w-5 h-5 text-accent" />
@@ -27,12 +32,15 @@ export default function AnnouncementCard({ announcement, onDismiss }) {
           </p>
         )}
       </div>
-      <button
-        onClick={() => onDismiss(announcement.id)}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={handleDismiss}
         className="shrink-0 p-1.5 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+        aria-label="Dismiss announcement"
       >
         <X className="w-4 h-4" />
-      </button>
+      </motion.button>
     </motion.div>
   );
 }
