@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Users, Activity, Megaphone, ShieldAlert, Plus, ChevronRight, CalendarDays } from "lucide-react";
+import { Users, Activity, Megaphone, ShieldAlert, ChevronRight, CalendarDays } from "lucide-react";
 import { format, startOfWeek } from "date-fns";
 import { motion } from "framer-motion";
 import RosterDrawer from "./RosterDrawer";
@@ -55,9 +55,6 @@ export default function CoachHomeTab({
     .reduce((s, w) => s + (w.distance || 0), 0);
 
   const recentWorkouts = [...workouts].sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 3);
-
-  const todayStr = format(new Date(), "yyyy-MM-dd");
-  const todaySchedule = schedule.filter((s) => s.date === todayStr);
 
   return (
     <div className="space-y-6 pb-24">

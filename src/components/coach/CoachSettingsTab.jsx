@@ -4,7 +4,7 @@ import { Settings, Copy, LogOut, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 export default function CoachSettingsTab({ user, team }) {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
 
   const copyCode = async () => {
     try {
