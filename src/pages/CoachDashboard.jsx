@@ -42,7 +42,6 @@ export default function CoachDashboard() {
   const [schedule, setSchedule] = useState([]);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [accessDenied, setAccessDenied] = useState(false);
   const [activeTab, setActiveTab] = useState("roster");
 
   const fetchAnnouncements = async (teamId) => {
@@ -78,27 +77,13 @@ export default function CoachDashboard() {
       try {
         const me = await base44.auth.me();
         if (!me) {
-          setAccessDenied(true);
           setLoading(false);
           return;
         }
-        
-        let user = me;
-        if (me.role !== "coach" && sessionStorage.getItem("selectedRole") === "coach") {
-          await base44.auth.updateMe({ role: "coach" });
-          user = await base44.auth.me();
-        }
-        
-        setUser(user);
-        if (user.role !== "coach") {
-          setAccessDenied(true);
-          setLoading(false);
-          return;
-        }
-        await loadTeamAndRoster(user);
+        setUser(me);
+        await loadTeamAndRoster(me);
       } catch (err) {
         console.error("Auth error:", err);
-        setAccessDenied(true);
       } finally {
         setLoading(false);
       }
@@ -117,17 +102,6 @@ export default function CoachDashboard() {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (accessDenied) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-center px-6">
-        <div>
-          <p className="text-2xl font-bold text-foreground mb-2">Access Denied</p>
-          <p className="text-muted-foreground text-sm">This page is for coaches only.</p>
-        </div>
       </div>
     );
   }
