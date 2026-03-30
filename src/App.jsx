@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import SelectRole from "./pages/SelectRole";
 import AthleteDashboard from "./pages/AthleteDashboard";
 import CoachDashboard from "./pages/CoachDashboard";
+import TeamSettings from "./pages/TeamSettings";
 
 const AuthenticatedApp = () => {
   const { user, isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
@@ -45,6 +46,7 @@ const AuthenticatedApp = () => {
       <Route path="/select-role" element={<SelectRole />} />
       <Route path="/athlete" element={<AthleteDashboard />} />
       <Route path="/coach" element={<CoachDashboard />} />
+      <Route path="/team-settings" element={<TeamSettings />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

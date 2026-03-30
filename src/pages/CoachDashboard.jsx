@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import AthleteList from "@/components/coach/AthleteList";
@@ -90,11 +91,19 @@ export default function CoachDashboard() {
           </>
         ) : (
           <>
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-foreground">Coach Dashboard</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Welcome, {user.full_name || user.email}
-              </p>
+            <div className="mb-6 flex items-start justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Coach Dashboard</h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Welcome, {user.full_name || user.email}
+                </p>
+              </div>
+              {team && (
+                <Link to="/team-settings" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mt-1">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Team Settings</span>
+                </Link>
+              )}
             </div>
 
             {!team ? (
