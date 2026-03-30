@@ -1,30 +1,96 @@
-import React from "react";
-import { TreePine } from "lucide-react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
+import { TreePine } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Home() {
   const navigate = useNavigate();
+  const [mode, setMode] = useState("login"); // "login" | "signup"
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      if (mode === "signup") {
+        await base44.auth.signUp(email, password);
+      } else {
+        await base44.auth.signIn(email, password);
+      }
+      navigate("/select-role");
+    } catch (err) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
-      <div className="flex flex-col items-center gap-8 w-full max-w-xs">
+      <div className="flex flex-col items-center gap-8 w-full max-w-sm">
+        {/* Logo */}
         <div className="flex flex-col items-center gap-3">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
             <TreePine className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">XC Team App</h1>
-          <p className="text-sm text-muted-foreground">Select a view to continue</p>
+          <p className="text-sm text-muted-foreground">
+            {mode === "login" ? "Sign in to your account" : "Create a new account"}
+          </p>
         </div>
 
-        <div className="flex flex-col gap-3 w-full">
-          <Button onClick={() => navigate("/coach")} className="w-full">
-            Enter as Coach (Test)
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="w-full space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {error && (
+            <p className="text-sm text-destructive">{error}</p>
+          )}
+
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
           </Button>
-          <Button onClick={() => navigate("/athlete")} variant="outline" className="w-full">
-            Enter as Athlete (Test)
-          </Button>
-        </div>
+        </form>
+
+        {/* Toggle */}
+        <p className="text-sm text-muted-foreground">
+          {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
+          <button
+            type="button"
+            onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); }}
+            className="text-primary font-medium hover:underline"
+          >
+            {mode === "login" ? "Sign up" : "Sign in"}
+          </button>
+        </p>
       </div>
     </div>
   );
