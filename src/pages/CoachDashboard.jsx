@@ -1,23 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { ChevronLeft, Settings } from "lucide-react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState, useMemo } from "react";
+import { ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import AthleteList from "@/components/coach/AthleteList";
 import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
 import CreateTeam from "@/components/coach/CreateTeam";
-import CoachTeamDashboard from "@/components/coach/CoachTeamDashboard";
 import CoachInsightsTab from "@/components/coach/CoachInsightsTab";
 import CoachPerformanceTab from "@/components/coach/CoachPerformanceTab";
-import WeeklyScheduleManager from "@/components/coach/WeeklyScheduleManager";
-import NavBar from "@/components/shared/NavBar";
-import TabNav from "@/components/shared/TabNav";
-
-const TABS = [
-  { id: "roster", label: "Roster" },
-  { id: "performance", label: "Performance" },
-  { id: "insights", label: "Insights" },
-  { id: "team", label: "Team Dashboard" },
-];
+import CoachBottomNav from "@/components/coach/CoachBottomNav";
+import CoachHomeTab from "@/components/coach/CoachHomeTab";
+import CoachSettingsTab from "@/components/coach/CoachSettingsTab";
+import RosterDrawer from "@/components/coach/RosterDrawer";
+import { TreePine } from "lucide-react";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState(null);
@@ -27,7 +19,9 @@ export default function CoachDashboard() {
   const [schedule, setSchedule] = useState([]);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("roster");
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [rosterOpen, setRosterOpen] = useState(false);
+  const [announcementOpen, setAnnouncementOpen] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -70,90 +64,106 @@ export default function CoachDashboard() {
     setSchedule([]);
   };
 
+  const refreshAnnouncements = async () => {
+    const ann = await base44.entities.Announcement.filter({ team_id: team.id }, "-created_date", 20);
+    setAnnouncements(ann);
+  };
+
+  const refreshSchedule = async () => {
+    const sched = await base44.entities.PracticeSchedule.filter({ team_id: team.id }, "date", 50);
+    setSchedule(sched);
+  };
+
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Athlete detail view
+  if (selectedAthlete) {
+    return (
+      <div className="min-h-screen bg-background pb-24">
+        <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur-sm px-4 h-14 flex items-center">
+          <button
+            onClick={() => setSelectedAthlete(null)}
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back
+          </button>
+        </header>
+        <main className="max-w-lg mx-auto px-4 py-6">
+          <AthleteWorkouts athlete={selectedAthlete} />
+        </main>
+        <CoachBottomNav active={activeTab} onChange={setActiveTab} />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <NavBar title={team ? team.name : "XC Team App"} subtitle={team ? `Join Code: ${team.join_code}` : null} />
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-        {selectedAthlete ? (
-          <>
-            <button
-              onClick={() => setSelectedAthlete(null)}
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Back to roster
-            </button>
-            <AthleteWorkouts athlete={selectedAthlete} />
-          </>
+      {/* Top Header */}
+      <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur-sm">
+        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TreePine className="w-4 h-4 text-primary" />
+            <span className="font-bold text-sm text-primary">XC Team App</span>
+          </div>
+          {team && (
+            <span className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-mono">
+              {team.join_code}
+            </span>
+          )}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-lg mx-auto px-4 py-6 pb-28">
+        {!team ? (
+          <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
         ) : (
           <>
-            <div className="mb-6 flex items-start justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Coach Dashboard</h1>
-                {user && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Welcome, {user.full_name || user.email}
-                  </p>
-                )}
-              </div>
-              {team && (
-                <Link to="/team-settings" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mt-1">
-                  <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline">Team Settings</span>
-                </Link>
-              )}
-            </div>
-
-            {!team ? (
-              <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
-            ) : (
-              <>
-                <TabNav tabs={TABS} active={activeTab} onChange={setActiveTab} />
-
-                {activeTab === "roster" && (
-                  <AthleteList athletes={athletes} onSelect={setSelectedAthlete} />
-                )}
-                {activeTab === "performance" && (
-                  <CoachPerformanceTab athletes={athletes} teamId={team.id} />
-                )}
-                {activeTab === "insights" && (
-                  <CoachInsightsTab athletes={athletes} teamId={team.id} />
-                )}
-                {activeTab === "team" && (
-                  <div className="space-y-6">
-                    <WeeklyScheduleManager teamId={team.id} schedule={schedule} onRefresh={async () => {
-                      const sched = await base44.entities.PracticeSchedule.filter({ team_id: team.id }, "date", 50);
-                      setSchedule(sched);
-                    }} />
-                    <CoachTeamDashboard
-                      team={team}
-                      user={user}
-                      announcements={announcements}
-                      schedule={schedule}
-                      onAnnouncementPosted={async () => {
-                        const ann = await base44.entities.Announcement.filter({ team_id: team.id }, "-created_date", 20);
-                        setAnnouncements(ann);
-                      }}
-                      onScheduleRefresh={async () => {
-                        const sched = await base44.entities.PracticeSchedule.filter({ team_id: team.id }, "date", 50);
-                        setSchedule(sched);
-                      }}
-                    />
-                  </div>
-                )}
-              </>
+            {activeTab === "dashboard" && (
+              <CoachHomeTab
+                user={user}
+                team={team}
+                athletes={athletes}
+                announcements={announcements}
+                schedule={schedule}
+                onViewRoster={() => setRosterOpen(true)}
+                onOpenAnnouncement={() => setAnnouncementOpen(true)}
+                onAnnouncementPosted={refreshAnnouncements}
+                onScheduleRefresh={refreshSchedule}
+                weeklyMiles={0}
+                injuryAlerts={0}
+              />
+            )}
+            {activeTab === "performance" && (
+              <CoachPerformanceTab athletes={athletes} teamId={team.id} />
+            )}
+            {activeTab === "insights" && (
+              <CoachInsightsTab athletes={athletes} teamId={team.id} />
+            )}
+            {activeTab === "settings" && (
+              <CoachSettingsTab user={user} team={team} />
             )}
           </>
         )}
       </main>
+
+      {/* Roster Drawer */}
+      <RosterDrawer
+        athletes={athletes}
+        open={rosterOpen}
+        onClose={() => setRosterOpen(false)}
+        onSelect={setSelectedAthlete}
+      />
+
+      {/* Bottom Nav */}
+      <CoachBottomNav active={activeTab} onChange={setActiveTab} />
     </div>
   );
 }

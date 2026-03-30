@@ -6,7 +6,7 @@ import PageNotFound from "./lib/PageNotFound";
 import Home from "./pages/Home";
 import SelectRole from "./pages/SelectRole";
 import AthleteDashboard from "./pages/AthleteDashboard";
-import CoachDashboard from "./pages/CoachDashboard";
+import CoachDashboard from "./pages/CoachDashboard.jsx";
 import TeamSettings from "./pages/TeamSettings";
 
 function App() {
