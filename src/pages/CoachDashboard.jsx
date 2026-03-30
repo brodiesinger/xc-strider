@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { ChevronLeft, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
 import AthleteList from "@/components/coach/AthleteList";
 import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
 import CreateTeam from "@/components/coach/CreateTeam";
@@ -21,19 +20,26 @@ const TABS = [
 ];
 
 export default function CoachDashboard() {
-  const { user, isLoadingAuth } = useAuth();
+  const [user, setUser] = useState(null);
   const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [schedule, setSchedule] = useState([]);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
-  const [loadingTeam, setLoadingTeam] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("roster");
 
   useEffect(() => {
-    if (!user?.team_id) return;
+    base44.auth.me().then(setUser).catch(() => setUser(null));
+  }, []);
+
+  useEffect(() => {
+    if (!user?.team_id) {
+      setLoading(false);
+      return;
+    }
     const loadTeam = async () => {
-      setLoadingTeam(true);
+      setLoading(true);
       try {
         const found = await base44.entities.Team.get(user.team_id);
         if (!found) return;
@@ -51,7 +57,7 @@ export default function CoachDashboard() {
           setAthletes([]);
         }
       } finally {
-        setLoadingTeam(false);
+        setLoading(false);
       }
     };
     loadTeam();
@@ -64,15 +70,13 @@ export default function CoachDashboard() {
     setSchedule([]);
   };
 
-  if (isLoadingAuth || loadingTeam) {
+  if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
-
-  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,9 +98,11 @@ export default function CoachDashboard() {
             <div className="mb-6 flex items-start justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Coach Dashboard</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Welcome, {user.full_name || user.email}
-                </p>
+                {user && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Welcome, {user.full_name || user.email}
+                  </p>
+                )}
               </div>
               {team && (
                 <Link to="/team-settings" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mt-1">

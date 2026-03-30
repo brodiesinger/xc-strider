@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
 import NavBar from "@/components/shared/NavBar";
 import TabNav from "@/components/shared/TabNav";
 import WeeklyMileage from "@/components/athlete/WeeklyMileage";
@@ -12,7 +11,6 @@ import InjuryRiskTab from "@/components/athlete/insights/InjuryRiskTab";
 import AIInjuryChat from "@/components/athlete/insights/AIInjuryChat";
 import SmartRecoveryTab from "@/components/athlete/insights/SmartRecoveryTab";
 import RacePRManager from "@/components/athlete/RacePRManager";
-import JoinTeam from "@/components/athlete/JoinTeam";
 
 const TABS = [
   { id: "mileage", label: "Weekly Mileage" },
@@ -22,20 +20,27 @@ const TABS = [
 ];
 
 export default function AthleteDashboard() {
-  const { user, isLoadingAuth } = useAuth();
+  const [user, setUser] = useState(null);
   const [team, setTeam] = useState(null);
   const [workouts, setWorkouts] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [schedule, setSchedule] = useState([]);
-  const [loadingTeam, setLoadingTeam] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadingWorkouts, setLoadingWorkouts] = useState(false);
   const [activeTab, setActiveTab] = useState("mileage");
   const [insightTab, setInsightTab] = useState("risk");
 
   useEffect(() => {
-    if (!user?.team_id) return;
+    base44.auth.me().then(setUser).catch(() => setUser(null));
+  }, []);
+
+  useEffect(() => {
+    if (!user?.team_id) {
+      setLoading(false);
+      return;
+    }
     const loadTeam = async () => {
-      setLoadingTeam(true);
+      setLoading(true);
       try {
         const found = await base44.entities.Team.get(user.team_id);
         if (found) {
@@ -43,7 +48,7 @@ export default function AthleteDashboard() {
           await Promise.all([fetchWorkouts(user), fetchTeamData(found.id)]);
         }
       } finally {
-        setLoadingTeam(false);
+        setLoading(false);
       }
     };
     loadTeam();
@@ -69,23 +74,12 @@ export default function AthleteDashboard() {
     setSchedule(sched);
   };
 
-  const handleTeamJoined = async (joinedTeam) => {
-    setTeam(joinedTeam);
-    await Promise.all([fetchWorkouts(user), fetchTeamData(joinedTeam.id)]);
-  };
-
-  if (isLoadingAuth || loadingTeam) {
+  if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
       </div>
     );
-  }
-
-  if (!user) return null;
-
-  if (!team) {
-    return <JoinTeam onTeamJoined={handleTeamJoined} />;
   }
 
   return (
@@ -101,11 +95,11 @@ export default function AthleteDashboard() {
           <div className="flex items-start justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                Hey, {user.full_name || user.email.split("@")[0]} 👋
+                {user ? `Hey, ${user.full_name || user.email.split("@")[0]} 👋` : "Athlete Dashboard"}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">{team.name}</p>
+              {team && <p className="text-sm text-muted-foreground mt-1">{team.name}</p>}
             </div>
-            <NotificationBell userEmail={user.email} />
+            {user && <NotificationBell userEmail={user.email} />}
           </div>
         </motion.div>
 
@@ -117,7 +111,7 @@ export default function AthleteDashboard() {
               <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
             </div>
           ) : (
-            <WeeklyMileage workouts={workouts} onSaved={() => fetchWorkouts(user)} teamId={team.id} />
+            <WeeklyMileage workouts={workouts} onSaved={() => fetchWorkouts(user)} teamId={team?.id} />
           )
         )}
 
@@ -128,8 +122,8 @@ export default function AthleteDashboard() {
             </div>
           ) : (
             <div className="space-y-6">
-              <RacePRManager userEmail={user.email} />
-              <GoalTracker workouts={workouts} userEmail={user.email} />
+              <RacePRManager userEmail={user?.email} />
+              <GoalTracker workouts={workouts} userEmail={user?.email} />
             </div>
           )
         )}
@@ -158,9 +152,9 @@ export default function AthleteDashboard() {
                   </button>
                 ))}
               </div>
-              {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user.email} />}
+              {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user?.email} />}
               {insightTab === "chat" && <AIInjuryChat workouts={workouts} />}
-              {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user.email} />}
+              {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
             </div>
           )
         )}

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useAuth } from "@/lib/AuthContext";
 import NavBar from "@/components/shared/NavBar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,12 +8,16 @@ import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function TeamSettings() {
-  const { user, isLoadingAuth } = useAuth();
+  const [user, setUser] = useState(null);
   const [team, setTeam] = useState(null);
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => setUser(null));
+  }, []);
 
   useEffect(() => {
     if (!user?.team_id) { setLoading(false); return; }
@@ -34,7 +37,7 @@ export default function TeamSettings() {
     setTimeout(() => setSaved(false), 2500);
   };
 
-  if (isLoadingAuth || loading) {
+  if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
