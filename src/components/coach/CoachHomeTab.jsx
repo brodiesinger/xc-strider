@@ -1,174 +1,213 @@
-import React, { useMemo } from "react";
-import {
-  Users, Activity, AlertTriangle, Megaphone, Plus, Calendar, ChevronRight, TrendingUp
-} from "lucide-react";
-import { format, subDays, isAfter, parseISO } from "date-fns";
+import React, { useState } from "react";
+import { Users, Activity, Megaphone, ShieldAlert, Plus, ChevronRight, CalendarDays } from "lucide-react";
+import { format, startOfWeek } from "date-fns";
+import { motion } from "framer-motion";
+import RosterDrawer from "./RosterDrawer";
 import PostAnnouncement from "./PostAnnouncement";
 import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
 import WeeklyScheduleManager from "./WeeklyScheduleManager";
 
-function StatCard({ icon: Icon, label, value, sub, color = "text-primary" }) {
+function StatCard({ icon: Icon, label, value, sub }) {
   return (
-    <div className="flex-1 rounded-2xl bg-card border border-border p-4 flex flex-col gap-1.5">
-      <div className={`w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center ${color}`}>
-        <Icon className="w-4 h-4" />
-      </div>
+    <div className="flex-1 rounded-2xl border border-border bg-card p-4 flex flex-col gap-1">
+      <Icon className="w-5 h-5 text-primary mb-1" />
       <p className="text-2xl font-bold text-foreground">{value}</p>
-      <p className="text-xs text-muted-foreground leading-tight">{label}</p>
-      {sub && <p className="text-[10px] text-muted-foreground">{sub}</p>}
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
     </div>
   );
 }
 
+function QuickActionBtn({ icon: Icon, label, onClick, color = "bg-primary/10 text-primary" }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all"
+    >
+      <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <span className="text-xs font-medium text-foreground text-center leading-tight">{label}</span>
+    </button>
+  );
+}
+
 export default function CoachHomeTab({
-  user, team, athletes, announcements, schedule,
-  onViewRoster, onOpenAnnouncement, onAnnouncementPosted, onScheduleRefresh,
-  workoutsThisWeek = 0, weeklyMiles = 0, injuryAlerts = 0,
+  user,
+  team,
+  athletes,
+  announcements,
+  schedule,
+  workouts,
+  onAnnouncementPosted,
+  onScheduleRefresh,
+  onSelectAthlete,
+  onOpenInsights,
 }) {
-  const upcomingEvents = useMemo(() => {
-    const today = new Date();
-    return schedule
-      .filter((s) => {
-        try { return isAfter(parseISO(s.date), subDays(today, 1)); } catch { return false; }
-      })
-      .slice(0, 3);
-  }, [schedule]);
+  const [rosterOpen, setRosterOpen] = useState(false);
+  const [showAnnouncement, setShowAnnouncement] = useState(false);
+
+  // Weekly mileage across all athletes
+  const thisWeekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
+  const nextWeekStart = format(new Date(startOfWeek(new Date(), { weekStartsOn: 1 }).getTime() + 7 * 86400000), "yyyy-MM-dd");
+  const weekMiles = workouts
+    .filter((w) => w.date && w.date >= thisWeekStart && w.date < nextWeekStart)
+    .reduce((s, w) => s + (w.distance || 0), 0);
+
+  const recentWorkouts = [...workouts].sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 3);
+
+  const todayStr = format(new Date(), "yyyy-MM-dd");
+  const todaySchedule = schedule.filter((s) => s.date === todayStr);
 
   return (
-    <div className="space-y-6">
-      {/* Greeting */}
+    <div className="space-y-6 pb-24">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">
-          Hey, {user?.full_name?.split(" ")[0] || "Coach"} 👋
-        </h1>
-        <p className="text-sm text-muted-foreground mt-0.5">{team?.name}</p>
+        <p className="text-sm text-muted-foreground">Good to see you,</p>
+        <h1 className="text-2xl font-bold text-foreground">{user?.full_name || user?.email?.split("@")[0]} 👋</h1>
+        {team && <p className="text-sm text-primary font-medium mt-0.5">{team.name}</p>}
       </div>
 
       {/* Stats Row */}
       <div className="flex gap-3">
         <StatCard icon={Users} label="Athletes" value={athletes.length} />
-        <StatCard icon={TrendingUp} label="Mi this week" value={weeklyMiles.toFixed(1)} />
-        {injuryAlerts > 0 && (
-          <StatCard icon={AlertTriangle} label="Alerts" value={injuryAlerts} color="text-destructive" />
-        )}
-      </div>
-
-      {/* Roster Card */}
-      <div className="rounded-2xl bg-card border border-border p-5">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-foreground flex items-center gap-2">
-            <Users className="w-4 h-4 text-primary" />
-            Team Roster
-          </h2>
-          <button
-            onClick={onViewRoster}
-            className="text-sm text-primary font-medium flex items-center gap-1 hover:underline"
-          >
-            View All <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-        {athletes.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No athletes yet. Share your join code!</p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {athletes.slice(0, 6).map((a) => (
-              <div
-                key={a.id}
-                className="flex items-center gap-1.5 bg-muted rounded-full px-3 py-1"
-              >
-                <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
-                  <span className="text-[9px] font-bold text-primary">
-                    {(a.full_name || a.email).charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <span className="text-xs font-medium text-foreground truncate max-w-[80px]">
-                  {a.full_name?.split(" ")[0] || a.email.split("@")[0]}
-                </span>
-              </div>
-            ))}
-            {athletes.length > 6 && (
-              <div className="flex items-center bg-muted rounded-full px-3 py-1">
-                <span className="text-xs text-muted-foreground">+{athletes.length - 6} more</span>
-              </div>
-            )}
-          </div>
-        )}
+        <StatCard icon={Activity} label="Team Miles" value={`${weekMiles.toFixed(1)}`} sub="this week" />
       </div>
 
       {/* Quick Actions */}
-      <div>
-        <h2 className="font-semibold text-foreground mb-3">Quick Actions</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: "Post Announcement", icon: Megaphone, onClick: onOpenAnnouncement },
-            { label: "View Roster", icon: Users, onClick: onViewRoster },
-            { label: "Schedule Practice", icon: Calendar, onClick: null },
-            { label: "Team Activity", icon: Activity, onClick: null },
-          ].map(({ label, icon: Icon, onClick }) => (
-            <button
-              key={label}
-              onClick={onClick}
-              className="rounded-2xl border border-border bg-card p-4 flex flex-col items-start gap-2 hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
-            >
-              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Icon className="w-4 h-4 text-primary" />
-              </div>
-              <span className="text-sm font-medium text-foreground">{label}</span>
-            </button>
-          ))}
+      <section>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
+        <div className="grid grid-cols-4 gap-2">
+          <QuickActionBtn
+            icon={Megaphone}
+            label="Announce"
+            onClick={() => setShowAnnouncement((v) => !v)}
+            color="bg-accent/20 text-accent"
+          />
+          <QuickActionBtn
+            icon={Users}
+            label="Roster"
+            onClick={() => setRosterOpen(true)}
+          />
+          <QuickActionBtn
+            icon={ShieldAlert}
+            label="Injury Alerts"
+            onClick={onOpenInsights}
+            color="bg-orange-100 text-orange-500"
+          />
+          <QuickActionBtn
+            icon={CalendarDays}
+            label="Schedule"
+            onClick={() => document.getElementById("schedule-section")?.scrollIntoView({ behavior: "smooth" })}
+            color="bg-blue-100 text-blue-500"
+          />
         </div>
-      </div>
+      </section>
 
-      {/* Upcoming Schedule */}
-      {upcomingEvents.length > 0 && (
-        <div className="rounded-2xl bg-card border border-border p-5">
-          <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-primary" />
-            Upcoming
-          </h2>
-          <div className="space-y-3">
-            {upcomingEvents.map((event) => (
-              <div key={event.id} className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex flex-col items-center justify-center shrink-0">
-                  <span className="text-[10px] font-bold text-primary leading-none">
-                    {format(parseISO(event.date), "MMM").toUpperCase()}
-                  </span>
-                  <span className="text-sm font-bold text-primary leading-tight">
-                    {format(parseISO(event.date), "d")}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{event.title}</p>
-                  {event.time && <p className="text-xs text-muted-foreground">{event.time}</p>}
-                  {event.location && <p className="text-xs text-muted-foreground">{event.location}</p>}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Post Announcement (collapsible) */}
+      {showAnnouncement && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-border bg-card p-5"
+        >
+          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Megaphone className="w-4 h-4 text-primary" /> Post Announcement
+          </h3>
+          <PostAnnouncement
+            teamId={team.id}
+            coachName={user?.full_name || user?.email}
+            onPosted={() => { onAnnouncementPosted(); setShowAnnouncement(false); }}
+          />
+        </motion.div>
       )}
 
-      {/* Announcements */}
-      <div className="rounded-2xl bg-card border border-border p-5">
-        <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-          <Megaphone className="w-4 h-4 text-primary" />
-          Announcements
-        </h2>
-        <PostAnnouncement
-          teamId={team.id}
-          coachName={user?.full_name || user?.email}
-          onPosted={onAnnouncementPosted}
-        />
-        <div className="mt-4">
+      {/* Roster Preview Card */}
+      <section>
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-foreground flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" /> Team Roster
+            </h2>
+            <button
+              onClick={() => setRosterOpen(true)}
+              className="flex items-center gap-1 text-sm text-primary font-medium hover:underline"
+            >
+              View All <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          {athletes.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No athletes yet. Share your join code!</p>
+          ) : (
+            <div className="space-y-2">
+              {athletes.slice(0, 3).map((a) => (
+                <div key={a.id} className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-bold text-primary">
+                      {(a.full_name || a.email || "?")[0].toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium text-foreground truncate">{a.full_name || a.email}</p>
+                </div>
+              ))}
+              {athletes.length > 3 && (
+                <p className="text-xs text-muted-foreground pt-1">+{athletes.length - 3} more athletes</p>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Recent Activity */}
+      <section>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Recent Activity</h2>
+        <div className="rounded-2xl border border-border bg-card divide-y divide-border">
+          {recentWorkouts.length === 0 ? (
+            <p className="text-sm text-muted-foreground p-4">No recent workouts logged.</p>
+          ) : (
+            recentWorkouts.map((w) => (
+              <div key={w.id} className="flex items-center justify-between p-4">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{w.athlete_name || w.athlete_email}</p>
+                  <p className="text-xs text-muted-foreground">{w.date} · {w.distance} mi</p>
+                </div>
+                <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
+                  {w.time_minutes} min
+                </span>
+              </div>
+            ))
+          )}
+          {announcements.slice(0, 1).map((a) => (
+            <div key={a.id} className="flex items-start gap-3 p-4">
+              <Megaphone className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-foreground">{a.coach_name || "Coach"}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2">{a.message}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Schedule Section */}
+      <section id="schedule-section">
+        <WeeklyScheduleManager teamId={team.id} schedule={schedule} onRefresh={onScheduleRefresh} />
+      </section>
+
+      {/* Announcements Feed */}
+      <section>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Announcements</h2>
+        <div className="rounded-2xl border border-border bg-card p-5">
           <AnnouncementFeed announcements={announcements} />
         </div>
-      </div>
+      </section>
 
-      {/* Schedule Manager */}
-      <WeeklyScheduleManager
-        teamId={team.id}
-        schedule={schedule}
-        onRefresh={onScheduleRefresh}
+      {/* Roster Drawer */}
+      <RosterDrawer
+        athletes={athletes}
+        open={rosterOpen}
+        onClose={() => setRosterOpen(false)}
+        onSelectAthlete={onSelectAthlete}
       />
     </div>
   );

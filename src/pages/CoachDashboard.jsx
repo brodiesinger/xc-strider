@@ -1,15 +1,13 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
 import CreateTeam from "@/components/coach/CreateTeam";
 import CoachInsightsTab from "@/components/coach/CoachInsightsTab";
 import CoachPerformanceTab from "@/components/coach/CoachPerformanceTab";
-import CoachBottomNav from "@/components/coach/CoachBottomNav";
+import BottomNav from "@/components/coach/BottomNav";
 import CoachHomeTab from "@/components/coach/CoachHomeTab";
 import CoachSettingsTab from "@/components/coach/CoachSettingsTab";
-import RosterDrawer from "@/components/coach/RosterDrawer";
-import { TreePine } from "lucide-react";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState(null);
@@ -17,11 +15,10 @@ export default function CoachDashboard() {
   const [athletes, setAthletes] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [schedule, setSchedule] = useState([]);
+  const [workouts, setWorkouts] = useState([]);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [rosterOpen, setRosterOpen] = useState(false);
-  const [announcementOpen, setAnnouncementOpen] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -46,7 +43,13 @@ export default function CoachDashboard() {
         setSchedule(sched);
         try {
           const res = await base44.functions.invoke("getTeamAthletes", { team_id: found.id });
-          setAthletes(res.data?.athletes || []);
+          const athleteList = res.data?.athletes || [];
+          setAthletes(athleteList);
+          // Load all team workouts for home dashboard summary
+          if (athleteList.length > 0) {
+            const allWorkouts = await base44.entities.Workout.filter({ team_id: found.id }, "-date", 200);
+            setWorkouts(allWorkouts);
+          }
         } catch {
           setAthletes([]);
         }
@@ -62,14 +65,17 @@ export default function CoachDashboard() {
     setAthletes([]);
     setAnnouncements([]);
     setSchedule([]);
+    setWorkouts([]);
   };
 
   const refreshAnnouncements = async () => {
+    if (!team) return;
     const ann = await base44.entities.Announcement.filter({ team_id: team.id }, "-created_date", 20);
     setAnnouncements(ann);
   };
 
   const refreshSchedule = async () => {
+    if (!team) return;
     const sched = await base44.entities.PracticeSchedule.filter({ team_id: team.id }, "date", 50);
     setSchedule(sched);
   };
@@ -82,48 +88,32 @@ export default function CoachDashboard() {
     );
   }
 
-  // Athlete detail view
+  // Athlete detail view (full-screen overlay, no bottom nav)
   if (selectedAthlete) {
     return (
-      <div className="min-h-screen bg-background pb-24">
-        <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur-sm px-4 h-14 flex items-center">
+      <div className="min-h-screen bg-background">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
           <button
             onClick={() => setSelectedAthlete(null)}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
           >
             <ChevronLeft className="w-4 h-4" />
             Back
           </button>
-        </header>
-        <main className="max-w-lg mx-auto px-4 py-6">
           <AthleteWorkouts athlete={selectedAthlete} />
-        </main>
-        <CoachBottomNav active={activeTab} onChange={setActiveTab} />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top Header */}
-      <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur-sm">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <TreePine className="w-4 h-4 text-primary" />
-            <span className="font-bold text-sm text-primary">XC Team App</span>
-          </div>
-          {team && (
-            <span className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-mono">
-              {team.join_code}
-            </span>
-          )}
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-lg mx-auto px-4 py-6 pb-28">
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
         {!team ? (
-          <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
+          <div className="py-8">
+            <h1 className="text-2xl font-bold text-foreground mb-6">Welcome, Coach 👋</h1>
+            <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
+          </div>
         ) : (
           <>
             {activeTab === "dashboard" && (
@@ -133,19 +123,24 @@ export default function CoachDashboard() {
                 athletes={athletes}
                 announcements={announcements}
                 schedule={schedule}
-                onViewRoster={() => setRosterOpen(true)}
-                onOpenAnnouncement={() => setAnnouncementOpen(true)}
+                workouts={workouts}
                 onAnnouncementPosted={refreshAnnouncements}
                 onScheduleRefresh={refreshSchedule}
-                weeklyMiles={0}
-                injuryAlerts={0}
+                onSelectAthlete={setSelectedAthlete}
+                onOpenInsights={() => setActiveTab("insights")}
               />
             )}
             {activeTab === "performance" && (
-              <CoachPerformanceTab athletes={athletes} teamId={team.id} />
+              <div className="pb-24">
+                <h1 className="text-2xl font-bold text-foreground mb-6">Performance</h1>
+                <CoachPerformanceTab athletes={athletes} teamId={team.id} />
+              </div>
             )}
             {activeTab === "insights" && (
-              <CoachInsightsTab athletes={athletes} teamId={team.id} />
+              <div className="pb-24">
+                <h1 className="text-2xl font-bold text-foreground mb-6">Insights</h1>
+                <CoachInsightsTab athletes={athletes} teamId={team.id} />
+              </div>
             )}
             {activeTab === "settings" && (
               <CoachSettingsTab user={user} team={team} />
@@ -154,16 +149,7 @@ export default function CoachDashboard() {
         )}
       </main>
 
-      {/* Roster Drawer */}
-      <RosterDrawer
-        athletes={athletes}
-        open={rosterOpen}
-        onClose={() => setRosterOpen(false)}
-        onSelect={setSelectedAthlete}
-      />
-
-      {/* Bottom Nav */}
-      <CoachBottomNav active={activeTab} onChange={setActiveTab} />
+      <BottomNav active={activeTab} onChange={setActiveTab} />
     </div>
   );
 }
