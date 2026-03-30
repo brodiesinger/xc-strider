@@ -1,22 +1,11 @@
 import React from "react";
-import { TreePine, Users, Trophy } from "lucide-react";
+import { TreePine, Trophy, Users } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 export default function Home() {
-  const handleCoachSignIn = async () => {
-    sessionStorage.setItem("intended_role", "coach");
-    base44.auth.redirectToLogin("/coach");
-  };
-
-  const handleAthleteSignIn = async () => {
-    sessionStorage.setItem("intended_role", "athlete");
-    base44.auth.redirectToLogin("/athlete");
-  };
-
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
-      <div className="text-center space-y-8 max-w-sm w-full">
-        {/* Logo */}
+      <div className="text-center space-y-10 max-w-sm w-full">
         <div className="flex flex-col items-center gap-3">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
             <TreePine className="w-8 h-8 text-primary" />
@@ -27,10 +16,9 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Role Buttons */}
         <div className="flex flex-col gap-4">
           <button
-            onClick={handleCoachSignIn}
+            onClick={() => base44.auth.redirectToLogin("/coach")}
             className="w-full rounded-xl border-2 border-border p-5 text-left hover:border-primary/50 hover:bg-primary/5 transition-all group"
           >
             <div className="flex items-center gap-3">
@@ -38,14 +26,14 @@ export default function Home() {
                 <Trophy className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-foreground">Coach Sign In</p>
+                <p className="font-semibold text-foreground">I'm a Coach</p>
                 <p className="text-xs text-muted-foreground">Create and manage your team</p>
               </div>
             </div>
           </button>
 
           <button
-            onClick={handleAthleteSignIn}
+            onClick={() => base44.auth.redirectToLogin("/athlete")}
             className="w-full rounded-xl border-2 border-border p-5 text-left hover:border-primary/50 hover:bg-primary/5 transition-all group"
           >
             <div className="flex items-center gap-3">
@@ -53,7 +41,7 @@ export default function Home() {
                 <Users className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-foreground">Athlete Sign In</p>
+                <p className="font-semibold text-foreground">I'm an Athlete</p>
                 <p className="text-xs text-muted-foreground">Join your team and track progress</p>
               </div>
             </div>

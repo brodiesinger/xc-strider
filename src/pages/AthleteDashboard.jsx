@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import JoinTeam from "@/components/athlete/JoinTeam";
 import NavBar from "@/components/shared/NavBar";
 import TabNav from "@/components/shared/TabNav";
 import WeeklyMileage from "@/components/athlete/WeeklyMileage";
 import TeamDashboardView from "@/components/shared/TeamDashboardView";
-
 import GoalTracker from "@/components/athlete/GoalTracker";
 import NotificationBell from "@/components/shared/NotificationBell";
 import InjuryRiskTab from "@/components/athlete/insights/InjuryRiskTab";
@@ -22,16 +22,42 @@ const TABS = [
 ];
 
 export default function AthleteDashboard() {
-  const [user, setUser] = useState(null);
+  const { user, isLoadingAuth, navigateToLogin } = useAuth();
   const [team, setTeam] = useState(null);
   const [workouts, setWorkouts] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [schedule, setSchedule] = useState([]);
-  const [loadingUser, setLoadingUser] = useState(true);
-  const [loadingWorkouts, setLoadingWorkouts] = useState(true);
-  const [error, setError] = useState(null);
+  const [loadingTeam, setLoadingTeam] = useState(false);
+  const [loadingWorkouts, setLoadingWorkouts] = useState(false);
   const [activeTab, setActiveTab] = useState("mileage");
   const [insightTab, setInsightTab] = useState("risk");
+
+  // Step 1: assign athlete role if needed
+  useEffect(() => {
+    if (isLoadingAuth) return;
+    if (!user) { navigateToLogin(); return; }
+    if (user.role !== "athlete") {
+      base44.auth.updateMe({ role: "athlete" });
+    }
+  }, [user, isLoadingAuth]);
+
+  // Step 2: load team
+  useEffect(() => {
+    if (!user || !user.team_id) return;
+    const loadTeam = async () => {
+      setLoadingTeam(true);
+      try {
+        const found = await base44.entities.Team.get(user.team_id);
+        if (found) {
+          setTeam(found);
+          await Promise.all([fetchWorkouts(user), fetchTeamData(found.id)]);
+        }
+      } finally {
+        setLoadingTeam(false);
+      }
+    };
+    loadTeam();
+  }, [user?.team_id]);
 
   const fetchWorkouts = async (me) => {
     if (!me?.email) return;
@@ -53,66 +79,20 @@ export default function AthleteDashboard() {
     setSchedule(sched);
   };
 
-  const loadTeam = async (me) => {
-    if (!me.team_id) return null;
-    const found = await base44.entities.Team.get(me.team_id);
-    if (found) setTeam(found);
-    return found;
-  };
-
-  useEffect(() => {
-    const init = async () => {
-      try {
-        let me = await base44.auth.me();
-        if (!me) {
-          base44.auth.redirectToLogin("/athlete");
-          return;
-        }
-        // Assign athlete role only if not yet assigned
-        if (!me.role) {
-          await base44.auth.updateMe({ role: "athlete" });
-          me = await base44.auth.me();
-        }
-        sessionStorage.removeItem("intended_role");
-        setUser(me);
-        const loadedTeam = await loadTeam(me);
-        setLoadingUser(false);
-        if (loadedTeam) {
-          await Promise.all([fetchWorkouts(me), fetchTeamData(loadedTeam.id)]);
-        } else {
-          setLoadingWorkouts(false);
-        }
-      } catch {
-        setError("Failed to load your dashboard. Please refresh.");
-        setLoadingUser(false);
-        setLoadingWorkouts(false);
-      }
-    };
-    init();
-  }, []);
-
   const handleTeamJoined = async (joinedTeam) => {
     setTeam(joinedTeam);
-    const me = await base44.auth.me();
-    setUser(me);
-    await Promise.all([fetchWorkouts(me), fetchTeamData(joinedTeam.id)]);
+    await Promise.all([fetchWorkouts(user), fetchTeamData(joinedTeam.id)]);
   };
 
-  if (error) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center text-center px-6">
-        <p className="text-destructive text-sm">{error}</p>
-      </div>
-    );
-  }
-
-  if (loadingUser) {
+  if (isLoadingAuth || loadingTeam) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
+
+  if (!user) return null;
 
   if (!team) {
     return <JoinTeam onTeamJoined={handleTeamJoined} />;
@@ -131,7 +111,7 @@ export default function AthleteDashboard() {
           <div className="flex items-start justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                {user ? `Hey, ${user.full_name || user.email.split("@")[0]} 👋` : "Loading..."}
+                Hey, {user.full_name || user.email.split("@")[0]} 👋
               </h1>
               <p className="text-sm text-muted-foreground mt-1">{team.name}</p>
             </div>
@@ -147,11 +127,7 @@ export default function AthleteDashboard() {
               <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
             </div>
           ) : (
-            <WeeklyMileage
-              workouts={workouts}
-              onSaved={() => fetchWorkouts(user)}
-              teamId={team?.id}
-            />
+            <WeeklyMileage workouts={workouts} onSaved={() => fetchWorkouts(user)} teamId={team?.id} />
           )
         )}
 
@@ -175,7 +151,6 @@ export default function AthleteDashboard() {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Insight sub-tabs */}
               <div className="flex gap-1 bg-muted rounded-xl p-1">
                 {[
                   { id: "risk", label: "🛡️ Injury Risk" },
@@ -193,7 +168,6 @@ export default function AthleteDashboard() {
                   </button>
                 ))}
               </div>
-
               {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user?.email} />}
               {insightTab === "chat" && <AIInjuryChat workouts={workouts} />}
               {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
