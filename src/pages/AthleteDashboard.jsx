@@ -1,23 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
-import NavBar from "@/components/shared/NavBar";
-import TabNav from "@/components/shared/TabNav";
-import WeeklyMileage from "@/components/athlete/WeeklyMileage";
-import TeamDashboardView from "@/components/shared/TeamDashboardView";
+import AthleteBottomNav from "@/components/athlete/AthleteBottomNav";
+import AthleteDashboardHome from "@/components/athlete/AthleteDashboardHome";
+import LogWorkoutDrawer from "@/components/athlete/LogWorkoutDrawer";
+import AthleteProfileTab from "@/components/athlete/AthleteProfileTab";
 import GoalTracker from "@/components/athlete/GoalTracker";
-import NotificationBell from "@/components/shared/NotificationBell";
+import RacePRManager from "@/components/athlete/RacePRManager";
 import InjuryRiskTab from "@/components/athlete/insights/InjuryRiskTab";
 import AIInjuryChat from "@/components/athlete/insights/AIInjuryChat";
 import SmartRecoveryTab from "@/components/athlete/insights/SmartRecoveryTab";
-import RacePRManager from "@/components/athlete/RacePRManager";
-
-const TABS = [
-  { id: "mileage", label: "Weekly Mileage" },
-  { id: "performance", label: "Performance" },
-  { id: "insights", label: "Insights" },
-  { id: "team", label: "Team Dashboard" },
-];
 
 export default function AthleteDashboard() {
   const [user, setUser] = useState(null);
@@ -27,8 +18,9 @@ export default function AthleteDashboard() {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingWorkouts, setLoadingWorkouts] = useState(false);
-  const [activeTab, setActiveTab] = useState("mileage");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [insightTab, setInsightTab] = useState("risk");
+  const [logDrawerOpen, setLogDrawerOpen] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -74,6 +66,15 @@ export default function AthleteDashboard() {
     setSchedule(sched);
   };
 
+  // "Log" tab in bottom nav opens drawer directly
+  const handleTabChange = (tab) => {
+    if (tab === "log") {
+      setLogDrawerOpen(true);
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -82,87 +83,96 @@ export default function AthleteDashboard() {
     );
   }
 
+  const navActiveTab = logDrawerOpen ? activeTab : activeTab;
+
   return (
     <div className="min-h-screen bg-background">
-      <NavBar />
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mb-6"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                {user ? `Hey, ${user.full_name || user.email.split("@")[0]} 👋` : "Athlete Dashboard"}
-              </h1>
-              {team && <p className="text-sm text-muted-foreground mt-1">{team.name}</p>}
-            </div>
-            {user && <NotificationBell userEmail={user.email} />}
-          </div>
-        </motion.div>
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
 
-        <TabNav tabs={TABS} active={activeTab} onChange={setActiveTab} />
-
-        {activeTab === "mileage" && (
-          loadingWorkouts ? (
-            <div className="flex justify-center py-16">
-              <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
-            </div>
-          ) : (
-            <WeeklyMileage workouts={workouts} onSaved={() => fetchWorkouts(user)} teamId={team?.id} />
-          )
+        {activeTab === "dashboard" && (
+          <AthleteDashboardHome
+            user={user}
+            team={team}
+            workouts={workouts}
+            onLogWorkout={() => setLogDrawerOpen(true)}
+            onNavigate={setActiveTab}
+          />
         )}
 
         {activeTab === "performance" && (
-          loadingWorkouts ? (
-            <div className="flex justify-center py-16">
-              <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
+          <div className="space-y-6 pb-28">
+            <div className="pt-2">
+              <h1 className="text-2xl font-bold text-foreground">Performance</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Your PRs and goals</p>
             </div>
-          ) : (
-            <div className="space-y-6">
-              <RacePRManager userEmail={user?.email} />
-              <GoalTracker workouts={workouts} userEmail={user?.email} />
-            </div>
-          )
+            {loadingWorkouts ? (
+              <div className="flex justify-center py-16">
+                <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
+              </div>
+            ) : (
+              <>
+                <RacePRManager userEmail={user?.email} />
+                <GoalTracker workouts={workouts} userEmail={user?.email} />
+              </>
+            )}
+          </div>
         )}
 
         {activeTab === "insights" && (
-          loadingWorkouts ? (
-            <div className="flex justify-center py-16">
-              <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
+          <div className="space-y-4 pb-28">
+            <div className="pt-2">
+              <h1 className="text-2xl font-bold text-foreground">Insights</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Recovery and injury intel</p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex gap-1 bg-muted rounded-xl p-1">
-                {[
-                  { id: "risk", label: "🛡️ Injury Risk" },
-                  { id: "chat", label: "💬 AI Assistant" },
-                  { id: "recovery", label: "⚡ Recovery" },
-                ].map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => setInsightTab(t.id)}
-                    className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors ${
-                      insightTab === t.id ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
+            {loadingWorkouts ? (
+              <div className="flex justify-center py-16">
+                <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
               </div>
-              {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user?.email} />}
-              {insightTab === "chat" && <AIInjuryChat workouts={workouts} />}
-              {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
-            </div>
-          )
+            ) : (
+              <>
+                <div className="flex gap-1 bg-muted rounded-xl p-1">
+                  {[
+                    { id: "risk", label: "🛡️ Injury Risk" },
+                    { id: "chat", label: "💬 AI Chat" },
+                    { id: "recovery", label: "⚡ Recovery" },
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setInsightTab(t.id)}
+                      className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors ${
+                        insightTab === t.id ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user?.email} />}
+                {insightTab === "chat" && <AIInjuryChat workouts={workouts} />}
+                {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
+              </>
+            )}
+          </div>
         )}
 
-        {activeTab === "team" && (
-          <TeamDashboardView announcements={announcements} schedule={schedule} />
+        {activeTab === "profile" && (
+          <AthleteProfileTab
+            user={user}
+            team={team}
+            announcements={announcements}
+            schedule={schedule}
+          />
         )}
       </main>
+
+      <AthleteBottomNav active={activeTab} onChange={handleTabChange} />
+
+      <LogWorkoutDrawer
+        open={logDrawerOpen}
+        onClose={() => setLogDrawerOpen(false)}
+        onSaved={() => fetchWorkouts(user)}
+        teamId={team?.id}
+      />
     </div>
   );
 }
