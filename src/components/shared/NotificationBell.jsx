@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Bell, X, CheckCheck } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
@@ -16,24 +16,24 @@ export default function NotificationBell({ userEmail }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!userEmail) return;
     const data = await base44.entities.Notification.filter({ user_email: userEmail }, "-created_date", 30);
     setNotifications(data);
-  };
+  }, [userEmail]);
 
-  useEffect(() => { load(); }, [userEmail]);
+  useEffect(() => { load(); }, [load]);
 
   // Subscribe to real-time notification changes
   useEffect(() => {
     if (!userEmail) return;
     const unsubscribe = base44.entities.Notification.subscribe((event) => {
-      if (event.data.user_email === userEmail) {
+      if (event.data?.user_email === userEmail) {
         load();
       }
     });
     return unsubscribe;
-  }, [userEmail]);
+  }, [userEmail, load]);
 
   // Close on outside click
   useEffect(() => {

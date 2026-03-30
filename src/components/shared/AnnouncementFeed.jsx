@@ -17,7 +17,7 @@ export default function AnnouncementFeed({ announcements }) {
           <p className="text-sm text-foreground leading-relaxed">{a.message}</p>
           <p className="text-xs text-muted-foreground mt-2">
             {a.coach_name || "Coach"} ·{" "}
-            {a.created_date ? format(parseISO(a.created_date), "MMM d, yyyy") : ""}
+            {a.created_date ? (() => { try { return format(parseISO(a.created_date), "MMM d, yyyy"); } catch { return ""; } })() : ""}
           </p>
         </div>
       ))}

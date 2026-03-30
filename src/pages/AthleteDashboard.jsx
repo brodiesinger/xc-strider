@@ -68,8 +68,8 @@ export default function AthleteDashboard() {
           base44.auth.redirectToLogin("/athlete");
           return;
         }
-        // Assign athlete role if coming from home page selection
-        if (me.role !== "athlete") {
+        // Assign athlete role only if not yet assigned
+        if (!me.role) {
           await base44.auth.updateMe({ role: "athlete" });
           me = await base44.auth.me();
         }

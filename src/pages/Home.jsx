@@ -1,6 +1,5 @@
 import React from "react";
 import { TreePine, Users, Trophy } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 
 export default function Home() {

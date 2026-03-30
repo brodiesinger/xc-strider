@@ -20,19 +20,7 @@ const TABS = [
   { id: "team", label: "Team Dashboard" },
 ];
 
-function buildAthleteRoster(workouts) {
-  const map = new Map();
-  for (const w of workouts) {
-    if (w.athlete_email && !map.has(w.athlete_email)) {
-      map.set(w.athlete_email, {
-        id: w.athlete_email,
-        email: w.athlete_email,
-        full_name: w.athlete_name || null,
-      });
-    }
-  }
-  return Array.from(map.values());
-}
+
 
 export default function CoachDashboard() {
   const [user, setUser] = useState(null);
@@ -60,12 +48,13 @@ export default function CoachDashboard() {
       const found = await base44.entities.Team.get(me.team_id);
       if (found) {
         setTeam(found);
-        const [workouts] = await Promise.all([
-          base44.entities.Workout.filter({ team_id: me.team_id }, "-date", 500),
+        await Promise.all([
           fetchAnnouncements(me.team_id),
           fetchSchedule(me.team_id),
+          base44.entities.User.filter({ team_id: me.team_id, role: "athlete" }, "full_name", 100)
+            .then((users) => setAthletes(users))
+            .catch(() => setAthletes([])),
         ]);
-        setAthletes(buildAthleteRoster(workouts));
       }
     } catch (err) {
       console.error("Error loading team:", err);
@@ -80,8 +69,8 @@ export default function CoachDashboard() {
           base44.auth.redirectToLogin("/coach");
           return;
         }
-        // Assign coach role if coming from home page selection
-        if (me.role !== "coach") {
+        // Assign coach role only if not yet assigned
+        if (!me.role) {
           await base44.auth.updateMe({ role: "coach" });
           me = await base44.auth.me();
         }
