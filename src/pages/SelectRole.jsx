@@ -8,10 +8,10 @@ export default function SelectRole() {
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
 
-  const handleSelect = async (role) => {
+  const handleSelect = async (userType) => {
     setSaving(true);
-    await base44.auth.updateMe({ role });
-    if (role === "admin") {
+    await base44.auth.updateMe({ user_type: userType });
+    if (userType === "coach") {
       navigate("/coach");
     } else {
       navigate("/athlete");
@@ -31,14 +31,14 @@ export default function SelectRole() {
 
         <div className="flex flex-col gap-3 w-full">
           <Button
-            onClick={() => handleSelect("admin")}
+            onClick={() => handleSelect("coach")}
             disabled={saving}
             className="w-full h-14 text-base"
           >
             I am a Coach
           </Button>
           <Button
-            onClick={() => handleSelect("user")}
+            onClick={() => handleSelect("athlete")}
             disabled={saving}
             variant="outline"
             className="w-full h-14 text-base"
