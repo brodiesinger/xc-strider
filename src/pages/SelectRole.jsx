@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { TreePine } from "lucide-react";
@@ -12,11 +12,33 @@ export default function SelectRole() {
   const [step, setStep] = useState("role"); // "role" | "join"
   const [joinCode, setJoinCode] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  // If user already has a role, redirect them directly
+  useEffect(() => {
+    base44.auth.me().then((user) => {
+      if (!user) {
+        navigate("/");
+        return;
+      }
+      if (user.user_type === "coach") {
+        navigate("/coach");
+      } else if (user.user_type === "athlete") {
+        navigate("/athlete");
+      } else {
+        setLoading(false);
+      }
+    }).catch(() => navigate("/"));
+  }, []);
 
   const handleCoach = async () => {
     setSaving(true);
-    await base44.auth.updateMe({ user_type: "coach" });
-    navigate("/coach");
+    try {
+      await base44.auth.updateMe({ user_type: "coach" });
+      navigate("/coach");
+    } catch (err) {
+      setSaving(false);
+    }
   };
 
   const handleAthleteRole = () => {
@@ -28,7 +50,6 @@ export default function SelectRole() {
     setError("");
     setSaving(true);
     try {
-      // Find team by join code
       const teams = await base44.entities.Team.filter({ join_code: joinCode.trim().toUpperCase() });
       if (!teams || teams.length === 0) {
         setError("Invalid join code. Please check with your coach and try again.");
@@ -36,7 +57,6 @@ export default function SelectRole() {
         return;
       }
       const team = teams[0];
-      // Save user type and team_id
       await base44.auth.updateMe({ user_type: "athlete", team_id: team.id });
       navigate("/athlete");
     } catch (err) {
@@ -44,6 +64,14 @@ export default function SelectRole() {
       setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (step === "join") {
     return (

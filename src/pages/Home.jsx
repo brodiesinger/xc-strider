@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { TreePine } from "lucide-react";
@@ -14,7 +14,28 @@ export default function Home() {
   const [otpCode, setOtpCode] = useState("");
   const [step, setStep] = useState("credentials"); // "credentials" | "otp"
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // If already logged in, redirect to the right dashboard
+  useEffect(() => {
+    base44.auth.me().then((user) => {
+      if (user) {
+        redirectUser(user);
+      } else {
+        setLoading(false);
+      }
+    }).catch(() => setLoading(false));
+  }, []);
+
+  const redirectUser = (user) => {
+    if (user.user_type === "coach") {
+      navigate("/coach");
+    } else if (user.user_type === "athlete") {
+      navigate("/athlete");
+    } else {
+      navigate("/select-role");
+    }
+  };
 
   const handleCredentialsSubmit = async (e) => {
     e.preventDefault();
@@ -22,11 +43,16 @@ export default function Home() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        // Register then send OTP for email verification
         await base44.auth.register({ email, password });
+        await base44.auth.resendOtp(email);
+        setStep("otp");
+      } else {
+        // Login: no OTP needed, go straight in
+        await base44.auth.loginViaEmailPassword(email, password);
+        const user = await base44.auth.me();
+        redirectUser(user);
       }
-      // Send OTP before login attempt — email must be verified first
-      await base44.auth.resendOtp(email);
-      setStep("otp");
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -40,7 +66,6 @@ export default function Home() {
     setLoading(true);
     try {
       await base44.auth.verifyOtp({ email, otpCode });
-      // Now login after email is verified
       await base44.auth.loginViaEmailPassword(email, password);
       navigate("/select-role");
     } catch (err) {
@@ -52,8 +77,20 @@ export default function Home() {
 
   const handleResend = async () => {
     setError("");
-    await base44.auth.resendOtp(email);
+    try {
+      await base44.auth.resendOtp(email);
+    } catch (err) {
+      setError(err.message || "Failed to resend code.");
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
