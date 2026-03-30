@@ -75,11 +75,17 @@ export default function CoachDashboard() {
   useEffect(() => {
     const init = async () => {
       try {
-        const me = await base44.auth.me();
+        let me = await base44.auth.me();
         if (!me) {
-          setLoading(false);
+          base44.auth.redirectToLogin("/coach");
           return;
         }
+        // Assign coach role if coming from home page selection
+        if (me.role !== "coach") {
+          await base44.auth.updateMe({ role: "coach" });
+          me = await base44.auth.me();
+        }
+        sessionStorage.removeItem("intended_role");
         setUser(me);
         await loadTeamAndRoster(me);
       } catch (err) {

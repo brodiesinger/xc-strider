@@ -5,11 +5,10 @@
     "role": {
       "type": "string",
       "enum": [
-        "athlete",
-        "coach"
+        "coach",
+        "athlete"
       ],
-      "default": "athlete",
-      "description": "User role"
+      "description": "Role of the user in the app"
     },
     "team_id": {
       "type": "string",

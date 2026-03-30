@@ -55,8 +55,7 @@ export default function AthleteDashboard() {
 
   const loadTeam = async (me) => {
     if (!me.team_id) return null;
-    const teams = await base44.entities.Team.list();
-    const found = teams.find((t) => t.id === me.team_id) || null;
+    const found = await base44.entities.Team.get(me.team_id);
     if (found) setTeam(found);
     return found;
   };
@@ -64,7 +63,17 @@ export default function AthleteDashboard() {
   useEffect(() => {
     const init = async () => {
       try {
-        const me = await base44.auth.me();
+        let me = await base44.auth.me();
+        if (!me) {
+          base44.auth.redirectToLogin("/athlete");
+          return;
+        }
+        // Assign athlete role if coming from home page selection
+        if (me.role !== "athlete") {
+          await base44.auth.updateMe({ role: "athlete" });
+          me = await base44.auth.me();
+        }
+        sessionStorage.removeItem("intended_role");
         setUser(me);
         const loadedTeam = await loadTeam(me);
         setLoadingUser(false);
