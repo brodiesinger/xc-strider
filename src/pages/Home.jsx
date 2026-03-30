@@ -1,6 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { TreePine, Trophy, Users } from "lucide-react";
-import { base44 } from "@/api/base44Client";
 
 export default function Home() {
   return (
@@ -17,8 +17,8 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <button
-            onClick={() => base44.auth.redirectToLogin("/coach")}
+          <Link
+            to="/coach"
             className="w-full rounded-xl border-2 border-border p-5 text-left hover:border-primary/50 hover:bg-primary/5 transition-all group"
           >
             <div className="flex items-center gap-3">
@@ -30,10 +30,10 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground">Create and manage your team</p>
               </div>
             </div>
-          </button>
+          </Link>
 
-          <button
-            onClick={() => base44.auth.redirectToLogin("/athlete")}
+          <Link
+            to="/athlete"
             className="w-full rounded-xl border-2 border-border p-5 text-left hover:border-primary/50 hover:bg-primary/5 transition-all group"
           >
             <div className="flex items-center gap-3">
@@ -45,7 +45,7 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground">Join your team and track progress</p>
               </div>
             </div>
-          </button>
+          </Link>
         </div>
       </div>
     </div>

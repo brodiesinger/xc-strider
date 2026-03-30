@@ -1,7 +1,6 @@
 import React from "react";
-import { TreePine, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { base44 } from "@/api/base44Client";
+import { TreePine } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function NavBar({ title, subtitle }) {
   return (
@@ -14,15 +13,12 @@ export default function NavBar({ title, subtitle }) {
             {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => base44.auth.logout("/")}
-          className="gap-1.5 text-muted-foreground hover:text-foreground text-sm"
+        <Link
+          to="/"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <LogOut className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Sign out</span>
-        </Button>
+          Home
+        </Link>
       </div>
     </header>
   );
