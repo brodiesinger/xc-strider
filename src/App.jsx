@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClientInstance } from "@/lib/query-client";
-import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from "react-router-dom";
 import PageNotFound from "./lib/PageNotFound";
 import { AuthProvider, useAuth } from "@/lib/AuthContext";
 import UserNotRegisteredError from "@/components/UserNotRegisteredError";
@@ -27,17 +27,17 @@ const AuthenticatedApp = () => {
     return <UserNotRegisteredError />;
   }
 
-  // Protected routes require auth
-  const protectedRoutes = ["/coach", "/athlete", "/select-role"];
+  // Protected routes require auth — redirect to login
+  const protectedRoutes = ["/coach", "/athlete", "/select-role", "/team-settings"];
   if (!isAuthenticated && protectedRoutes.includes(location.pathname)) {
     navigateToLogin();
     return null;
   }
 
-  // Authenticated users who haven't picked a role go to /select-role
-  if (isAuthenticated && user && !user.role && location.pathname !== "/select-role") {
-    window.location.href = "/select-role";
-    return null;
+  // Authenticated users who haven't picked a custom role go to /select-role
+  const hasCustomRole = user?.role === "coach" || user?.role === "athlete";
+  if (isAuthenticated && user && !hasCustomRole && location.pathname !== "/select-role") {
+    return <Navigate to="/select-role" replace />;
   }
 
   return (

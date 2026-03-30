@@ -2,20 +2,22 @@ import React, { useEffect } from "react";
 import { TreePine } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const { isAuthenticated, isLoadingAuth, user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isLoadingAuth) return;
     if (!isAuthenticated) {
       base44.auth.redirectToLogin("/select-role");
     } else if (user?.role === "coach") {
-      window.location.href = "/coach";
+      navigate("/coach", { replace: true });
     } else if (user?.role === "athlete") {
-      window.location.href = "/athlete";
+      navigate("/athlete", { replace: true });
     } else {
-      window.location.href = "/select-role";
+      navigate("/select-role", { replace: true });
     }
   }, [isLoadingAuth, isAuthenticated, user]);
 

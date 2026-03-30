@@ -23,7 +23,7 @@ function computeProgress(goal, workouts) {
     case "5k_goal":
     case "2mile_goal":
     case "1mile_goal": {
-      const distanceMap = { "5k_goal": 5, "2mile_goal": 2, "1mile_goal": 1 };
+      const distanceMap = { "5k_goal": 3.1, "2mile_goal": 2, "1mile_goal": 1 };
       const distance = distanceMap[goal.type];
       const best = workouts
         .filter((w) => w.distance === distance && w.time_minutes > 0)
