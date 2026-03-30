@@ -125,8 +125,8 @@ export default function CoachDashboard() {
               </p>
             </div>
 
-            {!team && user ? (
-              <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
+            {!team ? (
+              user ? <CreateTeam user={user} onTeamCreated={handleTeamCreated} /> : null
             ) : (
               <>
                 <TabNav tabs={TABS} active={activeTab} onChange={setActiveTab} />
