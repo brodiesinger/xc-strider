@@ -15,20 +15,24 @@
       "type": "number",
       "description": "Soreness level 1-10"
     },
+    "energy": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "description": "Energy level"
+    },
     "pain": {
       "type": "number",
-      "description": "Pain level 1-10"
-    },
-    "energy": {
-      "type": "number",
-      "description": "Energy level 1-10"
+      "description": "Pain level 0-10 (0 if no pain)"
     }
   },
   "required": [
     "athlete_email",
     "date",
     "soreness",
-    "pain",
     "energy"
   ]
 }

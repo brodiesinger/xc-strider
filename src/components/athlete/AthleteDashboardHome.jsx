@@ -10,6 +10,7 @@ import NotificationBell from "@/components/shared/NotificationBell";
 import WorkoutList from "@/components/athlete/WorkoutList";
 import AnnouncementCard from "@/components/athlete/AnnouncementCard";
 import TodaysWorkoutCard from "@/components/athlete/TodaysWorkoutCard";
+import DailyCheckInCard from "@/components/athlete/DailyCheckInCard";
 import { base44 } from "@/api/base44Client";
 
 function getWeeklyChartData(workouts, numWeeks = 8) {
@@ -33,25 +34,35 @@ function getWeeklyChartData(workouts, numWeeks = 8) {
 export default function AthleteDashboardHome({ user, team, workouts, announcements = [], schedule = [], onLogWorkout, onNavigate }) {
   const [dismissedAnnouncements, setDismissedAnnouncements] = React.useState([]);
   const [loadingDismissals, setLoadingDismissals] = React.useState(true);
+  const [todayCheckIn, setTodayCheckIn] = React.useState(null);
+  const [checkInLoading, setCheckInLoading] = React.useState(true);
+  const [isSubmittingCheckIn, setIsSubmittingCheckIn] = React.useState(false);
 
-  // Load dismissed announcements on mount
+  // Load dismissed announcements and today's check-in on mount
   React.useEffect(() => {
     if (!user?.email) return;
-    const loadDismissals = async () => {
+    const loadData = async () => {
       try {
-        const dismissed = await base44.entities.DismissedAnnouncement.filter(
-          { user_email: user.email },
-          "-created_date",
-          100
-        );
+        const [dismissed, checkIns] = await Promise.all([
+          base44.entities.DismissedAnnouncement.filter(
+            { user_email: user.email },
+            "-created_date",
+            100
+          ).catch(() => []),
+          base44.entities.DailyCheckin.filter(
+            { athlete_email: user.email, date: format(new Date(), "yyyy-MM-dd") }
+          ).catch(() => []),
+        ]);
         setDismissedAnnouncements(dismissed.map((d) => d.announcement_id));
+        setTodayCheckIn(checkIns.length > 0 ? checkIns[0] : null);
       } catch {
-        // If entity doesn't exist yet, continue
+        // Continue if entity doesn't exist yet
       } finally {
+        setCheckInLoading(false);
         setLoadingDismissals(false);
       }
     };
-    loadDismissals();
+    loadData();
   }, [user?.email]);
 
   // Handle announcement dismissal
@@ -65,6 +76,26 @@ export default function AthleteDashboardHome({ user, team, workouts, announcemen
       setDismissedAnnouncements((prev) => [...prev, announcementId]);
     } catch (err) {
       console.error("Failed to dismiss announcement:", err);
+    }
+  };
+
+  // Handle daily check-in submission
+  const handleCheckInSubmit = async (data) => {
+    if (!user?.email) return;
+    setIsSubmittingCheckIn(true);
+    try {
+      await base44.entities.DailyCheckin.create({
+        athlete_email: user.email,
+        date: format(new Date(), "yyyy-MM-dd"),
+        soreness: data.soreness,
+        energy: data.energy,
+        pain: data.pain,
+      });
+      setTodayCheckIn({ id: "temp" }); // Mark as submitted
+    } catch (err) {
+      console.error("Failed to submit check-in:", err);
+    } finally {
+      setIsSubmittingCheckIn(false);
     }
   };
 
@@ -131,6 +162,14 @@ export default function AthleteDashboardHome({ user, team, workouts, announcemen
 
       {/* Today's Workout */}
       <TodaysWorkoutCard schedule={todayWorkout} />
+
+      {/* Daily Check-In */}
+      {!checkInLoading && !todayCheckIn && (
+        <DailyCheckInCard
+          onSubmit={handleCheckInSubmit}
+          isLoading={isSubmittingCheckIn}
+        />
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
