@@ -24,8 +24,7 @@ export default function Home() {
       if (mode === "signup") {
         await base44.auth.register({ email, password });
       }
-      await base44.auth.loginViaEmailPassword(email, password);
-      // Trigger OTP send and move to OTP step
+      // Send OTP before login attempt — email must be verified first
       await base44.auth.resendOtp(email);
       setStep("otp");
     } catch (err) {
@@ -41,6 +40,8 @@ export default function Home() {
     setLoading(true);
     try {
       await base44.auth.verifyOtp({ email, otpCode });
+      // Now login after email is verified
+      await base44.auth.loginViaEmailPassword(email, password);
       navigate("/select-role");
     } catch (err) {
       setError(err.message || "Invalid code. Please try again.");
