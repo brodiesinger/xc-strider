@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 
 export default function Home() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState("login"); // "login" | "signup"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,14 +18,10 @@ export default function Home() {
     setError("");
     setLoading(true);
     try {
-      if (mode === "signup") {
-        await base44.auth.signUp(email, password);
-      } else {
-        await base44.auth.signIn(email, password);
-      }
+      await base44.auth.loginViaEmailPassword(email, password);
       navigate("/select-role");
     } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(err.message || "Invalid email or password.");
     } finally {
       setLoading(false);
     }
@@ -41,9 +36,7 @@ export default function Home() {
             <TreePine className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">XC Team App</h1>
-          <p className="text-sm text-muted-foreground">
-            {mode === "login" ? "Sign in to your account" : "Create a new account"}
-          </p>
+          <p className="text-sm text-muted-foreground">Sign in to your account</p>
         </div>
 
         {/* Form */}
@@ -76,21 +69,9 @@ export default function Home() {
           )}
 
           <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
+            {loading ? "Please wait..." : "Sign In"}
           </Button>
         </form>
-
-        {/* Toggle */}
-        <p className="text-sm text-muted-foreground">
-          {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
-          <button
-            type="button"
-            onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); }}
-            className="text-primary font-medium hover:underline"
-          >
-            {mode === "login" ? "Sign up" : "Sign in"}
-          </button>
-        </p>
       </div>
     </div>
   );
