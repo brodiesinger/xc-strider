@@ -76,6 +76,7 @@ export default function CoachHomeTab({
         workouts={workouts}
         checkins={checkins}
         schedule={schedule}
+        onAthleteClick={onSelectAthlete}
       />
 
       {/* Stats Row */}

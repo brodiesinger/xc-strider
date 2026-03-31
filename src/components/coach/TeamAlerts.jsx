@@ -156,10 +156,17 @@ const SEVERITY_STYLE = {
 
 // ─── single alert card ───────────────────────────────────────────────────────
 
-function AlertCard({ alert }) {
+function AlertCard({ alert, athletes, onAthleteClick }) {
   const [expanded, setExpanded] = useState(false);
   const s = SEVERITY_STYLE[alert.severity];
   const hasDetail = alert.detail && alert.detail.length > 0;
+
+  // Map detail names to athlete objects for clicking
+  const detailAthletes = hasDetail
+    ? alert.detail
+        .map((name) => athletes.find((a) => (a.full_name || a.email) === name))
+        .filter(Boolean)
+    : [];
 
   return (
     <div className={`rounded-xl border ${s.border} ${s.bg} overflow-hidden`}>
@@ -186,13 +193,14 @@ function AlertCard({ alert }) {
             className="overflow-hidden"
           >
             <div className="px-4 pb-3 flex flex-wrap gap-1.5">
-              {alert.detail.map((name) => (
-                <span
-                  key={name}
-                  className={`text-xs font-medium px-2 py-0.5 rounded-full border ${s.border} ${s.text} bg-white/50 dark:bg-black/20`}
+              {detailAthletes.map((athlete) => (
+                <button
+                  key={athlete.email}
+                  onClick={() => onAthleteClick(athlete)}
+                  className={`text-xs font-medium px-2 py-0.5 rounded-full border ${s.border} ${s.text} bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors cursor-pointer`}
                 >
-                  {name}
-                </span>
+                  {athlete.full_name || athlete.email}
+                </button>
               ))}
             </div>
           </motion.div>
@@ -204,7 +212,7 @@ function AlertCard({ alert }) {
 
 // ─── main export ─────────────────────────────────────────────────────────────
 
-export default function TeamAlerts({ athletes, workouts, checkins, schedule }) {
+export default function TeamAlerts({ athletes, workouts, checkins, schedule, onAthleteClick }) {
   const alerts = useMemo(
     () => computeAlerts({ athletes, workouts, checkins, schedule }),
     [athletes, workouts, checkins, schedule]
@@ -225,7 +233,7 @@ export default function TeamAlerts({ athletes, workouts, checkins, schedule }) {
       ) : (
         <div className="space-y-2">
           {alerts.map((alert) => (
-            <AlertCard key={alert.id} alert={alert} />
+            <AlertCard key={alert.id} alert={alert} athletes={athletes} onAthleteClick={onAthleteClick} />
           ))}
         </div>
       )}
