@@ -22,7 +22,7 @@ export default function LogWorkoutDrawer({ open, onClose, onSaved, teamId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.distance || !form.time_minutes) return;
+    if (!form.distance || !form.time_minutes || !user) return;
     setSaving(true);
     try {
       await base44.entities.Workout.create({

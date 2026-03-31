@@ -4,11 +4,11 @@ import { Bell, X, CheckCheck } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 
-const TYPE_STYLES = {
-  info: "bg-primary/10 text-primary",
-  warning: "bg-orange-100 text-orange-600",
-  success: "bg-green-100 text-green-600",
-  ai: "bg-purple-100 text-purple-600",
+const TYPE_DOT = {
+  info: "bg-primary",
+  warning: "bg-orange-500",
+  success: "bg-green-500",
+  ai: "bg-purple-500",
 };
 
 export default function NotificationBell({ userEmail }) {
@@ -87,7 +87,7 @@ export default function NotificationBell({ userEmail }) {
             ) : (
               notifications.map((n) => (
                 <div key={n.id} className={cn("px-4 py-3 flex gap-3 group", !n.read && "bg-primary/5")}>
-                  <div className={cn("w-2 h-2 rounded-full mt-2 shrink-0", !n.read ? "bg-primary" : "bg-transparent")} />
+                  <div className={cn("w-2 h-2 rounded-full mt-2 shrink-0", !n.read ? (TYPE_DOT[n.type] || "bg-primary") : "bg-transparent")} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-foreground leading-snug">{n.message}</p>
                     {n.created_date && (

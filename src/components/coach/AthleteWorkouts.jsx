@@ -10,13 +10,16 @@ export default function AthleteWorkouts({ athlete }) {
   useEffect(() => {
     const loadWorkouts = async () => {
       setLoading(true);
-      const data = await base44.entities.Workout.filter(
-        { athlete_email: athlete.email },
-        "-date",
-        100
-      );
-      setWorkouts(data);
-      setLoading(false);
+      try {
+        const data = await base44.entities.Workout.filter(
+          { athlete_email: athlete.email },
+          "-date",
+          100
+        );
+        setWorkouts(data);
+      } finally {
+        setLoading(false);
+      }
     };
     loadWorkouts();
   }, [athlete.email]);
@@ -68,7 +71,7 @@ export default function AthleteWorkouts({ athlete }) {
                 </span>
                 {w.distance > 0 && w.time_minutes > 0 && (
                   <span className="text-primary font-medium">
-                    {(w.time_minutes / w.distance).toFixed(1)} min/mi
+                    {(() => { const p = w.time_minutes / w.distance; const m = Math.floor(p); const s = Math.round((p - m) * 60); return `${m}:${s.toString().padStart(2, "0")} /mi`; })()}
                   </span>
                 )}
               </div>

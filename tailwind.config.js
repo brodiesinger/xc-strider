@@ -2,6 +2,7 @@
 module.exports = {
     darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
+    safelist: ["bg-orange-500", "bg-green-500", "bg-purple-500"],
   theme: {
   	extend: {
   		borderRadius: {

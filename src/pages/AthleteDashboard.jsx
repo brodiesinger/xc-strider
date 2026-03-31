@@ -222,13 +222,15 @@ export default function AthleteDashboard() {
         )}
 
         {activeTab === "leaderboard" && (
-          <GamificationTab
-            user={user}
-            team={team}
-            athletes={athletes}
-            streak={streak}
-            earnedBadgeIds={earnedBadgeIds}
-          />
+          <div className="pb-28">
+            <GamificationTab
+              user={user}
+              team={team}
+              athletes={athletes}
+              streak={streak}
+              earnedBadgeIds={earnedBadgeIds}
+            />
+          </div>
         )}
 
         {activeTab === "profile" && (
