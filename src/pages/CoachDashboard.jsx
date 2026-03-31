@@ -35,12 +35,12 @@ export default function CoachDashboard() {
 
   useEffect(() => {
     if (!user) return; // Still loading user
+    setLoading(true);
     if (!user.team_id) {
       setLoading(false);
       return;
     }
     const loadTeam = async () => {
-      setLoading(true);
       try {
         const found = await base44.entities.Team.get(user.team_id);
         if (!found) {
