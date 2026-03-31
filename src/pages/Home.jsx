@@ -46,9 +46,6 @@ export default function Home() {
       if (mode === "signup") {
         // Register then send OTP for email verification
         await base44.auth.register({ email, password });
-        if (fullName.trim()) {
-          await base44.auth.updateMe({ full_name: fullName.trim() });
-        }
         await base44.auth.resendOtp(email);
         setStep("otp");
       } else {
@@ -71,6 +68,10 @@ export default function Home() {
     try {
       await base44.auth.verifyOtp({ email, otpCode });
       await base44.auth.loginViaEmailPassword(email, password);
+      // Save name now that user is fully authenticated
+      if (fullName.trim()) {
+        await base44.auth.updateMe({ full_name: fullName.trim() });
+      }
       navigate("/select-role");
     } catch (err) {
       setError(err.message || "Invalid code. Please try again.");

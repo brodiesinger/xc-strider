@@ -2,13 +2,13 @@ import React, { useState, useEffect, useMemo } from "react";
 import { ChevronRight, ShieldAlert, ShieldCheck, AlertTriangle, RotateCw, Zap, Wind } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { format, startOfWeek, subWeeks, parseISO } from "date-fns";
-import { Button } from "@/components/ui/button";
+
 
 const LEVEL = {
-  safe:   { label: "Low Risk",       color: "text-green-600",  bg: "bg-green-50 border-green-200",       Icon: ShieldCheck  },
-  low:    { label: "Minor Risk",      color: "text-yellow-600", bg: "bg-yellow-50 border-yellow-200",     Icon: AlertTriangle },
-  medium: { label: "Moderate Risk",   color: "text-orange-500", bg: "bg-orange-50 border-orange-200",     Icon: ShieldAlert  },
-  high:   { label: "High Risk",       color: "text-red-600",    bg: "bg-red-50 border-red-200",           Icon: ShieldAlert  },
+  safe:   { label: "Low Risk",       color: "text-primary",      bg: "bg-primary/5 border-primary/20",       Icon: ShieldCheck  },
+  low:    { label: "Minor Risk",      color: "text-accent",      bg: "bg-accent/5 border-accent/20",         Icon: AlertTriangle },
+  medium: { label: "Moderate Risk",   color: "text-accent",      bg: "bg-accent/10 border-accent/30",        Icon: ShieldAlert  },
+  high:   { label: "High Risk",       color: "text-destructive", bg: "bg-destructive/5 border-destructive/20", Icon: ShieldAlert  },
 };
 
 function getWeekMiles(workouts, weekStart) {
@@ -181,10 +181,10 @@ function AthleteDetailView({ athlete, workouts, checkin, onBack }) {
       </div>
 
       {/* Recovery Recommendation */}
-      <div className={`rounded-2xl border p-5 ${recovery.type === 'rest' ? 'bg-red-50 border-red-200' : recovery.type === 'cross' ? 'bg-blue-50 border-blue-200' : 'bg-primary/5 border-primary/20'}`}>
+      <div className={`rounded-2xl border p-5 ${recovery.type === 'rest' ? 'bg-destructive/5 border-destructive/20' : recovery.type === 'cross' ? 'bg-accent/5 border-accent/20' : 'bg-primary/5 border-primary/20'}`}>
         <div className="flex items-center gap-2 mb-2">
-          <RecoveryIcon className={`w-5 h-5 ${recovery.type === 'rest' ? 'text-red-600' : recovery.type === 'cross' ? 'text-blue-600' : 'text-primary'}`} />
-          <span className={`font-bold text-base ${recovery.type === 'rest' ? 'text-red-600' : recovery.type === 'cross' ? 'text-blue-600' : 'text-primary'}`}>
+          <RecoveryIcon className={`w-5 h-5 ${recovery.type === 'rest' ? 'text-destructive' : recovery.type === 'cross' ? 'text-accent' : 'text-primary'}`} />
+          <span className={`font-bold text-base ${recovery.type === 'rest' ? 'text-destructive' : recovery.type === 'cross' ? 'text-accent' : 'text-primary'}`}>
             {recovery.label}
           </span>
         </div>

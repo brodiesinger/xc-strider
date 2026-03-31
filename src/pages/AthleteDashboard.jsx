@@ -42,7 +42,8 @@ export default function AthleteDashboard() {
   }, []);
 
   useEffect(() => {
-    if (!user?.team_id) {
+    if (!user) return; // Still loading user
+    if (!user.team_id) {
       setLoading(false);
       return;
     }

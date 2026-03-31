@@ -127,7 +127,8 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const todayWorkout = schedule.find((s) => s.date === todayStr);
 
-  const isLoading = loadingDismissals || checkInLoading;
+  // isLoading guards sections that depend on both fetch results
+  const isDataLoading = loadingDismissals || checkInLoading;
 
   return (
     <div className="space-y-6 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">

@@ -30,7 +30,8 @@ export default function CoachDashboard() {
   }, []);
 
   useEffect(() => {
-    if (!user?.team_id) {
+    if (!user) return; // Still loading user
+    if (!user.team_id) {
       setLoading(false);
       return;
     }
@@ -38,7 +39,10 @@ export default function CoachDashboard() {
       setLoading(true);
       try {
         const found = await base44.entities.Team.get(user.team_id);
-        if (!found) return;
+        if (!found) {
+          setLoading(false);
+          return;
+        }
         setTeam(found);
         const [ann, sched] = await Promise.all([
           base44.entities.Announcement.filter({ team_id: found.id }, "-created_date", 20),
