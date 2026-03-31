@@ -137,42 +137,6 @@ export default function CoachHomeTab({
         )}
       </AnimatePresence>
 
-      {/* Roster Preview Card */}
-      <section>
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-foreground flex items-center gap-2">
-              <Users className="w-4 h-4 text-primary" /> Team Roster
-            </h2>
-            <button
-              onClick={() => setRosterOpen(true)}
-              className="flex items-center gap-1 text-sm text-primary font-medium hover:underline"
-            >
-              View All <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          {athletes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No athletes yet. Share your join code!</p>
-          ) : (
-            <div className="space-y-2">
-              {athletes.slice(0, 3).map((a) => (
-                <div key={a.id} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <span className="text-xs font-bold text-primary">
-                      {(a.full_name || a.email || "?")[0].toUpperCase()}
-                    </span>
-                  </div>
-                  <p className="text-sm font-medium text-foreground truncate">{a.full_name || a.email}</p>
-                </div>
-              ))}
-              {athletes.length > 3 && (
-                <p className="text-xs text-muted-foreground pt-1">+{athletes.length - 3} more athletes</p>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* Recent Activity */}
       <section>
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Recent Activity</h2>
