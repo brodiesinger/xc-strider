@@ -116,7 +116,11 @@ export default function InjuryRiskTab({ workouts, userEmail }) {
       .then((res) => {
         if (res[0]) {
           setCheckin(res[0]);
-          setForm({ soreness: res[0].soreness ?? 3, pain: res[0].pain ?? 1, energy: res[0].energy ?? 7 });
+          setForm({
+            soreness: Number(res[0].soreness ?? 3),
+            pain: Number(res[0].pain ?? 1),
+            energy: Number(res[0].energy ?? 7),
+          });
         } else {
           setShowForm(true);
         }
@@ -131,11 +135,16 @@ export default function InjuryRiskTab({ workouts, userEmail }) {
     setSaving(true);
     try {
       const todayStr = format(new Date(), "yyyy-MM-dd");
+      const numericForm = {
+        soreness: Number(form.soreness),
+        pain: Number(form.pain),
+        energy: Number(form.energy),
+      };
       let record;
       if (checkin?.id) {
-        record = await base44.entities.DailyCheckin.update(checkin.id, form);
+        record = await base44.entities.DailyCheckin.update(checkin.id, numericForm);
       } else {
-        record = await base44.entities.DailyCheckin.create({ athlete_email: userEmail, date: todayStr, ...form });
+        record = await base44.entities.DailyCheckin.create({ athlete_email: userEmail, date: todayStr, ...numericForm });
       }
       setCheckin(record);
       setShowForm(false);
