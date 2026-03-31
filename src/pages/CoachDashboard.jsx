@@ -9,6 +9,7 @@ import BottomNav from "@/components/coach/BottomNav";
 import CoachHomeTab from "@/components/coach/CoachHomeTab";
 import CoachSettingsTab from "@/components/coach/CoachSettingsTab";
 import useTeamTheme from "@/lib/useTeamTheme";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState(null);
@@ -117,7 +118,7 @@ export default function CoachDashboard() {
         {!team ? (
           <div className="py-8 space-y-6">
             <div>
-              <h1 className="text-2xl font-bold text-foreground mb-1">Welcome, Coach 👋</h1>
+              <h1 className="text-2xl font-bold text-foreground mb-1">Welcome, {getDisplayName(user)} 👋</h1>
               <p className="text-sm text-muted-foreground">Create or manage your team to get started</p>
             </div>
             <CreateTeam user={user} onTeamCreated={handleTeamCreated} />

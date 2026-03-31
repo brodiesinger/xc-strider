@@ -11,6 +11,7 @@ export default function Home() {
   const [mode, setMode] = useState("login"); // "login" | "signup"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [step, setStep] = useState("credentials"); // "credentials" | "otp"
   const [error, setError] = useState("");
@@ -45,6 +46,9 @@ export default function Home() {
       if (mode === "signup") {
         // Register then send OTP for email verification
         await base44.auth.register({ email, password });
+        if (fullName.trim()) {
+          await base44.auth.updateMe({ full_name: fullName.trim() });
+        }
         await base44.auth.resendOtp(email);
         setStep("otp");
       } else {
@@ -112,6 +116,19 @@ export default function Home() {
 
         {step === "credentials" ? (
           <form onSubmit={handleCredentialsSubmit} className="w-full space-y-4">
+            {mode === "signup" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="e.g. Sarah Johnson"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+            )}
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input

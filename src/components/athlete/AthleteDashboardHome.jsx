@@ -12,6 +12,7 @@ import AnnouncementCard from "@/components/athlete/AnnouncementCard";
 import TodaysWorkoutCard from "@/components/athlete/TodaysWorkoutCard";
 import DailyCheckInCard from "@/components/athlete/DailyCheckInCard";
 import { base44 } from "@/api/base44Client";
+import { getDisplayName } from "@/lib/displayName";
 
 function getWeeklyChartData(workouts, numWeeks = 8) {
   const now = new Date();
@@ -140,7 +141,7 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
         <div>
           <p className="text-sm text-muted-foreground">Good to see you,</p>
           <h1 className="text-2xl font-bold text-foreground">
-            {user?.full_name || user?.email?.split("@")[0]} 👋
+            {getDisplayName(user)} 👋
           </h1>
           {team && <p className="text-sm text-primary font-medium mt-0.5">{team.name}</p>}
         </div>

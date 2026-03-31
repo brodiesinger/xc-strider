@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 export default function SelectRole() {
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
-  const [step, setStep] = useState("role"); // "role" | "join"
+  const [step, setStep] = useState("role"); // "name" | "role" | "join"
+  const [fullName, setFullName] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -26,10 +27,28 @@ export default function SelectRole() {
       } else if (user.user_type === "athlete") {
         navigate("/athlete");
       } else {
+        // If user has no name yet, prompt for it first
+        if (!user.full_name || !user.full_name.trim()) {
+          setStep("name");
+        }
         setLoading(false);
       }
     }).catch(() => navigate("/"));
   }, []);
+
+  const handleNameSubmit = async (e) => {
+    e.preventDefault();
+    if (!fullName.trim()) return;
+    setSaving(true);
+    try {
+      await base44.auth.updateMe({ full_name: fullName.trim() });
+      setStep("role");
+    } catch (err) {
+      setError("Failed to save name. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleCoach = async () => {
     setSaving(true);
@@ -69,6 +88,45 @@ export default function SelectRole() {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (step === "name") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+        <div className="flex flex-col items-center gap-8 w-full max-w-xs">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <TreePine className="w-8 h-8 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">What's your name?</h1>
+            <p className="text-sm text-muted-foreground text-center">
+              Enter your full name so your team can recognize you
+            </p>
+          </div>
+
+          <form onSubmit={handleNameSubmit} className="w-full space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="full-name">Full Name</Label>
+              <Input
+                id="full-name"
+                type="text"
+                placeholder="e.g. Sarah Johnson"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                autoFocus
+              />
+            </div>
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
+
+            <Button type="submit" disabled={saving || !fullName.trim()} className="w-full h-12">
+              {saving ? "Saving..." : "Continue"}
+            </Button>
+          </form>
+        </div>
       </div>
     );
   }

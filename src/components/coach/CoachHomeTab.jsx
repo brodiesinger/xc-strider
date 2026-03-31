@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Users, Activity, Megaphone, ShieldAlert, ChevronRight, CalendarDays } from "lucide-react";
+import { getDisplayName } from "@/lib/displayName";
 import { format, startOfWeek } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import RosterDrawer from "./RosterDrawer";
@@ -63,7 +64,7 @@ export default function CoachHomeTab({
       {/* Header */}
       <div className="pt-2">
         <p className="text-sm text-muted-foreground">Good to see you,</p>
-        <h1 className="text-2xl font-bold text-foreground">{user?.full_name || user?.email?.split("@")[0]} 👋</h1>
+        <h1 className="text-2xl font-bold text-foreground">{getDisplayName(user)} 👋</h1>
         {team && <p className="text-sm text-primary font-medium mt-0.5">{team.name}</p>}
       </div>
 
@@ -118,7 +119,7 @@ export default function CoachHomeTab({
           </h3>
           <PostAnnouncement
             teamId={team.id}
-            coachName={user?.full_name || user?.email}
+            coachName={getDisplayName(user)}
             onPosted={() => { onAnnouncementPosted(); setShowAnnouncement(false); }}
           />
           </motion.div>
