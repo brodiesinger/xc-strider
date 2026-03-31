@@ -37,10 +37,10 @@ function QuickActionBtn({ icon: Icon, label, onClick, color = "bg-primary/10 tex
 export default function CoachHomeTab({
   user,
   team,
-  athletes,
-  announcements,
-  schedule,
-  workouts,
+  athletes = [],
+  announcements = [],
+  schedule = [],
+  workouts = [],
   onAnnouncementPosted,
   onScheduleRefresh,
   onSelectAthlete,
@@ -61,7 +61,7 @@ export default function CoachHomeTab({
   return (
     <div className="space-y-6 pb-24">
       {/* Header */}
-      <div>
+      <div className="pt-2">
         <p className="text-sm text-muted-foreground">Good to see you,</p>
         <h1 className="text-2xl font-bold text-foreground">{user?.full_name || user?.email?.split("@")[0]} 👋</h1>
         {team && <p className="text-sm text-primary font-medium mt-0.5">{team.name}</p>}
@@ -166,7 +166,7 @@ export default function CoachHomeTab({
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Recent Activity</h2>
         <div className="rounded-2xl border border-border bg-card divide-y divide-border">
           {recentWorkouts.length === 0 ? (
-            <p className="text-sm text-muted-foreground p-4">No recent workouts logged.</p>
+            <p className="text-sm text-muted-foreground p-4">No workouts logged yet.</p>
           ) : (
             recentWorkouts.map((w) => (
               <div key={w.id} className="flex items-center justify-between p-4">
@@ -180,15 +180,6 @@ export default function CoachHomeTab({
               </div>
             ))
           )}
-          {announcements.slice(0, 1).map((a) => (
-            <div key={a.id} className="flex items-start gap-3 p-4">
-              <Megaphone className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-foreground">{a.coach_name || "Coach"}</p>
-                <p className="text-xs text-muted-foreground line-clamp-2">{a.message}</p>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 

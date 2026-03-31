@@ -124,7 +124,7 @@ function AthletePerformanceCard({ athlete, workouts, goals, racePRs }) {
   );
 }
 
-export default function CoachPerformanceTab({ athletes, teamId }) {
+export default function CoachPerformanceTab({ athletes = [], teamId }) {
   const [athleteData, setAthleteData] = useState({});
   const [loading, setLoading] = useState(true);
 

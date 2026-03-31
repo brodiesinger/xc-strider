@@ -31,7 +31,7 @@ function getWeeklyChartData(workouts, numWeeks = 8) {
   });
 }
 
-export default function AthleteDashboardHome({ user, team, workouts, announcements = [], schedule = [], streak = 0, earnedBadgeIds = [], onLogWorkout, onNavigate }) {
+export default function AthleteDashboardHome({ user, team, workouts = [], announcements = [], schedule = [], streak = 0, earnedBadgeIds = [], onLogWorkout, onNavigate }) {
   const [dismissedAnnouncements, setDismissedAnnouncements] = React.useState([]);
   const [loadingDismissals, setLoadingDismissals] = React.useState(true);
   const [todayCheckIn, setTodayCheckIn] = React.useState(null);

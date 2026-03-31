@@ -3,9 +3,9 @@ import { format, parseISO, isBefore, isToday, startOfToday } from "date-fns";
 import { CalendarDays, MapPin, Clock, Megaphone, Dumbbell } from "lucide-react";
 import AnnouncementFeed from "./AnnouncementFeed";
 
-export default function TeamDashboardView({ announcements, schedule }) {
+export default function TeamDashboardView({ announcements = [], schedule = [] }) {
   const today = startOfToday();
-  const todayEntry = schedule?.find((s) => s.date && isToday(parseISO(s.date)));
+  const todayEntry = schedule.find((s) => s.date && isToday(parseISO(s.date)));
   const upcoming = schedule
     .filter((s) => s.date && !isBefore(parseISO(s.date), today) && !isToday(parseISO(s.date)))
     .sort((a, b) => a.date.localeCompare(b.date));

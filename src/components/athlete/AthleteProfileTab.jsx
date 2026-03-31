@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import TeamDashboardView from "@/components/shared/TeamDashboardView";
 
 export default function AthleteProfileTab({ user, team, announcements, schedule }) {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleLogout = () => base44.auth.logout("/");
 

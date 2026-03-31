@@ -10,7 +10,7 @@ function getRank(n) {
   return `#${n}`;
 }
 
-export default function ConsistencyLeaderboard({ teamId, currentUserEmail, athletes }) {
+export default function ConsistencyLeaderboard({ teamId, currentUserEmail, athletes = [] }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
 

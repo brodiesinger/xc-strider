@@ -39,6 +39,7 @@ export default function RacePRManager({ userEmail }) {
       const parts = form.time_minutes.split(":").map(Number);
       if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
         alert("Please enter time in MM:SS format");
+        setSaving(false);
         return;
       }
       const [mins, secs] = parts;

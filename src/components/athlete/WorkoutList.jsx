@@ -34,7 +34,7 @@ export default function WorkoutList({ workouts }) {
             </span>
             {w.distance > 0 && w.time_minutes > 0 && (
               <span className="flex items-center gap-1.5 text-primary font-medium">
-                {(w.time_minutes / w.distance).toFixed(1)} min/mi
+                {(() => { const p = w.time_minutes / w.distance; const m = Math.floor(p); const s = Math.round((p - m) * 60); return `${m}:${s.toString().padStart(2,"0")} /mi`; })()}
               </span>
             )}
           </div>

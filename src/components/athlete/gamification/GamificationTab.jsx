@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Trophy, Flame } from "lucide-react";
+import { Trophy } from "lucide-react";
 import ConsistencyLeaderboard from "./ConsistencyLeaderboard";
 import BadgeGrid from "./BadgeGrid";
+import { ALL_BADGES } from "./useStreakAndBadges";
 import { motion } from "framer-motion";
 
 export default function GamificationTab({ user, team, athletes, streak, earnedBadgeIds }) {
-  const [section, setSection] = React.useState("leaderboard");
+  const [section, setSection] = useState("leaderboard");
 
   return (
     <div className="space-y-5 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
@@ -67,7 +68,7 @@ export default function GamificationTab({ user, team, athletes, streak, earnedBa
       {section === "badges" && (
         <div>
           <p className="text-xs text-muted-foreground mb-3">
-            {earnedBadgeIds.length} / 10 badges earned. Keep training to unlock more!
+            {earnedBadgeIds.length} / {ALL_BADGES.length} badges earned. Keep training to unlock more!
           </p>
           <BadgeGrid earnedBadgeIds={earnedBadgeIds} />
         </div>

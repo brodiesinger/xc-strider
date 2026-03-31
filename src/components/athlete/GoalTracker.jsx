@@ -44,7 +44,7 @@ function formatTimeDisplay(minutes) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-export default function GoalTracker({ workouts, userEmail }) {
+export default function GoalTracker({ workouts = [], userEmail }) {
   const [goals, setGoals] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ type: "weekly_miles", target: "", label: "", deadline: "" });

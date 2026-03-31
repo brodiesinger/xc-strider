@@ -1,7 +1,7 @@
 import React from "react";
 import { format, parseISO } from "date-fns";
 
-export default function AnnouncementFeed({ announcements }) {
+export default function AnnouncementFeed({ announcements = [] }) {
   if (announcements.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-6">

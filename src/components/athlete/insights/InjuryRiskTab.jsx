@@ -113,7 +113,14 @@ export default function InjuryRiskTab({ workouts, userEmail }) {
     if (!userEmail) return;
     const todayStr = format(new Date(), "yyyy-MM-dd");
     base44.entities.DailyCheckin.filter({ athlete_email: userEmail, date: todayStr }, "-created_date", 1)
-      .then((res) => { if (res[0]) setCheckin(res[0]); else setShowForm(true); })
+      .then((res) => {
+        if (res[0]) {
+          setCheckin(res[0]);
+          setForm({ soreness: res[0].soreness ?? 3, pain: res[0].pain ?? 1, energy: res[0].energy ?? 7 });
+        } else {
+          setShowForm(true);
+        }
+      })
       .catch(() => setShowForm(true));
   }, [userEmail]);
 
@@ -124,7 +131,12 @@ export default function InjuryRiskTab({ workouts, userEmail }) {
     setSaving(true);
     try {
       const todayStr = format(new Date(), "yyyy-MM-dd");
-      const record = await base44.entities.DailyCheckin.create({ athlete_email: userEmail, date: todayStr, ...form });
+      let record;
+      if (checkin?.id) {
+        record = await base44.entities.DailyCheckin.update(checkin.id, form);
+      } else {
+        record = await base44.entities.DailyCheckin.create({ athlete_email: userEmail, date: todayStr, ...form });
+      }
       setCheckin(record);
       setShowForm(false);
     } finally {
@@ -166,7 +178,7 @@ export default function InjuryRiskTab({ workouts, userEmail }) {
             {[["Soreness", checkin.soreness, "😣"], ["Pain", checkin.pain, "🤕"], ["Energy", checkin.energy, "⚡"]].map(([lbl, val, em]) => (
               <div key={lbl} className="rounded-xl bg-muted p-3">
                 <p className="text-lg">{em}</p>
-                <p className="font-bold text-foreground text-lg">{val}/10</p>
+                <p className="font-bold text-foreground text-lg">{typeof val === "number" ? `${val}/10` : val ?? "—"}</p>
                 <p className="text-xs text-muted-foreground">{lbl}</p>
               </div>
             ))}
