@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export default function DailyCheckInCard({ onSubmit, isLoading }) {
   const [soreness, setSoreness] = useState(5);
-  const [energy, setEnergy] = useState("medium");
+  const [energy, setEnergy] = useState(5);
   const [hasPain, setHasPain] = useState(false);
   const [pain, setPain] = useState(0);
 
@@ -59,27 +59,25 @@ export default function DailyCheckInCard({ onSubmit, isLoading }) {
 
       {/* Energy Level */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground flex items-center gap-2">
-          <Zap className="w-4 h-4 text-accent" /> Energy Level
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { value: "low", label: "Low", color: "bg-red-100 text-red-600" },
-            { value: "medium", label: "Medium", color: "bg-yellow-100 text-yellow-600" },
-            { value: "high", label: "High", color: "bg-green-100 text-green-600" },
-          ].map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setEnergy(opt.value)}
-              className={`py-2 px-3 rounded-lg text-sm font-medium transition-all ${
-                energy === opt.value
-                  ? `${opt.color} ring-2 ring-offset-2 ring-offset-card ring-current`
-                  : `bg-muted text-muted-foreground hover:bg-muted/80`
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-foreground flex items-center gap-2">
+            <Zap className="w-4 h-4 text-accent" /> Energy Level
+          </label>
+          <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full">
+            {energy}
+          </span>
+        </div>
+        <input
+          type="range"
+          min="1"
+          max="10"
+          value={energy}
+          onChange={(e) => setEnergy(parseInt(e.target.value))}
+          className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+        />
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>Low</span>
+          <span>High</span>
         </div>
       </div>
 

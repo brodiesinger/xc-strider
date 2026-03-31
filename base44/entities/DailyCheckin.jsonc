@@ -16,13 +16,8 @@
       "description": "Soreness level 1-10"
     },
     "energy": {
-      "type": "string",
-      "enum": [
-        "low",
-        "medium",
-        "high"
-      ],
-      "description": "Energy level"
+      "type": "number",
+      "description": "Energy level 1-10"
     },
     "pain": {
       "type": "number",

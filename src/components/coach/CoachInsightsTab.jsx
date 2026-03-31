@@ -111,8 +111,6 @@ function getRecoveryRecommendation(workouts, checkin) {
     return (now - parseISO(w.date)) / 86400000 <= 7;
   });
 
-  const daysSinceLastRun = recent7.length > 0 ? (now - parseISO(recent7[0].date)) / 86400000 : 10;
-
   // High pain or soreness = rest day
   if (checkin && (checkin.pain >= 6 || checkin.soreness >= 8)) {
     return { type: "rest", label: "Rest Day", description: "Focus on recovery. No running today.", icon: Wind };
@@ -207,7 +205,7 @@ function AthleteDetailView({ athlete, workouts, checkin, onBack }) {
             {[["Soreness", checkin.soreness, "😣"], ["Pain", checkin.pain, "🤕"], ["Energy", checkin.energy, "⚡"]].map(([lbl, val, em]) => (
               <div key={lbl} className="rounded-xl bg-muted p-3">
                 <p className="text-lg">{em}</p>
-                <p className="font-bold text-foreground text-lg">{val}/10</p>
+                <p className="font-bold text-foreground text-lg">{typeof val === "number" ? `${val}/10` : val ?? "—"}</p>
                 <p className="text-xs text-muted-foreground">{lbl}</p>
               </div>
             ))}
@@ -229,7 +227,7 @@ function AthleteDetailView({ athlete, workouts, checkin, onBack }) {
                   <p className="text-xs text-muted-foreground">{w.distance} mi in {w.time_minutes} min</p>
                 </div>
                 <p className="text-xs text-primary font-medium">
-                  {(w.time_minutes / w.distance).toFixed(2)} min/mi
+                  {(() => { const p = w.time_minutes / w.distance; const m = Math.floor(p); const s = Math.round((p - m) * 60); return `${m}:${s.toString().padStart(2,"0")} /mi`; })()}
                 </p>
               </div>
             ))}
