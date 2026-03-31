@@ -1,14 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { Trophy, Target } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 
-const GOAL_TYPES = {
-  weekly_miles: { label: "Weekly Miles", unit: "mi/week" },
-  total_miles: { label: "Total Miles", unit: "mi" },
-  pace: { label: "Target Pace", unit: "min/mi" },
-  race_distance: { label: "Race Distance", unit: "mi" },
-};
+const RACE_GOAL_TYPES = new Set(["5k_goal", "2mile_goal", "1mile_goal"]);
 
 function formatPace(minutes, distance) {
   if (!minutes || !distance) return "—";
@@ -53,6 +48,18 @@ function computeGoalProgress(goal, workouts) {
       const pct = Math.min(100, (goal.target / best) * 100);
       return { current: parseFloat(best.toFixed(2)), pct };
     }
+    case "5k_goal":
+    case "2mile_goal":
+    case "1mile_goal": {
+      const distanceMap = { "5k_goal": 3.1, "2mile_goal": 2, "1mile_goal": 1 };
+      const dist = distanceMap[goal.type];
+      const best = workouts
+        .filter((w) => w.distance === dist && w.time_minutes > 0)
+        .reduce((b, w) => (!b || w.time_minutes < b ? w.time_minutes : b), null);
+      if (!best) return { current: null, pct: 0 };
+      const pct = Math.min(100, (goal.target / best) * 100);
+      return { current: parseFloat(best.toFixed(2)), pct };
+    }
     default:
       return { current: null, pct: 0 };
   }
@@ -77,9 +84,9 @@ function AthletePerformanceCard({ athlete, workouts, goals, racePRs }) {
                     {goal.label}
                   </p>
                   <span className="text-xs font-bold text-primary">
-                    {goal.type === "pace"
-                      ? `${formatTime(prog.current * 60)} / ${formatTime(goal.target * 60)}`
-                      : `${prog.current} / ${goal.target}`}
+                    {(goal.type === "pace" || RACE_GOAL_TYPES.has(goal.type))
+                      ? `${prog.current != null ? formatTime(prog.current) : "No best"} → Goal: ${formatTime(goal.target)}`
+                      : `${prog.current ?? 0} / ${goal.target} mi`}
                   </span>
                 </div>
                 <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
