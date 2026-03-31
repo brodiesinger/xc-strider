@@ -10,6 +10,7 @@ import CoachHomeTab from "@/components/coach/CoachHomeTab";
 import CoachSettingsTab from "@/components/coach/CoachSettingsTab";
 import useTeamTheme from "@/lib/useTeamTheme";
 import { getDisplayName } from "@/lib/displayName";
+import useDarkMode from "@/lib/useDarkMode";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState(null);
@@ -24,6 +25,7 @@ export default function CoachDashboard() {
 
   // Apply team color theme
   useTeamTheme(team);
+  const { isDark, toggle: toggleDark } = useDarkMode(user);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -156,7 +158,7 @@ export default function CoachDashboard() {
               </div>
             )}
             {activeTab === "settings" && (
-              <CoachSettingsTab user={user} team={team} onTeamUpdated={setTeam} />
+              <CoachSettingsTab user={user} team={team} onTeamUpdated={setTeam} isDark={isDark} onToggleDark={toggleDark} />
             )}
           </>
         )}

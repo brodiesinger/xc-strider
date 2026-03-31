@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { LogOut, Users, Copy } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import TeamDashboardView from "@/components/shared/TeamDashboardView";
+import DarkModeToggle from "@/components/shared/DarkModeToggle";
 
-export default function AthleteProfileTab({ user, team, announcements, schedule }) {
+export default function AthleteProfileTab({ user, team, announcements, schedule, isDark, onToggleDark }) {
   const [copied, setCopied] = useState(false);
 
   const handleLogout = () => base44.auth.logout("/");
@@ -62,6 +63,14 @@ export default function AthleteProfileTab({ user, team, announcements, schedule 
           <TeamDashboardView announcements={announcements} schedule={schedule} />
         </section>
       )}
+
+      {/* Appearance */}
+      <section>
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Appearance</h2>
+        <div className="rounded-2xl border border-border bg-card">
+          <DarkModeToggle isDark={isDark} onToggle={onToggleDark} />
+        </div>
+      </section>
 
       {/* Sign Out */}
       <section>

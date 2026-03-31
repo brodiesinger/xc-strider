@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { Settings, Copy, LogOut, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import TeamCustomization from "@/components/coach/TeamCustomization";
+import DarkModeToggle from "@/components/shared/DarkModeToggle";
 
-export default function CoachSettingsTab({ user, team, onTeamUpdated }) {
+export default function CoachSettingsTab({ user, team, onTeamUpdated, isDark, onToggleDark }) {
   const [copied, setCopied] = useState(false);
 
   const copyCode = async () => {
@@ -55,6 +56,14 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated }) {
           <TeamCustomization team={team} onSaved={onTeamUpdated} />
         </section>
       )}
+
+      {/* Appearance */}
+      <section>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Appearance</h2>
+        <div className="rounded-2xl border border-border bg-card">
+          <DarkModeToggle isDark={isDark} onToggle={onToggleDark} />
+        </div>
+      </section>
 
       {/* Account Actions */}
       <section>
