@@ -26,17 +26,11 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated }) {
         <p className="text-sm text-muted-foreground mt-0.5">{user?.email}</p>
       </div>
 
-      {/* Team Info */}
+      {/* Join Code */}
       {team && (
         <section>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Your Team</h2>
-          <div className="rounded-2xl border border-border bg-card divide-y divide-border">
-            <div className="flex items-center justify-between p-4">
-              <div>
-                <p className="text-xs text-muted-foreground">Team Name</p>
-                <p className="font-semibold text-foreground">{team.name}</p>
-              </div>
-            </div>
+          <div className="rounded-2xl border border-border bg-card">
             <div className="flex items-center justify-between p-4">
               <div>
                 <p className="text-xs text-muted-foreground">Join Code</p>

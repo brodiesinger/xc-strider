@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Check, Pencil } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { applyTeamTheme } from "@/lib/useTeamTheme";
@@ -74,9 +74,20 @@ function isLight(hex) {
 }
 
 export default function TeamCustomization({ team, onSaved }) {
-  const [teamName, setTeamName] = useState(() => team?.name || "");
-  const [primary, setPrimary] = useState(() => team?.primary_color || "#166534");
-  const [secondary, setSecondary] = useState(() => team?.secondary_color || "#eab308");
+  const [teamName, setTeamName] = useState(team?.name || "");
+  const [primary, setPrimary] = useState(team?.primary_color || "#166534");
+  const [secondary, setSecondary] = useState(team?.secondary_color || "#eab308");
+
+  // Sync state if parent team prop changes (e.g. after save propagates back)
+  const prevTeamId = useRef(team?.id);
+  useEffect(() => {
+    if (team?.id && team.id !== prevTeamId.current) {
+      setTeamName(team.name || "");
+      setPrimary(team.primary_color || "#166534");
+      setSecondary(team.secondary_color || "#eab308");
+      prevTeamId.current = team.id;
+    }
+  }, [team?.id]);
   const [modal, setModal] = useState(null); // "primary" | "secondary" | null
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
