@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Settings, Copy, LogOut, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import TeamColorPicker from "@/components/coach/TeamColorPicker";
 
-export default function CoachSettingsTab({ user, team }) {
+export default function CoachSettingsTab({ user, team, onTeamUpdated }) {
   const [copied, setCopied] = useState(false);
 
   const copyCode = async () => {
@@ -50,6 +51,14 @@ export default function CoachSettingsTab({ user, team }) {
               </button>
             </div>
           </div>
+        </section>
+      )}
+
+      {/* Team Colors */}
+      {team && (
+        <section>
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Team Colors</h2>
+          <TeamColorPicker team={team} onSaved={onTeamUpdated} />
         </section>
       )}
 

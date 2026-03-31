@@ -8,6 +8,7 @@ import CoachPerformanceTab from "@/components/coach/CoachPerformanceTab";
 import BottomNav from "@/components/coach/BottomNav";
 import CoachHomeTab from "@/components/coach/CoachHomeTab";
 import CoachSettingsTab from "@/components/coach/CoachSettingsTab";
+import useTeamTheme from "@/lib/useTeamTheme";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState(null);
@@ -17,6 +18,9 @@ export default function CoachDashboard() {
   const [schedule, setSchedule] = useState([]);
   const [workouts, setWorkouts] = useState([]);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
+
+  // Apply team color theme
+  useTeamTheme(team);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("dashboard");
 
@@ -147,7 +151,7 @@ export default function CoachDashboard() {
               </div>
             )}
             {activeTab === "settings" && (
-              <CoachSettingsTab user={user} team={team} />
+              <CoachSettingsTab user={user} team={team} onTeamUpdated={setTeam} />
             )}
           </>
         )}

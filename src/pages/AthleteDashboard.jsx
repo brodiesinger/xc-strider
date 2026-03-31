@@ -12,6 +12,7 @@ import SmartRecoveryTab from "@/components/athlete/insights/SmartRecoveryTab";
 import GamificationTab from "@/components/athlete/gamification/GamificationTab";
 import CelebrationOverlay from "@/components/athlete/gamification/CelebrationOverlay";
 import { useGamification, ALL_BADGES } from "@/components/athlete/gamification/useStreakAndBadges";
+import useTeamTheme from "@/lib/useTeamTheme";
 
 export default function AthleteDashboard() {
   const [user, setUser] = useState(null);
@@ -32,6 +33,9 @@ export default function AthleteDashboard() {
   const prevBadgeIdsRef = useRef([]);
 
   const { streak, earnedBadgeIds } = useGamification(workouts);
+
+  // Apply team color theme
+  useTeamTheme(team);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));

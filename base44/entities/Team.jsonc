@@ -13,6 +13,14 @@
     "coach_email": {
       "type": "string",
       "description": "Email of the coach who created the team"
+    },
+    "primary_color": {
+      "type": "string",
+      "description": "Hex color for team primary color (e.g. #1a6b3c)"
+    },
+    "secondary_color": {
+      "type": "string",
+      "description": "Hex color for team secondary color (e.g. #f59e0b)"
     }
   },
   "required": [
