@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Ruler, TrendingUp, Activity, BarChart2, Lightbulb, Users, Zap, Plus } from "lucide-react";
+import { Ruler, TrendingUp, Activity, BarChart2, Lightbulb, Users, Zap, Plus, Trophy, ChevronRight } from "lucide-react";
 import { startOfWeek, format } from "date-fns";
 import { AnimatePresence } from "framer-motion";
 import {
@@ -31,7 +31,7 @@ function getWeeklyChartData(workouts, numWeeks = 8) {
   });
 }
 
-export default function AthleteDashboardHome({ user, team, workouts, announcements = [], schedule = [], onLogWorkout, onNavigate }) {
+export default function AthleteDashboardHome({ user, team, workouts, announcements = [], schedule = [], streak = 0, earnedBadgeIds = [], onLogWorkout, onNavigate }) {
   const [dismissedAnnouncements, setDismissedAnnouncements] = React.useState([]);
   const [loadingDismissals, setLoadingDismissals] = React.useState(true);
   const [todayCheckIn, setTodayCheckIn] = React.useState(null);
@@ -145,6 +145,46 @@ export default function AthleteDashboardHome({ user, team, workouts, announcemen
           {team && <p className="text-sm text-primary font-medium mt-0.5">{team.name}</p>}
         </div>
         {user && <NotificationBell userEmail={user.email} />}
+      </motion.div>
+
+      {/* Streak + Leaderboard Preview */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="flex gap-2"
+      >
+        {/* Streak pill */}
+        <div
+          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl flex-1"
+          style={{ background: streak > 0 ? "linear-gradient(135deg,#dc2626,#ea580c)" : undefined }}
+        >
+          {streak > 0 ? (
+            <>
+              <span className="text-xl">🔥</span>
+              <div>
+                <p className="text-white font-bold text-sm leading-tight">{streak} Day Streak</p>
+                <p className="text-white/70 text-[10px]">Keep it going!</p>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center gap-2 border border-dashed border-border rounded-2xl px-3 py-2 bg-muted/40 w-full">
+              <span className="text-xl">🔥</span>
+              <p className="text-xs text-muted-foreground">Log a workout to start your streak!</p>
+            </div>
+          )}
+        </div>
+        {/* Leaderboard shortcut */}
+        <button
+          onClick={() => onNavigate("leaderboard")}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-border bg-card hover:border-primary/40 transition-colors"
+        >
+          <Trophy className="w-4 h-4 text-primary shrink-0" />
+          <div className="text-left">
+            <p className="text-xs font-semibold text-foreground leading-tight">Leaderboard</p>
+            <p className="text-[10px] text-muted-foreground">View ranking →</p>
+          </div>
+        </button>
       </motion.div>
 
       {/* Announcements */}

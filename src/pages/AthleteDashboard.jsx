@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import AthleteBottomNav from "@/components/athlete/AthleteBottomNav";
 import AthleteDashboardHome from "@/components/athlete/AthleteDashboardHome";
@@ -9,10 +9,14 @@ import RacePRManager from "@/components/athlete/RacePRManager";
 import InjuryRiskTab from "@/components/athlete/insights/InjuryRiskTab";
 import AIInjuryChat from "@/components/athlete/insights/AIInjuryChat";
 import SmartRecoveryTab from "@/components/athlete/insights/SmartRecoveryTab";
+import GamificationTab from "@/components/athlete/gamification/GamificationTab";
+import CelebrationOverlay from "@/components/athlete/gamification/CelebrationOverlay";
+import { useGamification, computeEarnedBadges, computeStreak } from "@/components/athlete/gamification/useStreakAndBadges";
 
 export default function AthleteDashboard() {
   const [user, setUser] = useState(null);
   const [team, setTeam] = useState(null);
+  const [athletes, setAthletes] = useState([]);
   const [workouts, setWorkouts] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [schedule, setSchedule] = useState([]);
@@ -21,6 +25,13 @@ export default function AthleteDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [insightTab, setInsightTab] = useState("risk");
   const [logDrawerOpen, setLogDrawerOpen] = useState(false);
+
+  // Gamification state
+  const [celebration, setCelebration] = useState(null); // { type: "streak"|"badge", message: string }
+  const prevStreakRef = useRef(0);
+  const prevBadgeIdsRef = useRef([]);
+
+  const { streak, earnedBadgeIds } = useGamification(workouts);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -38,6 +49,13 @@ export default function AthleteDashboard() {
         if (found) {
           setTeam(found);
           await Promise.all([fetchWorkouts(user), fetchTeamData(found.id)]);
+          // Load teammates for leaderboard
+          try {
+            const res = await base44.functions.invoke("getTeamAthletes", { team_id: found.id });
+            setAthletes(res.data?.athletes || []);
+          } catch {
+            setAthletes([]);
+          }
         }
       } finally {
         setLoading(false);
@@ -46,11 +64,29 @@ export default function AthleteDashboard() {
     loadTeam();
   }, [user?.team_id]);
 
+  // Detect streak / badge changes and trigger celebration
+  useEffect(() => {
+    if (!workouts.length) return;
+    const prevStreak = prevStreakRef.current;
+    const prevBadges = prevBadgeIdsRef.current;
+
+    // Check for new badges first (higher priority)
+    const newBadges = earnedBadgeIds.filter((id) => !prevBadges.includes(id));
+    if (newBadges.length > 0 && prevBadges.length > 0) {
+      setCelebration({ type: "badge", message: `🏅 New Badge Unlocked!` });
+    } else if (streak > prevStreak && prevStreak > 0) {
+      setCelebration({ type: "streak", message: `🔥 ${streak} Day Streak!` });
+    }
+
+    prevStreakRef.current = streak;
+    prevBadgeIdsRef.current = earnedBadgeIds;
+  }, [streak, earnedBadgeIds]);
+
   const fetchWorkouts = async (me) => {
     if (!me?.email) return;
     setLoadingWorkouts(true);
     try {
-      const data = await base44.entities.Workout.filter({ athlete_email: me.email }, "-date", 50);
+      const data = await base44.entities.Workout.filter({ athlete_email: me.email }, "-date", 200);
       setWorkouts(data);
     } finally {
       setLoadingWorkouts(false);
@@ -66,7 +102,6 @@ export default function AthleteDashboard() {
     setSchedule(sched);
   };
 
-  // "Log" tab in bottom nav opens drawer directly
   const handleTabChange = (tab) => {
     if (tab === "log") {
       setLogDrawerOpen(true);
@@ -86,6 +121,14 @@ export default function AthleteDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Celebration overlay */}
+      <CelebrationOverlay
+        show={!!celebration}
+        type={celebration?.type}
+        message={celebration?.message}
+        onDone={() => setCelebration(null)}
+      />
+
       <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
 
         {activeTab === "dashboard" && (
@@ -95,6 +138,8 @@ export default function AthleteDashboard() {
             workouts={workouts}
             announcements={announcements}
             schedule={schedule}
+            streak={streak}
+            earnedBadgeIds={earnedBadgeIds}
             onLogWorkout={() => setLogDrawerOpen(true)}
             onNavigate={setActiveTab}
           />
@@ -155,6 +200,16 @@ export default function AthleteDashboard() {
               </>
             )}
           </div>
+        )}
+
+        {activeTab === "leaderboard" && (
+          <GamificationTab
+            user={user}
+            team={team}
+            athletes={athletes}
+            streak={streak}
+            earnedBadgeIds={earnedBadgeIds}
+          />
         )}
 
         {activeTab === "profile" && (

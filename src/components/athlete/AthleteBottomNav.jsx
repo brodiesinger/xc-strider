@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Plus, BarChart2, Lightbulb, User } from "lucide-react";
+import { Home, Plus, BarChart2, Lightbulb, User, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { id: "log", label: "Log", Icon: Plus },
   { id: "performance", label: "Stats", Icon: BarChart2 },
   { id: "insights", label: "Insights", Icon: Lightbulb },
+  { id: "leaderboard", label: "Leaderboard", Icon: Trophy },
   { id: "profile", label: "Profile", Icon: User },
 ];
 
