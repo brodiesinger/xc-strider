@@ -11,7 +11,7 @@ import AIInjuryChat from "@/components/athlete/insights/AIInjuryChat";
 import SmartRecoveryTab from "@/components/athlete/insights/SmartRecoveryTab";
 import GamificationTab from "@/components/athlete/gamification/GamificationTab";
 import CelebrationOverlay from "@/components/athlete/gamification/CelebrationOverlay";
-import { useGamification, computeEarnedBadges, computeStreak } from "@/components/athlete/gamification/useStreakAndBadges";
+import { useGamification, ALL_BADGES } from "@/components/athlete/gamification/useStreakAndBadges";
 
 export default function AthleteDashboard() {
   const [user, setUser] = useState(null);
@@ -65,22 +65,34 @@ export default function AthleteDashboard() {
   }, [user?.team_id]);
 
   // Detect streak / badge changes and trigger celebration
+  // initializedRef prevents false-positive celebrations on first data load
+  const initializedRef = useRef(false);
   useEffect(() => {
     if (!workouts.length) return;
+
+    if (!initializedRef.current) {
+      // First load — set baseline, no celebration
+      prevStreakRef.current = streak;
+      prevBadgeIdsRef.current = earnedBadgeIds;
+      initializedRef.current = true;
+      return;
+    }
+
     const prevStreak = prevStreakRef.current;
     const prevBadges = prevBadgeIdsRef.current;
 
     // Check for new badges first (higher priority)
     const newBadges = earnedBadgeIds.filter((id) => !prevBadges.includes(id));
-    if (newBadges.length > 0 && prevBadges.length > 0) {
-      setCelebration({ type: "badge", message: `🏅 New Badge Unlocked!` });
-    } else if (streak > prevStreak && prevStreak > 0) {
+    if (newBadges.length > 0) {
+      const badge = ALL_BADGES.find((b) => b.id === newBadges[0]);
+      setCelebration({ type: "badge", message: `${badge?.emoji || "🏅"} ${badge?.label || "Badge"} Unlocked!` });
+    } else if (streak > prevStreak) {
       setCelebration({ type: "streak", message: `🔥 ${streak} Day Streak!` });
     }
 
     prevStreakRef.current = streak;
     prevBadgeIdsRef.current = earnedBadgeIds;
-  }, [streak, earnedBadgeIds]);
+  }, [streak, earnedBadgeIds, workouts.length]);
 
   const fetchWorkouts = async (me) => {
     if (!me?.email) return;

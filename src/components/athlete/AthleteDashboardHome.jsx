@@ -155,25 +155,23 @@ export default function AthleteDashboardHome({ user, team, workouts, announcemen
         className="flex gap-2"
       >
         {/* Streak pill */}
-        <div
-          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl flex-1"
-          style={{ background: streak > 0 ? "linear-gradient(135deg,#dc2626,#ea580c)" : undefined }}
-        >
-          {streak > 0 ? (
-            <>
-              <span className="text-xl">🔥</span>
-              <div>
-                <p className="text-white font-bold text-sm leading-tight">{streak} Day Streak</p>
-                <p className="text-white/70 text-[10px]">Keep it going!</p>
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center gap-2 border border-dashed border-border rounded-2xl px-3 py-2 bg-muted/40 w-full">
-              <span className="text-xl">🔥</span>
-              <p className="text-xs text-muted-foreground">Log a workout to start your streak!</p>
+        {streak > 0 ? (
+          <div
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl flex-1"
+            style={{ background: "linear-gradient(135deg,#dc2626,#ea580c)" }}
+          >
+            <span className="text-xl">🔥</span>
+            <div>
+              <p className="text-white font-bold text-sm leading-tight">{streak} Day Streak</p>
+              <p className="text-white/70 text-[10px]">Keep it going!</p>
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 border border-dashed border-border rounded-2xl px-4 py-2.5 bg-muted/40 flex-1">
+            <span className="text-xl">🔥</span>
+            <p className="text-xs text-muted-foreground">Log a workout to start your streak!</p>
+          </div>
+        )}
         {/* Leaderboard shortcut */}
         <button
           onClick={() => onNavigate("leaderboard")}
