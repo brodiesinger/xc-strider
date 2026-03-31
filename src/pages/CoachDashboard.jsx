@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { format } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
@@ -19,6 +20,7 @@ export default function CoachDashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [schedule, setSchedule] = useState([]);
   const [workouts, setWorkouts] = useState([]);
+  const [checkins, setCheckins] = useState({});
   const [selectedAthlete, setSelectedAthlete] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -58,8 +60,14 @@ export default function CoachDashboard() {
           setAthletes(athleteList);
           // Load all team workouts for home dashboard summary
           if (athleteList.length > 0) {
-            const allWorkouts = await base44.entities.Workout.filter({ team_id: found.id }, "-date", 200);
+            const [allWorkouts, todayCheckins] = await Promise.all([
+              base44.entities.Workout.filter({ team_id: found.id }, "-date", 200),
+              base44.entities.DailyCheckin.filter({ date: format(new Date(), "yyyy-MM-dd") }, "-created_date", 100),
+            ]);
             setWorkouts(allWorkouts);
+            const checkinMap = {};
+            todayCheckins.forEach((c) => { checkinMap[c.athlete_email] = c; });
+            setCheckins(checkinMap);
           }
         } catch {
           setAthletes([]);
@@ -139,6 +147,7 @@ export default function CoachDashboard() {
                 announcements={announcements}
                 schedule={schedule}
                 workouts={workouts}
+                checkins={checkins}
                 onAnnouncementPosted={refreshAnnouncements}
                 onScheduleRefresh={refreshSchedule}
                 onSelectAthlete={setSelectedAthlete}

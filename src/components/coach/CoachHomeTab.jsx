@@ -7,6 +7,7 @@ import RosterDrawer from "./RosterDrawer";
 import PostAnnouncement from "./PostAnnouncement";
 import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
 import WeeklyScheduleManager from "./WeeklyScheduleManager";
+import TeamAlerts from "./TeamAlerts";
 
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
@@ -42,6 +43,7 @@ export default function CoachHomeTab({
   announcements = [],
   schedule = [],
   workouts = [],
+  checkins = {},
   onAnnouncementPosted,
   onScheduleRefresh,
   onSelectAthlete,
@@ -67,6 +69,14 @@ export default function CoachHomeTab({
         <h1 className="text-2xl font-bold text-foreground">{getDisplayName(user)} 👋</h1>
         {team && <p className="text-sm text-primary font-medium mt-0.5">{team.name}</p>}
       </div>
+
+      {/* Team Alerts */}
+      <TeamAlerts
+        athletes={athletes}
+        workouts={workouts}
+        checkins={checkins}
+        schedule={schedule}
+      />
 
       {/* Stats Row */}
       <div className="flex gap-3">
