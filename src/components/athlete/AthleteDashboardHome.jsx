@@ -130,6 +130,14 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
   // isLoading guards sections that depend on both fetch results
   const isDataLoading = loadingDismissals || checkInLoading;
 
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <p className="text-muted-foreground">Unable to load dashboard.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
       {/* Header */}

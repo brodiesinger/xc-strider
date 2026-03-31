@@ -59,32 +59,36 @@ export default function GoalTracker({ workouts = [], userEmail }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
+    if (!form.target) return;
     setSaving(true);
-    const typeConfig = GOAL_TYPES.find((t) => t.value === form.type);
-    let targetValue = parseFloat(form.target);
+    try {
+      const typeConfig = GOAL_TYPES.find((t) => t.value === form.type);
+      let targetValue = parseFloat(form.target);
 
-    if (form.type !== "weekly_miles") {
-      const parts = form.target.split(":").map(Number);
-      if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
-        alert("Please enter time in MM:SS format");
-        setSaving(false);
-        return;
+      if (form.type !== "weekly_miles") {
+        const parts = form.target.split(":").map(Number);
+        if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
+          alert("Please enter time in MM:SS format");
+          setSaving(false);
+          return;
+        }
+        const [mins, secs] = parts;
+        targetValue = mins + secs / 60;
       }
-      const [mins, secs] = parts;
-      targetValue = mins + secs / 60;
-    }
 
-    const newGoal = await base44.entities.Goal.create({
-      athlete_email: userEmail,
-      type: form.type,
-      target: targetValue,
-      label: typeConfig.label,
-      completed: false,
-    });
-    setGoals((prev) => [newGoal, ...prev]);
-    setForm({ type: "weekly_miles", target: "", label: "", deadline: "" });
-    setShowForm(false);
-    setSaving(false);
+      const newGoal = await base44.entities.Goal.create({
+        athlete_email: userEmail,
+        type: form.type,
+        target: targetValue,
+        label: typeConfig?.label || form.type,
+        completed: false,
+      });
+      setGoals((prev) => [newGoal, ...prev]);
+      setForm({ type: "weekly_miles", target: "", label: "", deadline: "" });
+      setShowForm(false);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async (id) => {

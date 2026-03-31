@@ -20,7 +20,7 @@ export default function WorkoutList({ workouts }) {
         >
           <div className="flex items-center justify-between">
             <span className="font-medium text-foreground">
-              {w.date ? format(parseISO(w.date), "MMM d, yyyy") : "—"}
+              {w.date ? (() => { try { return format(parseISO(w.date), "MMM d, yyyy"); } catch { return w.date; } })() : "—"}
             </span>
           </div>
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">

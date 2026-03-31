@@ -33,7 +33,7 @@ export default function RacePRManager({ userEmail }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (!form.time_minutes) return;
+    if (!form.time_minutes || !userEmail) return;
     setSaving(true);
     try {
       const parts = form.time_minutes.split(":").map(Number);
@@ -52,6 +52,8 @@ export default function RacePRManager({ userEmail }) {
       setPRs((prev) => [newPR, ...prev]);
       setForm({ distance: "5K", time_minutes: "" });
       setShowForm(false);
+    } catch {
+      // Error handled by API
     } finally {
       setSaving(false);
     }

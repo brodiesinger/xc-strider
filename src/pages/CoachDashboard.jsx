@@ -34,8 +34,7 @@ export default function CoachDashboard() {
   }, []);
 
   useEffect(() => {
-    if (!user) {
-      setLoading(true);
+    if (!user || !user.email) {
       return;
     }
 
@@ -81,7 +80,7 @@ export default function CoachDashboard() {
       }
     };
     loadTeam();
-  }, [user]);
+  }, [user?.email, user?.team_id]);
 
   const handleTeamCreated = (newTeam) => {
     setTeam(newTeam);

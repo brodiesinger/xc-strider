@@ -8,6 +8,7 @@ export default function AthleteWorkouts({ athlete }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!athlete?.email) return;
     const loadWorkouts = async () => {
       setLoading(true);
       try {
@@ -16,13 +17,15 @@ export default function AthleteWorkouts({ athlete }) {
           "-date",
           100
         );
-        setWorkouts(data);
+        setWorkouts(data || []);
+      } catch {
+        setWorkouts([]);
       } finally {
         setLoading(false);
       }
     };
     loadWorkouts();
-  }, [athlete.email]);
+  }, [athlete?.email]);
 
   return (
     <div>
@@ -58,8 +61,8 @@ export default function AthleteWorkouts({ athlete }) {
               className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2"
             >
               <span className="font-medium text-foreground">
-                {w.date ? format(parseISO(w.date), "MMM d, yyyy") : "—"}
-              </span>
+                 {w.date ? (() => { try { return format(parseISO(w.date), "MMM d, yyyy"); } catch { return w.date; } })() : "—"}
+               </span>
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5">
                   <Ruler className="w-3.5 h-3.5" />

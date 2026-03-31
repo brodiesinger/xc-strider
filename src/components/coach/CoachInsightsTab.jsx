@@ -245,19 +245,26 @@ export default function CoachInsightsTab({ athletes, teamId }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!teamId) {
+      setLoading(false);
+      return;
+    }
     const init = async () => {
       setLoading(true);
       try {
         const workouts = await base44.entities.Workout.filter({ team_id: teamId }, "-date", 500);
-        setAllWorkouts(workouts);
+        setAllWorkouts(workouts || []);
 
         const todayStr = format(new Date(), "yyyy-MM-dd");
         const allCheckins = await base44.entities.DailyCheckin.filter({ date: todayStr }, "-created_date", 100);
         const checkinMap = {};
-        allCheckins.forEach((c) => {
+        (allCheckins || []).forEach((c) => {
           checkinMap[c.athlete_email] = c;
         });
         setCheckins(checkinMap);
+      } catch {
+        setAllWorkouts([]);
+        setCheckins({});
       } finally {
         setLoading(false);
       }

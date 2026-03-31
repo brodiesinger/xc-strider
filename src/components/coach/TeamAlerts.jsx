@@ -21,7 +21,14 @@ function calcInjuryScore(workouts, checkin) {
   const lastWk = getWeekMiles(workouts, lastWeekStart).reduce((s, w) => s + (w.distance || 0), 0);
 
   if (lastWk > 0 && thisWk > lastWk * 1.2) score += 3;
-  const recent7 = workouts.filter((w) => w.date && (now - parseISO(w.date)) / 86400000 <= 7);
+  const recent7 = workouts.filter((w) => {
+    if (!w.date) return false;
+    try {
+      return (now - parseISO(w.date)) / 86400000 <= 7;
+    } catch {
+      return false;
+    }
+  });
   if (recent7.length >= 7) score += 2;
   const sampleSize = Math.min(workouts.length, 20);
   const avg = sampleSize > 0 ? workouts.slice(0, 20).reduce((s, w) => s + (w.distance || 0), 0) / sampleSize : 0;

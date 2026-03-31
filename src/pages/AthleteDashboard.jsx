@@ -106,7 +106,9 @@ export default function AthleteDashboard() {
     setLoadingWorkouts(true);
     try {
       const data = await base44.entities.Workout.filter({ athlete_email: me.email }, "-date", 200);
-      setWorkouts(data);
+      setWorkouts(data || []);
+    } catch {
+      setWorkouts([]);
     } finally {
       setLoadingWorkouts(false);
     }

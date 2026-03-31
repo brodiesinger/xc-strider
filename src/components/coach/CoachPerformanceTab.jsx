@@ -129,22 +129,32 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!athletes || athletes.length === 0) {
+      setLoading(false);
+      setAthleteData({});
+      return;
+    }
     const loadData = async () => {
       setLoading(true);
-      const data = {};
-      for (const athlete of athletes) {
-        const [workouts, goals, racePRs] = await Promise.all([
-          base44.entities.Workout.filter({ athlete_email: athlete.email }, "-date", 100).catch(() => []),
-          base44.entities.Goal.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
-          base44.entities.RacePR.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
-        ]);
-        data[athlete.email] = { workouts, goals, racePRs };
+      try {
+        const data = {};
+        for (const athlete of athletes) {
+          const [workouts, goals, racePRs] = await Promise.all([
+            base44.entities.Workout.filter({ athlete_email: athlete.email }, "-date", 100).catch(() => []),
+            base44.entities.Goal.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
+            base44.entities.RacePR.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
+          ]);
+          data[athlete.email] = { workouts: workouts || [], goals: goals || [], racePRs: racePRs || [] };
+        }
+        setAthleteData(data);
+      } catch {
+        setAthleteData({});
+      } finally {
+        setLoading(false);
       }
-      setAthleteData(data);
-      setLoading(false);
     };
     loadData();
-  }, [athletes, teamId]);
+  }, [athletes]);
 
   if (loading) {
     return (

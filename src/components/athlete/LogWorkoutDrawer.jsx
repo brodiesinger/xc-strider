@@ -32,7 +32,7 @@ export default function LogWorkoutDrawer({ open, onClose, onSaved, teamId }) {
         notes: form.notes,
         team_id: teamId || null,
         athlete_email: user?.email || null,
-        athlete_name: user?.full_name || user?.email?.split("@")[0] || null,
+        athlete_name: user?.full_name || null,
       });
       onSaved();
       onClose();

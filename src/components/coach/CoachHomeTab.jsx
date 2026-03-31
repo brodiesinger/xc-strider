@@ -160,9 +160,11 @@ export default function CoachHomeTab({
       </section>
 
       {/* Schedule Section */}
-      <section id="schedule-section">
-        <WeeklyScheduleManager teamId={team.id} schedule={schedule} onRefresh={onScheduleRefresh} />
-      </section>
+      {team && (
+        <section id="schedule-section">
+          <WeeklyScheduleManager teamId={team.id} schedule={schedule} onRefresh={onScheduleRefresh} />
+        </section>
+      )}
 
       {/* Announcements Feed */}
       <section>
