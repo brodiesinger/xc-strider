@@ -34,13 +34,18 @@ export default function CoachDashboard() {
   }, []);
 
   useEffect(() => {
-    if (!user) return; // Still loading user
-    setLoading(true);
+    if (!user) {
+      setLoading(true);
+      return;
+    }
+
     if (!user.team_id) {
       setLoading(false);
       return;
     }
+
     const loadTeam = async () => {
+      setLoading(true);
       try {
         const found = await base44.entities.Team.get(user.team_id);
         if (!found) {
@@ -58,7 +63,6 @@ export default function CoachDashboard() {
           const res = await base44.functions.invoke("getTeamAthletes", { team_id: found.id });
           const athleteList = res.data?.athletes || [];
           setAthletes(athleteList);
-          // Load all team workouts for home dashboard summary
           if (athleteList.length > 0) {
             const [allWorkouts, todayCheckins] = await Promise.all([
               base44.entities.Workout.filter({ team_id: found.id }, "-date", 200),
@@ -77,7 +81,7 @@ export default function CoachDashboard() {
       }
     };
     loadTeam();
-  }, [user?.team_id]);
+  }, [user]);
 
   const handleTeamCreated = (newTeam) => {
     setTeam(newTeam);
