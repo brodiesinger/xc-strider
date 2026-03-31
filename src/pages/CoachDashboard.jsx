@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
@@ -85,6 +85,7 @@ export default function CoachDashboard() {
     setAnnouncements([]);
     setSchedule([]);
     setWorkouts([]);
+    setCheckins({});
   };
 
   const refreshAnnouncements = async () => {
