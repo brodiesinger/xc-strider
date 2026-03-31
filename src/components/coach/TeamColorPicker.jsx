@@ -15,8 +15,8 @@ const PRESETS = [
 ];
 
 export default function TeamColorPicker({ team, onSaved }) {
-  const [primary, setPrimary] = useState(team?.primary_color || "#1a6b3c");
-  const [secondary, setSecondary] = useState(team?.secondary_color || "#f59e0b");
+  const [primary, setPrimary] = useState(() => team?.primary_color || "#1a6b3c");
+  const [secondary, setSecondary] = useState(() => team?.secondary_color || "#f59e0b");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 

@@ -43,9 +43,6 @@ function getContrastForeground(hex) {
   return luminance > 0.5 ? "0 0% 10%" : "0 0% 98%";
 }
 
-const DEFAULT_PRIMARY = null;
-const DEFAULT_SECONDARY = null;
-
 /**
  * Applies team theme CSS variables to :root.
  * Pass null/undefined colors to reset to app defaults.

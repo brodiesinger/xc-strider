@@ -18,11 +18,11 @@ export default function CoachDashboard() {
   const [schedule, setSchedule] = useState([]);
   const [workouts, setWorkouts] = useState([]);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   // Apply team color theme
   useTeamTheme(team);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
