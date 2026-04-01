@@ -36,11 +36,9 @@ export default function AthleteWorkouts({ athlete }) {
         </div>
         <div>
           <h2 className="font-bold text-foreground text-lg">
-            {athlete.full_name || athlete.email}
+            {athlete.full_name || "Unknown Athlete"}
           </h2>
-          {athlete.full_name && (
-            <p className="text-xs text-muted-foreground">{athlete.email}</p>
-          )}
+          <p className="text-xs text-muted-foreground">{athlete.email}</p>
         </div>
       </div>
 

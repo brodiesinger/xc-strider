@@ -76,7 +76,7 @@ function computeAlerts({ athletes, workouts, checkins, schedule }) {
         severity: "warning",
         icon: "⚠️",
         message: `${athletesWithMissed.length} athlete${athletesWithMissed.length > 1 ? "s" : ""} missed multiple workouts this week`,
-        detail: athletesWithMissed.map((a) => a.full_name || a.email),
+        detail: athletesWithMissed.map((a) => a.full_name || "Unknown Athlete"),
       });
     }
   }
@@ -120,7 +120,7 @@ function computeAlerts({ athletes, workouts, checkins, schedule }) {
       severity: "urgent",
       icon: "🚨",
       message: `${highRiskAthletes.length} athlete${highRiskAthletes.length > 1 ? "s are" : " is"} at high injury risk`,
-      detail: highRiskAthletes.map((a) => a.full_name || a.email),
+      detail: highRiskAthletes.map((a) => a.full_name || "Unknown Athlete"),
     });
   }
 
@@ -171,7 +171,7 @@ function AlertCard({ alert, athletes, onAthleteClick }) {
   // Map detail names to athlete objects for clicking
   const detailAthletes = hasDetail
     ? alert.detail
-        .map((name) => athletes.find((a) => (a.full_name || a.email) === name))
+        .map((name) => athletes.find((a) => (a.full_name || "Unknown Athlete") === name))
         .filter(Boolean)
     : [];
 
@@ -206,7 +206,7 @@ function AlertCard({ alert, athletes, onAthleteClick }) {
                   onClick={() => onAthleteClick(athlete)}
                   className={`text-xs font-medium px-2 py-0.5 rounded-full border ${s.border} ${s.text} bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors cursor-pointer`}
                 >
-                  {athlete.full_name || athlete.email}
+                  {athlete.full_name || "Unknown Athlete"}
                 </button>
               ))}
             </div>

@@ -86,7 +86,7 @@ function AthleteRiskCard({ athlete, workouts, checkin, onSelect }) {
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="font-semibold text-foreground">{athlete.full_name || athlete.email}</p>
+          <p className="font-semibold text-foreground">{athlete.full_name || "Unknown Athlete"}</p>
           <div className="flex items-center gap-2 mt-2">
             <cfg.Icon className={`w-4 h-4 ${cfg.color}`} />
             <span className={`text-sm font-medium ${cfg.color}`}>{cfg.label}</span>
@@ -158,7 +158,7 @@ function AthleteDetailView({ athlete, workouts, checkin, onBack }) {
       </button>
 
       <div>
-        <h2 className="text-2xl font-bold text-foreground">{athlete.full_name || athlete.email}</h2>
+        <h2 className="text-2xl font-bold text-foreground">{athlete.full_name || "Unknown Athlete"}</h2>
       </div>
 
       {/* Risk Level */}

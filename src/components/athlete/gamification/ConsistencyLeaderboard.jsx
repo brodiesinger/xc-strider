@@ -41,7 +41,7 @@ export default function ConsistencyLeaderboard({ teamId, currentUserEmail, athle
           const pct = Math.min(100, Math.round((logged / assignedCount) * 100));
           return {
             email,
-            name: a.full_name || a.email || "Athlete",
+            name: a.full_name || "Unknown Athlete",
             logged,
             assigned: assignedCount,
             pct,
