@@ -2,11 +2,11 @@
  * Returns the display name for a user based on their role.
  * - Coach: "Coach [LastName]"
  * - Athlete: full name
- * Prioritizes full_name over email prefix.
+ * NEVER falls back to email. Uses "Unnamed User" if no name is set.
  */
 export function getDisplayName(user) {
-  if (!user) return "User";
-  
+  if (!user) return "Unnamed User";
+
   const name = user.full_name?.trim();
 
   if (name) {
@@ -18,9 +18,6 @@ export function getDisplayName(user) {
     return name;
   }
 
-  // No full_name set — show neutral placeholder (never use email prefix)
-  if (user.role === "coach" || user.user_type === "coach") {
-    return "Coach";
-  }
-  return "Athlete";
+  // No full_name — never fall back to email
+  return "Unnamed User";
 }

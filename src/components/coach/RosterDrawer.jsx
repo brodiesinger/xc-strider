@@ -86,9 +86,8 @@ export default function RosterDrawer({ athletes, open, onClose, onSelectAthlete 
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-foreground truncate">
-                        {athlete.full_name || "Unknown Athlete"}
+                        {athlete.full_name || "Unnamed Athlete"}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">{athlete.email}</p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                   </button>

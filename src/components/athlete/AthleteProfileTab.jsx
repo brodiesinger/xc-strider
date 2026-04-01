@@ -22,7 +22,7 @@ export default function AthleteProfileTab({ user, team, announcements, schedule,
     <div className="space-y-6 pb-28">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Profile</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">{user?.email}</p>
+        <p className="text-sm text-muted-foreground mt-0.5">{getDisplayName(user)}</p>
       </div>
 
       {/* Profile */}

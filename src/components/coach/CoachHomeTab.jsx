@@ -147,7 +147,7 @@ export default function CoachHomeTab({
             recentWorkouts.map((w) => (
               <div key={w.id} className="flex items-center justify-between p-4">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{w.athlete_name || w.athlete_email}</p>
+                  <p className="text-sm font-semibold text-foreground">{w.athlete_name || "Unnamed Athlete"}</p>
                   <p className="text-xs text-muted-foreground">{w.date} · {w.distance} mi</p>
                 </div>
                 <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
