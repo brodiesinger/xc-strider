@@ -19,7 +19,16 @@ Deno.serve(async (req) => {
       100
     );
 
-    return Response.json({ athletes });
+    // Return only the fields needed by the frontend
+    const mapped = athletes.map((a) => ({
+      id: a.id,
+      email: a.email,
+      full_name: a.full_name || "",
+      user_type: a.user_type,
+      team_id: a.team_id,
+    }));
+
+    return Response.json({ athletes: mapped });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

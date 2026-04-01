@@ -27,8 +27,11 @@ export default function SelectRole() {
       } else if (user.user_type === "athlete") {
         navigate("/athlete");
       } else {
-        // If user has no name yet, prompt for it first
-        if (!user.full_name || !user.full_name.trim()) {
+        // If user has no name yet, or name looks like an email prefix, prompt for it
+        const emailPrefix = user.email?.split("@")[0] || "";
+        const nameIsEmailPrefix = user.full_name?.trim().toLowerCase() === emailPrefix.toLowerCase();
+        const nameMissing = !user.full_name || !user.full_name.trim() || nameIsEmailPrefix;
+        if (nameMissing) {
           setStep("name");
         }
         setLoading(false);
@@ -42,10 +45,17 @@ export default function SelectRole() {
     setSaving(true);
     try {
       await base44.auth.updateMe({ full_name: fullName.trim() });
-      setStep("role");
+      // Re-fetch user to check if they already have a role
+      const updatedUser = await base44.auth.me();
+      if (updatedUser.user_type === "coach") {
+        navigate("/coach");
+      } else if (updatedUser.user_type === "athlete") {
+        navigate("/athlete");
+      } else {
+        setStep("role");
+      }
     } catch (err) {
       setError("Failed to save name. Please try again.");
-    } finally {
       setSaving(false);
     }
   };

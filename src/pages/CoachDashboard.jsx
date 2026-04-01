@@ -32,7 +32,7 @@ export default function CoachDashboard() {
 
   useEffect(() => {
     base44.auth.me()
-      .then((u) => { setUser(u); setUserLoaded(true); })
+      .then((u) => { console.log("[CoachDashboard] user:", u); setUser(u); setUserLoaded(true); })
       .catch(() => { setUser(null); setUserLoaded(true); });
   }, []);
 
