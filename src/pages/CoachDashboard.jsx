@@ -15,6 +15,7 @@ import useDarkMode from "@/lib/useDarkMode";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState(null);
+  const [userLoaded, setUserLoaded] = useState(false);
   const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -30,11 +31,16 @@ export default function CoachDashboard() {
   const { isDark, toggle: toggleDark } = useDarkMode(user);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => setUser(null));
+    base44.auth.me()
+      .then((u) => { setUser(u); setUserLoaded(true); })
+      .catch(() => { setUser(null); setUserLoaded(true); });
   }, []);
 
   useEffect(() => {
-    if (!user || !user.email) {
+    if (!userLoaded) return; // Auth not resolved yet — wait
+
+    if (!user?.email) {
+      setLoading(false);
       return;
     }
 
@@ -80,7 +86,7 @@ export default function CoachDashboard() {
       }
     };
     loadTeam();
-  }, [user?.email, user?.team_id]);
+  }, [userLoaded, user?.email, user?.team_id]);
 
   const handleTeamCreated = (newTeam) => {
     setTeam(newTeam);

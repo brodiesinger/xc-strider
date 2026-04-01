@@ -21,10 +21,10 @@ export default function TeamSettings() {
 
   useEffect(() => {
     if (!user?.team_id) { setLoading(false); return; }
-    base44.entities.Team.get(user.team_id).then((t) => {
-      if (t) { setTeam(t); setName(t.name); }
-      setLoading(false);
-    });
+    base44.entities.Team.get(user.team_id)
+      .then((t) => { if (t) { setTeam(t); setName(t.name); } })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [user?.team_id]);
 
   const handleSave = async (e) => {

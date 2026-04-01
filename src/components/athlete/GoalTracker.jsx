@@ -52,7 +52,9 @@ export default function GoalTracker({ workouts = [], userEmail }) {
 
   useEffect(() => {
     if (!userEmail) return;
-    base44.entities.Goal.filter({ athlete_email: userEmail }, "-created_date", 20).then(setGoals);
+    base44.entities.Goal.filter({ athlete_email: userEmail }, "-created_date", 20)
+      .then((data) => setGoals(data || []))
+      .catch(() => setGoals([]));
   }, [userEmail]);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));

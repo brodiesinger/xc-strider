@@ -17,6 +17,7 @@ import useDarkMode from "@/lib/useDarkMode";
 
 export default function AthleteDashboard() {
   const [user, setUser] = useState(null);
+  const [userLoaded, setUserLoaded] = useState(false);
   const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [workouts, setWorkouts] = useState([]);
@@ -40,12 +41,14 @@ export default function AthleteDashboard() {
   const { isDark, toggle: toggleDark } = useDarkMode(user);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => setUser(null));
+    base44.auth.me()
+      .then((u) => { setUser(u); setUserLoaded(true); })
+      .catch(() => { setUser(null); setUserLoaded(true); });
   }, []);
 
   useEffect(() => {
-    if (!user) return; // Still loading user
-    if (!user.team_id) {
+    if (!userLoaded) return; // Auth not resolved yet — wait
+    if (!user?.team_id) {
       setLoading(false);
       return;
     }
@@ -69,7 +72,7 @@ export default function AthleteDashboard() {
       }
     };
     loadTeam();
-  }, [user?.team_id]);
+  }, [userLoaded, user]);
 
   // Detect streak / badge changes and trigger celebration
   // initializedRef prevents false-positive celebrations on first data load
@@ -115,12 +118,16 @@ export default function AthleteDashboard() {
   };
 
   const fetchTeamData = async (teamId) => {
-    const [ann, sched] = await Promise.all([
-      base44.entities.Announcement.filter({ team_id: teamId }, "-created_date", 20).catch(() => []),
-      base44.entities.PracticeSchedule.filter({ team_id: teamId }, "date", 50).catch(() => []),
-    ]);
-    setAnnouncements(ann);
-    setSchedule(sched);
+    try {
+      const [ann, sched] = await Promise.all([
+        base44.entities.Announcement.filter({ team_id: teamId }, "-created_date", 20).catch(() => []),
+        base44.entities.PracticeSchedule.filter({ team_id: teamId }, "date", 50).catch(() => []),
+      ]);
+      setAnnouncements(ann);
+      setSchedule(sched);
+    } catch {
+      // non-critical, leave empty
+    }
   };
 
   const handleTabChange = (tab) => {
