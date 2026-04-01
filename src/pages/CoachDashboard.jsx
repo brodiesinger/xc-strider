@@ -177,7 +177,7 @@ export default function CoachDashboard() {
               </div>
             )}
             {activeTab === "settings" && (
-              <CoachSettingsTab user={user} team={team} onTeamUpdated={setTeam} isDark={isDark} onToggleDark={toggleDark} />
+              <CoachSettingsTab user={user} team={team} onTeamUpdated={setTeam} onUserUpdated={setUser} isDark={isDark} onToggleDark={toggleDark} />
             )}
           </>
         )}
