@@ -28,7 +28,8 @@ export default function SelectRole() {
         navigate("/athlete");
       } else {
         // If user has no real full_name, prompt for it
-        const nameMissing = !user.full_name || !user.full_name.trim() || user.full_name.includes("@");
+        const n = user.full_name?.trim();
+        const nameMissing = !n || n.includes("@") || !n.includes(" ");
         if (nameMissing) {
           setStep("name");
         }

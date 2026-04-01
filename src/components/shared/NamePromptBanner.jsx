@@ -17,15 +17,13 @@ export default function NamePromptBanner({ user, onSaved }) {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
     setSaving(true);
-    try {
-      await base44.auth.updateMe({ full_name: name.trim() });
-      const updated = await base44.auth.me();
-      onSaved(updated);
-    } finally {
-      setSaving(false);
-    }
+    await base44.auth.updateMe({ full_name: trimmed });
+    const updated = await base44.auth.me();
+    onSaved(updated);
+    setSaving(false);
   };
 
   return (
