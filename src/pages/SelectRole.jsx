@@ -27,10 +27,8 @@ export default function SelectRole() {
       } else if (user.user_type === "athlete") {
         navigate("/athlete");
       } else {
-        // If user has no name yet, or name looks like an email prefix, prompt for it
-        const emailPrefix = user.email?.split("@")[0] || "";
-        const nameIsEmailPrefix = user.full_name?.trim().toLowerCase() === emailPrefix.toLowerCase();
-        const nameMissing = !user.full_name || !user.full_name.trim() || nameIsEmailPrefix;
+        // If user has no real full_name, prompt for it
+        const nameMissing = !user.full_name || !user.full_name.trim() || user.full_name.includes("@");
         if (nameMissing) {
           setStep("name");
         }

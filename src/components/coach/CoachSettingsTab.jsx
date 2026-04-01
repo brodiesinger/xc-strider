@@ -34,7 +34,7 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpda
         <div className="rounded-2xl border border-border bg-card p-4 space-y-1">
           <p className="text-xs text-muted-foreground">Name</p>
           <p className="font-semibold text-foreground">{getDisplayName(user)}</p>
-          <p className="text-xs text-muted-foreground">{user?.email}</p>
+          <p className="text-xs text-muted-foreground">{user?.full_name || "Unnamed User"}</p>
         </div>
       </section>
 
