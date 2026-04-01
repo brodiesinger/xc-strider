@@ -25,8 +25,14 @@ export default function AthleteProfileTab({ user, team, announcements, schedule,
     if (!nameValue.trim()) return;
     setSavingName(true);
     try {
-      await base44.auth.updateMe({ full_name: nameValue.trim() });
-      onUserUpdated?.({ ...user, full_name: nameValue.trim() });
+      const newName = nameValue.trim();
+      await base44.auth.updateMe({ full_name: newName });
+      // Update athlete_name on all existing workout records so coach sees updated name
+      if (user?.email) {
+        const workouts = await base44.entities.Workout.filter({ athlete_email: user.email }, "-date", 500);
+        await Promise.all(workouts.map((w) => base44.entities.Workout.update(w.id, { athlete_name: newName })));
+      }
+      onUserUpdated?.({ ...user, full_name: newName });
       setEditingName(false);
     } finally {
       setSavingName(false);
