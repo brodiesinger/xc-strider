@@ -14,6 +14,7 @@ import CelebrationOverlay from "@/components/athlete/gamification/CelebrationOve
 import { useGamification, ALL_BADGES } from "@/components/athlete/gamification/useStreakAndBadges";
 import useTeamTheme from "@/lib/useTeamTheme";
 import useDarkMode from "@/lib/useDarkMode";
+import NamePromptBanner from "@/components/shared/NamePromptBanner";
 
 export default function AthleteDashboard() {
   const [user, setUser] = useState(null);
