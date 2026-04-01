@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
+import { useCurrentUser } from "@/lib/CurrentUserContext";
 import AthleteBottomNav from "@/components/athlete/AthleteBottomNav";
 import AthleteDashboardHome from "@/components/athlete/AthleteDashboardHome";
 import LogWorkoutDrawer from "@/components/athlete/LogWorkoutDrawer";
@@ -14,11 +15,9 @@ import CelebrationOverlay from "@/components/athlete/gamification/CelebrationOve
 import { useGamification, ALL_BADGES } from "@/components/athlete/gamification/useStreakAndBadges";
 import useTeamTheme from "@/lib/useTeamTheme";
 import useDarkMode from "@/lib/useDarkMode";
-import NamePromptBanner from "@/components/shared/NamePromptBanner";
 
 export default function AthleteDashboard() {
-  const [user, setUser] = useState(null);
-  const [userLoaded, setUserLoaded] = useState(false);
+  const { currentUser: user, setCurrentUser: setUser } = useCurrentUser();
   const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [workouts, setWorkouts] = useState([]);
@@ -42,13 +41,6 @@ export default function AthleteDashboard() {
   const { isDark, toggle: toggleDark } = useDarkMode(user);
 
   useEffect(() => {
-    base44.auth.me()
-      .then((u) => { console.log("[AthleteDashboard] user:", u); setUser(u); setUserLoaded(true); })
-      .catch(() => { setUser(null); setUserLoaded(true); });
-  }, []);
-
-  useEffect(() => {
-    if (!userLoaded) return; // Auth not resolved yet — wait
     if (!user?.team_id) {
       setLoading(false);
       return;
@@ -73,7 +65,7 @@ export default function AthleteDashboard() {
       }
     };
     loadTeam();
-  }, [userLoaded, user]);
+  }, [user]);
 
   // Detect streak / badge changes and trigger celebration
   // initializedRef prevents false-positive celebrations on first data load
@@ -159,8 +151,6 @@ export default function AthleteDashboard() {
       />
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
-
-        <NamePromptBanner user={user} onSaved={setUser} />
 
         {activeTab === "dashboard" && (
           <AthleteDashboardHome

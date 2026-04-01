@@ -1,23 +1,22 @@
 /**
- * Returns the display name for a user based on their role.
+ * Returns the display name for a user.
  * - Coach: "Coach [LastName]"
- * - Athlete: full name
- * NEVER falls back to email. Uses "Unnamed User" if no name is set.
+ * - Athlete: full_name
+ * - Missing name: "Unnamed User"
+ * NEVER uses email.
  */
 export function getDisplayName(user) {
   if (!user) return "Unnamed User";
 
   const name = user.full_name?.trim();
+  if (!name) return "Unnamed User";
 
-  if (name) {
-    if (user.role === "coach" || user.user_type === "coach") {
-      const parts = name.split(/\s+/);
-      const lastName = parts.length > 1 ? parts[parts.length - 1] : parts[0];
-      return `Coach ${lastName}`;
-    }
-    return name;
+  const role = user.user_type || user.role;
+  if (role === "coach") {
+    const parts = name.split(/\s+/);
+    const lastName = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+    return `Coach ${lastName}`;
   }
 
-  // No full_name — never fall back to email
-  return "Unnamed User";
+  return name;
 }

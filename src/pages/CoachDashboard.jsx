@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { useCurrentUser } from "@/lib/CurrentUserContext";
 import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
 import CreateTeam from "@/components/coach/CreateTeam";
 import CoachInsightsTab from "@/components/coach/CoachInsightsTab";
@@ -12,11 +13,8 @@ import CoachSettingsTab from "@/components/coach/CoachSettingsTab";
 import useTeamTheme from "@/lib/useTeamTheme";
 import { getDisplayName } from "@/lib/displayName";
 import useDarkMode from "@/lib/useDarkMode";
-import NamePromptBanner from "@/components/shared/NamePromptBanner";
-
 export default function CoachDashboard() {
-  const [user, setUser] = useState(null);
-  const [userLoaded, setUserLoaded] = useState(false);
+  const { currentUser: user, setCurrentUser: setUser } = useCurrentUser();
   const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -32,14 +30,6 @@ export default function CoachDashboard() {
   const { isDark, toggle: toggleDark } = useDarkMode(user);
 
   useEffect(() => {
-    base44.auth.me()
-      .then((u) => { console.log("[CoachDashboard] user:", u); setUser(u); setUserLoaded(true); })
-      .catch(() => { setUser(null); setUserLoaded(true); });
-  }, []);
-
-  useEffect(() => {
-    if (!userLoaded) return; // Auth not resolved yet — wait
-
     if (!user?.email) {
       setLoading(false);
       return;
@@ -87,7 +77,7 @@ export default function CoachDashboard() {
       }
     };
     loadTeam();
-  }, [userLoaded, user?.email, user?.team_id]);
+  }, [user?.email, user?.team_id]);
 
   const handleTeamCreated = (newTeam) => {
     setTeam(newTeam);
@@ -140,7 +130,6 @@ export default function CoachDashboard() {
   return (
     <div className="min-h-screen bg-background motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
       <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
-        <NamePromptBanner user={user} onSaved={setUser} />
         {!team ? (
           <div className="py-8 space-y-6">
             <div>
