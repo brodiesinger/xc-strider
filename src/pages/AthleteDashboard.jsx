@@ -251,6 +251,7 @@ export default function AthleteDashboard() {
               schedule={schedule}
               isDark={isDark}
               onToggleDark={toggleDark}
+              onUserUpdated={setUser}
             />
           </div>
         )}
