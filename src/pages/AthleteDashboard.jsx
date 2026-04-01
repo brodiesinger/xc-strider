@@ -160,6 +160,8 @@ export default function AthleteDashboard() {
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
 
+        <NamePromptBanner user={user} onSaved={setUser} />
+
         {activeTab === "dashboard" && (
           <AthleteDashboardHome
             user={user}

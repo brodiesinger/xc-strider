@@ -12,6 +12,7 @@ import CoachSettingsTab from "@/components/coach/CoachSettingsTab";
 import useTeamTheme from "@/lib/useTeamTheme";
 import { getDisplayName } from "@/lib/displayName";
 import useDarkMode from "@/lib/useDarkMode";
+import NamePromptBanner from "@/components/shared/NamePromptBanner";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState(null);
@@ -139,6 +140,7 @@ export default function CoachDashboard() {
   return (
     <div className="min-h-screen bg-background motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
       <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
+        <NamePromptBanner user={user} onSaved={setUser} />
         {!team ? (
           <div className="py-8 space-y-6">
             <div>
