@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { UserCircle } from "lucide-react";
 
 export default function NamePromptBanner({ user, onSaved }) {
-  const [name, setName] = useState("");
+  const [name, setName] = useState(user?.full_name?.includes("@") ? "" : (user?.full_name?.includes(" ") ? "" : (user?.full_name || "")));
   const [saving, setSaving] = useState(false);
 
   // Only show if user is loaded and has no real full_name
   if (!user) return null;
-  const hasName = user.full_name?.trim() && !user.full_name.includes("@");
-  if (hasName) return null;
+  const existingName = user.full_name?.trim();
+  // A real name must exist, not contain @, and contain at least one space (first + last name)
+  const hasRealName = existingName && !existingName.includes("@") && existingName.includes(" ");
+  if (hasRealName) return null;
 
   const handleSave = async (e) => {
     e.preventDefault();
