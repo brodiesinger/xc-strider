@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { useCurrentUser } from "@/lib/CurrentUserContext";
-import { TreePine, UserCircle, Users, Trophy } from "lucide-react";
+import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
+import { TreePine, Users, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,53 +28,27 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const { currentUser, refresh } = useCurrentUser();
 
-  // step: "name" | "role" | "create-team" | "join-team"
-  const [step, setStep] = useState(null);
-  const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState(null); // "coach" | "athlete"
+  const [fullName, setFullName] = useState(currentUser?.full_name ?? "");
   const [teamName, setTeamName] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Derive step directly from currentUser every render — no stale local step state
+  const step = getOnboardingStep(currentUser);
+
   useEffect(() => {
-    if (!currentUser) {
+    if (step === "unauthenticated") {
       navigate("/");
       return;
     }
-    // Determine where to start based on what's already set
-    const hasName = isRealName(currentUser.full_name);
-    const hasRole = currentUser.user_type === "coach" || currentUser.user_type === "athlete";
-
-    if (!hasName) {
-      setStep("name");
-    } else if (!hasRole) {
-      setFullName(currentUser.full_name);
-      setStep("role");
-    } else if (currentUser.user_type === "coach" && !currentUser.team_id) {
-      setFullName(currentUser.full_name);
-      setRole("coach");
-      setStep("create-team");
-    } else if (currentUser.user_type === "athlete" && !currentUser.team_id) {
-      setFullName(currentUser.full_name);
-      setRole("athlete");
-      setStep("join-team");
-    } else {
-      // Fully onboarded — route to dashboard
-      routeToDashboard(currentUser.user_type);
+    if (step === null) {
+      // Fully onboarded — go to dashboard
+      navigate(currentUser.user_type === "coach" ? "/coach" : "/athlete");
     }
-  }, [currentUser]);
+  }, [step, currentUser]);
 
-  const isRealName = (name) => {
-    const n = name?.trim();
-    return n && !n.includes("@") && n.includes(" ");
-  };
-
-  const routeToDashboard = (userType) => {
-    navigate(userType === "coach" ? "/coach" : "/athlete");
-  };
-
-  // Step 1: Save full name
+  // ── Step 1: Full name ──────────────────────────────────────────
   const handleNameSubmit = async (e) => {
     e.preventDefault();
     const trimmed = fullName.trim();
@@ -84,69 +58,77 @@ export default function Onboarding() {
     }
     setError("");
     setSaving(true);
-    await base44.auth.updateMe({ full_name: trimmed });
-    await refresh();
-    setStep("role");
-    setSaving(false);
-  };
-
-  // Step 2: Select role
-  const handleRoleSelect = async (selectedRole) => {
-    setRole(selectedRole);
-    setSaving(true);
-    await base44.auth.updateMe({ user_type: selectedRole });
-    await refresh();
-    setSaving(false);
-    if (selectedRole === "coach") {
-      setStep("create-team");
-    } else {
-      setStep("join-team");
+    try {
+      await base44.auth.updateMe({ full_name: trimmed });
+      await refresh();
+    } finally {
+      setSaving(false);
     }
   };
 
-  // Step 3a: Coach creates team
+  // ── Step 2: Role selection ─────────────────────────────────────
+  const handleRoleSelect = async (selectedRole) => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await base44.auth.updateMe({ user_type: selectedRole });
+      await refresh();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── Step 3a: Coach creates team ────────────────────────────────
   const handleCreateTeam = async (e) => {
     e.preventDefault();
     const name = teamName.trim();
     if (!name) return;
     setError("");
     setSaving(true);
-    // Generate a random 6-char join code
-    const joinCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const team = await base44.entities.Team.create({
-      name,
-      join_code: joinCode,
-      coach_email: currentUser.email,
-    });
-    await base44.auth.updateMe({ team_id: team.id });
-    await refresh();
-    navigate("/coach");
+    try {
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const team = await base44.entities.Team.create({
+        name,
+        join_code: code,
+        coach_email: currentUser.email,
+      });
+      if (!team?.id) throw new Error("Team creation failed.");
+      await base44.auth.updateMe({ team_id: team.id });
+      await refresh();
+    } catch (err) {
+      setError(err.message || "Failed to create team. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // Step 3b: Athlete joins team
+  // ── Step 3b: Athlete joins team ────────────────────────────────
   const handleJoinTeam = async (e) => {
     e.preventDefault();
     const code = joinCode.trim().toUpperCase();
     if (!code) return;
     setError("");
     setSaving(true);
-    const teams = await base44.entities.Team.filter({ join_code: code });
-    if (!teams || teams.length === 0) {
-      setError("Invalid join code. Check with your coach and try again.");
+    try {
+      const teams = await base44.entities.Team.filter({ join_code: code });
+      if (!teams || teams.length === 0) {
+        setError("Invalid join code. Check with your coach and try again.");
+        return;
+      }
+      await base44.auth.updateMe({ team_id: teams[0].id });
+      await refresh();
+    } catch (err) {
+      setError(err.message || "Failed to join team. Please try again.");
+    } finally {
       setSaving(false);
-      return;
     }
-    await base44.auth.updateMe({ team_id: teams[0].id });
-    await refresh();
-    navigate("/athlete");
   };
 
-  if (step === null) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
-      </div>
-    );
+  // While saving, show a subtle spinner overlay so the user knows something is happening
+  // but we don't unmount the current step view (prevents flicker)
+  if (step === null || step === "unauthenticated") {
+    // Navigating — show nothing to avoid a flash
+    return null;
   }
 
   if (step === "name") {
@@ -179,9 +161,9 @@ export default function Onboarding() {
       <OnboardingShell title="Who are you?" subtitle="Select your role to get started.">
         <div className="flex flex-col gap-3 w-full">
           <button
-            onClick={() => !saving && handleRoleSelect("coach")}
+            onClick={() => handleRoleSelect("coach")}
             disabled={saving}
-            className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+            className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
           >
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
               <Trophy className="w-6 h-6 text-primary" />
@@ -193,9 +175,9 @@ export default function Onboarding() {
           </button>
 
           <button
-            onClick={() => !saving && handleRoleSelect("athlete")}
+            onClick={() => handleRoleSelect("athlete")}
             disabled={saving}
-            className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+            className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
           >
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
               <Users className="w-6 h-6 text-primary" />
@@ -205,6 +187,8 @@ export default function Onboarding() {
               <p className="text-sm text-muted-foreground">Join your coach's team</p>
             </div>
           </button>
+
+          {saving && <p className="text-sm text-center text-muted-foreground">Saving...</p>}
         </div>
       </OnboardingShell>
     );
@@ -246,7 +230,7 @@ export default function Onboarding() {
               type="text"
               placeholder="e.g. ABC123"
               value={joinCode}
-              onChange={(e) => { setJoinCode(e.target.value); setError(""); }}
+              onChange={(e) => { setJoinCode(e.target.value.toUpperCase()); setError(""); }}
               className="text-center text-lg font-bold tracking-widest uppercase"
               required
               autoFocus

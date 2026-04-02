@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useCurrentUser } from "@/lib/CurrentUserContext";
+import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
+import { useNavigate } from "react-router-dom";
 import AthleteBottomNav from "@/components/athlete/AthleteBottomNav";
 import AthleteDashboardHome from "@/components/athlete/AthleteDashboardHome";
 import LogWorkoutDrawer from "@/components/athlete/LogWorkoutDrawer";
@@ -18,6 +19,7 @@ import useDarkMode from "@/lib/useDarkMode";
 
 export default function AthleteDashboard() {
   const { currentUser: user, setCurrentUser: setUser } = useCurrentUser();
+  const navigate = useNavigate();
   const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [workouts, setWorkouts] = useState([]);
@@ -39,6 +41,13 @@ export default function AthleteDashboard() {
   // Apply team color theme
   useTeamTheme(team);
   const { isDark, toggle: toggleDark } = useDarkMode(user);
+
+  // Guard: redirect to onboarding if user is incomplete
+  useEffect(() => {
+    if (!user) { navigate("/"); return; }
+    const step = getOnboardingStep(user);
+    if (step !== null) { navigate("/onboarding"); return; }
+  }, [user]);
 
   useEffect(() => {
     if (!user?.team_id) {

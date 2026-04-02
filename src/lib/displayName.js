@@ -5,11 +5,11 @@
  * - Missing name: "Unnamed User"
  * NEVER uses email.
  */
-export function getDisplayName(user) {
-  if (!user) return "Unnamed User";
+export function getDisplayName(user, fallback = "Unnamed User") {
+  if (!user) return fallback;
 
   const name = user.full_name?.trim();
-  if (!name) return "Unnamed User";
+  if (!name || name.includes("@")) return fallback;
 
   const role = user.user_type || user.role;
   if (role === "coach") {

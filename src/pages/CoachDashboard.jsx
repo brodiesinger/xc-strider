@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { useCurrentUser } from "@/lib/CurrentUserContext";
+import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
+import { useNavigate } from "react-router-dom";
 import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
 import CreateTeam from "@/components/coach/CreateTeam";
 import CoachInsightsTab from "@/components/coach/CoachInsightsTab";
@@ -15,6 +16,7 @@ import { getDisplayName } from "@/lib/displayName";
 import useDarkMode from "@/lib/useDarkMode";
 export default function CoachDashboard() {
   const { currentUser: user, setCurrentUser: setUser } = useCurrentUser();
+  const navigate = useNavigate();
   const [team, setTeam] = useState(null);
   const [athletes, setAthletes] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -28,6 +30,13 @@ export default function CoachDashboard() {
   // Apply team color theme
   useTeamTheme(team);
   const { isDark, toggle: toggleDark } = useDarkMode(user);
+
+  // Guard: redirect to onboarding if user is incomplete
+  useEffect(() => {
+    if (!user) { navigate("/"); return; }
+    const step = getOnboardingStep(user);
+    if (step !== null) { navigate("/onboarding"); return; }
+  }, [user]);
 
   useEffect(() => {
     if (!user?.email) {

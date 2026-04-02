@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { useCurrentUser } from "@/lib/CurrentUserContext";
+import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
 import { TreePine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,14 +23,12 @@ export default function Home() {
   }, [currentUser]);
 
   const routeUser = (user) => {
-    const role = user.user_type;
-    const hasName = user.full_name?.trim() && !user.full_name.includes("@") && user.full_name.includes(" ");
-    if (!hasName || !role) {
-      navigate("/onboarding");
-    } else if (role === "coach") {
-      navigate("/coach");
+    const step = getOnboardingStep(user);
+    if (step === null) {
+      // Fully onboarded
+      navigate(user.user_type === "coach" ? "/coach" : "/athlete");
     } else {
-      navigate("/athlete");
+      navigate("/onboarding");
     }
   };
 
