@@ -50,7 +50,8 @@ export default function Onboarding() {
 
   // ── Step 1: Full name ──────────────────────────────────────────
   const handleNameSubmit = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
+    console.log("Continue clicked");
     const trimmed = fullName.trim();
     if (!trimmed.includes(" ")) {
       setError("Please enter your first and last name.");
@@ -60,7 +61,23 @@ export default function Onboarding() {
     setSaving(true);
     try {
       await base44.auth.updateMe({ full_name: trimmed });
+      console.log("Name saved");
+      const updated = await base44.auth.me();
+      console.log("Updated user:", updated);
+      // Manually drive navigation based on updated user state
+      if (!updated?.user_type) {
+        navigate("/onboarding");
+      } else if (updated.user_type === "coach" && !updated.team_id) {
+        navigate("/onboarding");
+      } else if (updated.user_type === "athlete" && !updated.team_id) {
+        navigate("/onboarding");
+      } else {
+        navigate(updated.user_type === "coach" ? "/coach" : "/athlete");
+      }
       await refresh();
+    } catch (err) {
+      console.error("Failed to save name:", err);
+      setError("Failed to save name. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -143,12 +160,16 @@ export default function Onboarding() {
               placeholder="e.g. Sarah Johnson"
               value={fullName}
               onChange={(e) => { setFullName(e.target.value); setError(""); }}
-              required
               autoFocus
             />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" disabled={saving || !fullName.trim()} className="w-full h-11">
+          <Button
+            type="submit"
+            onClick={handleNameSubmit}
+            disabled={saving || !fullName.trim()}
+            className="w-full h-11"
+          >
             {saving ? "Saving..." : "Continue"}
           </Button>
         </form>
