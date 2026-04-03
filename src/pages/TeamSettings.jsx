@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
 import NavBar from "@/components/shared/NavBar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function TeamSettings() {
-  const [user, setUser] = useState(null);
+  const { currentUser: user } = useCurrentUser();
+  const navigate = useNavigate();
   const [team, setTeam] = useState(null);
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
@@ -16,8 +18,10 @@ export default function TeamSettings() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => setUser(null));
-  }, []);
+    if (!user) { navigate("/"); return; }
+    const step = getOnboardingStep(user);
+    if (step !== null) { navigate("/onboarding"); return; }
+  }, [user]);
 
   useEffect(() => {
     if (!user?.team_id) { setLoading(false); return; }

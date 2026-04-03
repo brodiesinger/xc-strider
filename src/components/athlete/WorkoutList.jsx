@@ -26,15 +26,15 @@ export default function WorkoutList({ workouts }) {
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <Ruler className="w-3.5 h-3.5" />
-              {w.distance} mi
+              {(w.distance ?? 0).toFixed(2)} mi
             </span>
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5" />
-              {w.time_minutes} min
+              {w.time_minutes ?? 0} min
             </span>
-            {w.distance > 0 && w.time_minutes > 0 && (
+            {(w.distance > 0) && (w.time_minutes > 0) && (
               <span className="flex items-center gap-1.5 text-primary font-medium">
-                {(() => { const p = w.time_minutes / w.distance; const m = Math.floor(p); const s = Math.round((p - m) * 60); return `${m}:${s.toString().padStart(2,"0")} /mi`; })()}
+                {(() => { const p = (w.time_minutes) / (w.distance); const m = Math.floor(p); const s = Math.round((p - m) * 60); return `${m}:${s.toString().padStart(2,"0")} /mi`; })()}
               </span>
             )}
           </div>

@@ -92,7 +92,7 @@ export default function NotificationBell({ userEmail }) {
                     <p className="text-sm text-foreground leading-snug">{n.message}</p>
                     {n.created_date && (
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {formatDistanceToNow(parseISO(n.created_date), { addSuffix: true })}
+                        {(() => { try { return formatDistanceToNow(parseISO(n.created_date), { addSuffix: true }); } catch { return ""; } })()}
                       </p>
                     )}
                   </div>

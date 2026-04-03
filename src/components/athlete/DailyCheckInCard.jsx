@@ -83,19 +83,16 @@ export default function DailyCheckInCard({ onSubmit, isLoading }) {
 
       {/* Pain Toggle */}
       <div className="space-y-2">
-        <button
-          onClick={() => setHasPain(!hasPain)}
-          className="flex items-center gap-2 text-sm font-medium text-foreground"
-        >
+        <label className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer">
           <input
             type="checkbox"
             checked={hasPain}
-            onChange={() => setHasPain(!hasPain)}
+            onChange={(e) => setHasPain(e.target.checked)}
             className="w-4 h-4 rounded border-border cursor-pointer accent-primary"
           />
           <AlertCircle className="w-4 h-4 text-orange-500" />
           <span>Any pain?</span>
-        </button>
+        </label>
 
         {hasPain && (
           <motion.div
