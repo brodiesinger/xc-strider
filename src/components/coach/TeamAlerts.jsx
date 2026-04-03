@@ -137,14 +137,48 @@ function computeAlerts({ athletes, workouts, checkins, schedule }) {
   }
 
   // ── E: High soreness trend ───────────────────────────────────────────────
-  const soreness = Object.values(checkins).filter((c) => c.soreness >= 7);
-  if (soreness.length >= 2) {
+  // checkins is already a map of { email → most-recent today's check-in }.
+  // Deduplicate by athlete email explicitly: keep only the latest per athlete,
+  // and only include today's check-ins.
+  const today = format(now, "yyyy-MM-dd");
+  const allCheckins = Object.values(checkins);
+
+  // Group by athlete_email, keep only the most recent check-in per athlete
+  const latestByAthlete = {};
+  for (const c of allCheckins) {
+    const key = c.athlete_email || c.created_by;
+    if (!key) continue;
+    if (!latestByAthlete[key] || (c.created_date > (latestByAthlete[key].created_date || ""))) {
+      latestByAthlete[key] = c;
+    }
+  }
+
+  // Only today's check-ins with high soreness
+  const sorenesstAthletes = Object.values(latestByAthlete).filter(
+    (c) => c.date === today && c.soreness >= 7
+  );
+
+  const uniqueAthleteIds = Object.keys(latestByAthlete);
+  console.log("[TeamAlerts] total check-ins:", allCheckins.length);
+  console.log("[TeamAlerts] unique athlete IDs:", uniqueAthleteIds);
+  console.log("[TeamAlerts] high soreness alert count:", sorenesstAthletes.length);
+
+  if (sorenesstAthletes.length >= 2) {
+    // Find matching athlete names for detail
+    const soreNames = sorenesstAthletes
+      .map((c) => {
+        const key = c.athlete_email || c.created_by;
+        const athlete = athletes.find((a) => a.email === key);
+        return athlete?.full_name || key || "Unknown Athlete";
+      })
+      .filter(Boolean);
+
     alerts.push({
       id: "high_soreness",
       severity: "warning",
       icon: "⚠️",
-      message: `${soreness.length} athletes are reporting high soreness levels`,
-      detail: null,
+      message: `${sorenesstAthletes.length} athlete${sorenesstAthletes.length > 1 ? "s are" : " is"} reporting high soreness today`,
+      detail: soreNames,
     });
   }
 
