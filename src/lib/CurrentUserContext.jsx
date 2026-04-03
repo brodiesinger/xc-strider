@@ -53,10 +53,10 @@ export function useCurrentUser() {
   return useContext(CurrentUserContext);
 }
 
-/** Returns true only if the user has a valid full name (first + last) */
+/** Returns true only if the user has a real name (non-empty, not an email) */
 export function hasRealName(user) {
   const n = user?.full_name?.trim();
-  return !!(n && !n.includes("@") && n.includes(" "));
+  return !!(n && !n.includes("@") && n.length >= 2);
 }
 
 /** Returns true only if the user has a recognized role */

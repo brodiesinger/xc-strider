@@ -51,30 +51,16 @@ export default function Onboarding() {
   // ── Step 1: Full name ──────────────────────────────────────────
   const handleNameSubmit = async (e) => {
     e?.preventDefault();
-    console.log("Continue clicked");
     const trimmed = fullName.trim();
-    if (!trimmed.includes(" ")) {
-      setError("Please enter your first and last name.");
+    if (!trimmed) {
+      setError("Please enter your name.");
       return;
     }
     setError("");
     setSaving(true);
     try {
       await base44.auth.updateMe({ full_name: trimmed });
-      console.log("Name saved");
-      const updated = await base44.auth.me();
-      console.log("Updated user:", updated);
-      // Manually drive navigation based on updated user state
-      if (!updated?.user_type) {
-        navigate("/onboarding");
-      } else if (updated.user_type === "coach" && !updated.team_id) {
-        navigate("/onboarding");
-      } else if (updated.user_type === "athlete" && !updated.team_id) {
-        navigate("/onboarding");
-      } else {
-        navigate(updated.user_type === "coach" ? "/coach" : "/athlete");
-      }
-      await refresh();
+      await refresh(); // refresh context → useEffect drives navigation
     } catch (err) {
       console.error("Failed to save name:", err);
       setError("Failed to save name. Please try again.");
@@ -130,6 +116,7 @@ export default function Onboarding() {
       const teams = await base44.entities.Team.filter({ join_code: code });
       if (!teams || teams.length === 0) {
         setError("Invalid join code. Check with your coach and try again.");
+        setSaving(false);
         return;
       }
       await base44.auth.updateMe({ team_id: teams[0].id });
@@ -166,7 +153,6 @@ export default function Onboarding() {
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button
             type="submit"
-            onClick={handleNameSubmit}
             disabled={saving || !fullName.trim()}
             className="w-full h-11"
           >
