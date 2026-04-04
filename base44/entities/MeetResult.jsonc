@@ -1,0 +1,42 @@
+{
+  "name": "MeetResult",
+  "type": "object",
+  "properties": {
+    "meet_id": {
+      "type": "string",
+      "description": "Meet this result belongs to"
+    },
+    "athlete_id": {
+      "type": "string",
+      "description": "Athlete user email (unique per meet)"
+    },
+    "time": {
+      "type": "string",
+      "default": "",
+      "description": "Finish time as string (e.g. 18:32)"
+    },
+    "place": {
+      "type": "number",
+      "description": "Finishing place (positive integer, optional)"
+    },
+    "points": {
+      "type": "number",
+      "default": 0,
+      "description": "Points scored (>= 0)"
+    },
+    "did_not_run": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the athlete did not run"
+    },
+    "reason": {
+      "type": "string",
+      "default": "",
+      "description": "Reason for not running (required if did_not_run)"
+    }
+  },
+  "required": [
+    "meet_id",
+    "athlete_id"
+  ]
+}

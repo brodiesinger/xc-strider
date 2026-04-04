@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import MeetList from "./MeetList";
 
-export default function SeasonList({ seasons, meets, teamId, coachEmail, isCoach, onSeasonsChanged, onMeetsChanged }) {
+export default function SeasonList({ seasons, meets, athletes, teamId, coachEmail, isCoach, onSeasonsChanged, onMeetsChanged }) {
   const [expanded, setExpanded] = useState({});
   const [seasonName, setSeasonName] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -90,6 +90,7 @@ export default function SeasonList({ seasons, meets, teamId, coachEmail, isCoach
                   <MeetList
                     season={season}
                     meets={seasonMeets}
+                    athletes={athletes}
                     onMeetsChanged={onMeetsChanged}
                     isCoach={isCoach}
                   />

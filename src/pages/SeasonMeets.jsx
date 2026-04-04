@@ -9,6 +9,7 @@ export default function SeasonMeets() {
 
   const [seasons, setSeasons] = useState([]);
   const [meets, setMeets] = useState([]);
+  const [athletes, setAthletes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -46,7 +47,12 @@ export default function SeasonMeets() {
       setLoading(true);
       setError(false);
       try {
-        await Promise.all([fetchSeasons(), fetchMeets()]);
+        const [,, athleteRes] = await Promise.all([
+          fetchSeasons(),
+          fetchMeets(),
+          base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => null),
+        ]);
+        setAthletes(athleteRes?.data?.athletes || []);
       } catch {
         setError(true);
       } finally {
