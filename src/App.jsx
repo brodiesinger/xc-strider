@@ -11,6 +11,7 @@ import AthleteDashboard from "./pages/AthleteDashboard";
 import CoachDashboard from "./pages/CoachDashboard.jsx";
 import TeamSettings from "./pages/TeamSettings";
 import SeasonMeets from "./pages/SeasonMeets";
+import EndOfSeasonPacket from "./pages/EndOfSeasonPacket";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/athlete" element={<AthleteDashboard />} />
             <Route path="/team-settings" element={<TeamSettings />} />
             <Route path="/seasons" element={<SeasonMeets />} />
+            <Route path="/packet" element={<EndOfSeasonPacket />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </CurrentUserProvider>

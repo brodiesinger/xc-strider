@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Settings, Copy, LogOut, ChevronRight } from "lucide-react";
+import { Settings, Copy, LogOut, ChevronRight, FileText } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import TeamCustomization from "@/components/coach/TeamCustomization";
 import DarkModeToggle from "@/components/shared/DarkModeToggle";
@@ -88,6 +88,18 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpda
               <div className="flex items-center gap-3">
                 <Settings className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground">Team Settings</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </Link>
+          )}
+          {team && (
+            <Link
+              to="/packet"
+              className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <FileText className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">End-of-Season Packet</span>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </Link>
