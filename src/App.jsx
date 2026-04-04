@@ -10,6 +10,7 @@ import Onboarding from "./pages/Onboarding";
 import AthleteDashboard from "./pages/AthleteDashboard";
 import CoachDashboard from "./pages/CoachDashboard.jsx";
 import TeamSettings from "./pages/TeamSettings";
+import SeasonMeets from "./pages/SeasonMeets";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/coach" element={<CoachDashboard />} />
             <Route path="/athlete" element={<AthleteDashboard />} />
             <Route path="/team-settings" element={<TeamSettings />} />
+            <Route path="/seasons" element={<SeasonMeets />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </CurrentUserProvider>

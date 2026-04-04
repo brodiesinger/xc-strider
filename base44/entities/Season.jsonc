@@ -1,0 +1,22 @@
+{
+  "name": "Season",
+  "type": "object",
+  "properties": {
+    "team_id": {
+      "type": "string",
+      "description": "Team this season belongs to"
+    },
+    "season_name": {
+      "type": "string",
+      "description": "Name of the season (e.g. Fall 2025)"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Email of the coach who created this season"
+    }
+  },
+  "required": [
+    "team_id",
+    "season_name"
+  ]
+}

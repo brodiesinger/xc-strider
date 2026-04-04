@@ -1,0 +1,28 @@
+{
+  "name": "Meet",
+  "type": "object",
+  "properties": {
+    "season_id": {
+      "type": "string",
+      "description": "Season this meet belongs to"
+    },
+    "meet_name": {
+      "type": "string",
+      "description": "Name of the meet"
+    },
+    "meet_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the meet (optional)"
+    },
+    "conditions": {
+      "type": "string",
+      "default": "",
+      "description": "Weather or course conditions"
+    }
+  },
+  "required": [
+    "season_id",
+    "meet_name"
+  ]
+}

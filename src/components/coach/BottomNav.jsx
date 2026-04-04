@@ -1,11 +1,12 @@
 import React from "react";
-import { Home, BarChart2, Lightbulb, Settings } from "lucide-react";
+import { Home, BarChart2, Lightbulb, CalendarRange, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", Icon: Home },
   { id: "performance", label: "Performance", Icon: BarChart2 },
   { id: "insights", label: "Insights", Icon: Lightbulb },
+  { id: "seasons", label: "Seasons", Icon: CalendarRange },
   { id: "settings", label: "Settings", Icon: Settings },
 ];
 

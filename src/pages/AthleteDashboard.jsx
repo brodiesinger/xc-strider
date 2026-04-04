@@ -12,6 +12,7 @@ import InjuryRiskTab from "@/components/athlete/insights/InjuryRiskTab";
 import AIInjuryChat from "@/components/athlete/insights/AIInjuryChat";
 import SmartRecoveryTab from "@/components/athlete/insights/SmartRecoveryTab";
 import GamificationTab from "@/components/athlete/gamification/GamificationTab";
+import SeasonMeets from "./SeasonMeets";
 import CelebrationOverlay from "@/components/athlete/gamification/CelebrationOverlay";
 import { useGamification, ALL_BADGES } from "@/components/athlete/gamification/useStreakAndBadges";
 import useTeamTheme from "@/lib/useTeamTheme";
@@ -229,6 +230,12 @@ export default function AthleteDashboard() {
                 {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
               </>
             )}
+          </div>
+        )}
+
+        {activeTab === "seasons" && (
+          <div className="pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+            <SeasonMeets />
           </div>
         )}
 

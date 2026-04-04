@@ -11,6 +11,7 @@ import CoachPerformanceTab from "@/components/coach/CoachPerformanceTab";
 import BottomNav from "@/components/coach/BottomNav";
 import CoachHomeTab from "@/components/coach/CoachHomeTab";
 import CoachSettingsTab from "@/components/coach/CoachSettingsTab";
+import SeasonMeets from "./SeasonMeets";
 import useTeamTheme from "@/lib/useTeamTheme";
 import { getDisplayName } from "@/lib/displayName";
 import useDarkMode from "@/lib/useDarkMode";
@@ -174,6 +175,11 @@ export default function CoachDashboard() {
               <div className="pb-24 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
                 <h1 className="text-2xl font-bold text-foreground mb-6">Insights</h1>
                 <CoachInsightsTab athletes={athletes} teamId={team.id} />
+              </div>
+            )}
+            {activeTab === "seasons" && (
+              <div className="pb-24 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+                <SeasonMeets />
               </div>
             )}
             {activeTab === "settings" && (
