@@ -13,80 +13,96 @@ function SectionWrapper({ children }) {
   );
 }
 
-function SafeSection({ section, seasons, meets, athletes }) {
-  try {
-    const season = seasons.find((s) => s.id === section.seasonId) || null;
-    const sectionMeets = season
-      ? meets.filter((m) => m.season_id === season.id)
-      : [];
-
-    if (section.type === "season_overview") {
-      if (!season) return null;
-      return (
-        <SectionWrapper>
-          <PacketSeasonOverview season={season} meets={sectionMeets} athletes={athletes} />
-        </SectionWrapper>
-      );
-    }
-
-    if (section.type === "meet_results") {
-      if (!season) return null;
-      const targetMeets = section.meetId
-        ? sectionMeets.filter((m) => m.id === section.meetId)
-        : sectionMeets;
-      if (targetMeets.length === 0) return null;
-      return (
-        <SectionWrapper>
-          <PacketMeetResults meets={targetMeets} athletes={athletes} />
-        </SectionWrapper>
-      );
-    }
-
-    if (section.type === "athlete_pages") {
-      if (!season || athletes.length === 0) return null;
-      return (
-        <SectionWrapper>
-          <PacketAthletePages
-            season={season}
-            meets={sectionMeets}
-            athletes={athletes}
-            options={{
-              showResults: section.showResults,
-              showPRs: section.showPRs,
-              showPoints: section.showPoints,
-              showBadges: section.showBadges,
-              showStreak: section.showStreak,
-            }}
-          />
-        </SectionWrapper>
-      );
-    }
-
-    if (section.type === "text_block") {
-      const title = section.title?.trim();
-      if (!title) return null; // skip empty title blocks
-      return (
-        <SectionWrapper>
-          <PacketTextBlock title={title} body={section.body || ""} />
-        </SectionWrapper>
-      );
-    }
-
-    if (section.type === "image") {
-      const url = section.url?.trim();
-      if (!url) return null;
-      return (
-        <SectionWrapper>
-          <PacketImage url={url} caption={section.caption || ""} />
-        </SectionWrapper>
-      );
-    }
-
-    return null;
-  } catch {
-    // fail-safe: if a section crashes, skip it silently
-    return null;
+// Proper React Error Boundary so async render errors in child sections are caught
+class SectionErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
   }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) return null; // silently skip broken sections
+    return this.props.children;
+  }
+}
+
+function SectionContent({ section, seasons, meets, athletes }) {
+  const season = seasons.find((s) => s.id === section.seasonId) || null;
+  const sectionMeets = season ? meets.filter((m) => m.season_id === season.id) : [];
+
+  if (section.type === "season_overview") {
+    if (!season) return null;
+    return (
+      <SectionWrapper>
+        <PacketSeasonOverview season={season} meets={sectionMeets} athletes={athletes} />
+      </SectionWrapper>
+    );
+  }
+
+  if (section.type === "meet_results") {
+    if (!season) return null;
+    const targetMeets = section.meetId
+      ? sectionMeets.filter((m) => m.id === section.meetId)
+      : sectionMeets;
+    if (targetMeets.length === 0) return null;
+    return (
+      <SectionWrapper>
+        <PacketMeetResults meets={targetMeets} athletes={athletes} />
+      </SectionWrapper>
+    );
+  }
+
+  if (section.type === "athlete_pages") {
+    if (!season || athletes.length === 0) return null;
+    return (
+      <SectionWrapper>
+        <PacketAthletePages
+          season={season}
+          meets={sectionMeets}
+          athletes={athletes}
+          options={{
+            showResults: section.showResults,
+            showPRs: section.showPRs,
+            showPoints: section.showPoints,
+            showBadges: section.showBadges,
+            showStreak: section.showStreak,
+          }}
+        />
+      </SectionWrapper>
+    );
+  }
+
+  if (section.type === "text_block") {
+    const title = section.title?.trim();
+    if (!title) return null;
+    return (
+      <SectionWrapper>
+        <PacketTextBlock title={title} body={section.body || ""} />
+      </SectionWrapper>
+    );
+  }
+
+  if (section.type === "image") {
+    const url = section.url?.trim();
+    if (!url) return null;
+    return (
+      <SectionWrapper>
+        <PacketImage url={url} caption={section.caption || ""} />
+      </SectionWrapper>
+    );
+  }
+
+  return null;
+}
+
+function SafeSection(props) {
+  return (
+    <SectionErrorBoundary key={props.section.id}>
+      <SectionContent {...props} />
+    </SectionErrorBoundary>
+  );
 }
 
 export default function PacketPreview({ title, sections, seasons, meets, athletes }) {

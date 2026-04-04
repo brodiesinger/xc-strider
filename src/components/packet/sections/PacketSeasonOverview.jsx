@@ -5,6 +5,8 @@ export default function PacketSeasonOverview({ season, meets, athletes }) {
   const [allResults, setAllResults] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
+  const meetIdsKey = meets.map((m) => m.id).join(",");
+
   useEffect(() => {
     if (!meets || meets.length === 0) { setLoaded(true); return; }
     Promise.all(
@@ -13,7 +15,7 @@ export default function PacketSeasonOverview({ season, meets, athletes }) {
       setAllResults(chunks.flat());
       setLoaded(true);
     }).catch(() => setLoaded(true));
-  }, [meets.map((m) => m.id).join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [meetIdsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!loaded) return <div className="text-gray-400 text-sm py-2">Loading overview...</div>;
 
