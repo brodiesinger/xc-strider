@@ -4,6 +4,7 @@ import { Trash2, Plus, CalendarDays, ClipboardList, ChevronDown, ChevronRight } 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import MeetResultsPanel from "./MeetResultsPanel";
+import MeetSummary from "./MeetSummary";
 
 export default function MeetList({ season, meets, athletes, onMeetsChanged, isCoach }) {
   const [meetName, setMeetName] = useState("");
@@ -114,6 +115,11 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
                     <MeetResultsPanel meet={meet} athletes={athletes || []} />
                   </div>
                 )}
+
+                {/* Meet summary — visible to all */}
+                <div className="border-t border-border px-3 pb-3">
+                  <MeetSummary meet={meet} athletes={athletes || []} />
+                </div>
               </li>
             );
           })}

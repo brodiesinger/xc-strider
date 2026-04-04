@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import MeetList from "./MeetList";
+import SeasonSummary from "./SeasonSummary";
 
 export default function SeasonList({ seasons, meets, athletes, teamId, coachEmail, isCoach, onSeasonsChanged, onMeetsChanged }) {
   const [expanded, setExpanded] = useState({});
@@ -86,7 +87,7 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
                 )}
               </div>
               {isOpen && (
-                <div className="px-4 pb-4 border-t border-border pt-3">
+                <div className="px-4 pb-4 border-t border-border pt-3 space-y-6">
                   <MeetList
                     season={season}
                     meets={seasonMeets}
@@ -94,6 +95,15 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
                     onMeetsChanged={onMeetsChanged}
                     isCoach={isCoach}
                   />
+                  {seasonMeets.length > 0 && (
+                    <div className="border-t border-border pt-4">
+                      <SeasonSummary
+                        season={season}
+                        meets={seasonMeets}
+                        athletes={athletes || []}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
