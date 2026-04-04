@@ -108,6 +108,7 @@ export default function SeasonMeets() {
           <SeasonList
             seasons={seasons}
             meets={meets}
+            athletes={athletes}
             teamId={teamId}
             coachEmail={user?.email}
             isCoach={isCoach}
