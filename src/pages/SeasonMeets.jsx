@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/lib/CurrentUserContext";
 import SeasonList from "@/components/seasons/SeasonList";
@@ -7,7 +6,6 @@ import { CalendarRange } from "lucide-react";
 
 export default function SeasonMeets() {
   const { currentUser: user } = useCurrentUser();
-  const navigate = useNavigate();
 
   const [seasons, setSeasons] = useState([]);
   const [meets, setMeets] = useState([]);
@@ -42,8 +40,7 @@ export default function SeasonMeets() {
   }, [teamId]);
 
   useEffect(() => {
-    if (!user) { navigate("/"); return; }
-    if (!teamId) { setLoading(false); return; }
+    if (!user || !teamId) { setLoading(false); return; }
 
     const load = async () => {
       setLoading(true);
@@ -70,7 +67,7 @@ export default function SeasonMeets() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
+      <div className="flex items-center justify-center py-16">
         <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
       </div>
     );
@@ -78,15 +75,15 @@ export default function SeasonMeets() {
 
   if (error) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
+      <div className="flex items-center justify-center py-16">
         <p className="text-sm text-muted-foreground">Unable to load seasons.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
+    <div className="pb-2">
+      <div>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <CalendarRange className="w-5 h-5 text-primary" />
