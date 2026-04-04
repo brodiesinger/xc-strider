@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Loader2, ChevronRight, ChevronLeft, UserRound, Trophy } from "lucide-react";
 
@@ -6,7 +6,7 @@ import { Loader2, ChevronRight, ChevronLeft, UserRound, Trophy } from "lucide-re
 function timeToSeconds(timeStr) {
   if (!timeStr || typeof timeStr !== "string" || !timeStr.trim()) return null;
   const parts = timeStr.trim().split(":").map(Number);
-  if (parts.some(isNaN)) return null;
+  if (parts.some((n) => isNaN(n))) return null;
   if (parts.length === 2) return parts[0] * 60 + parts[1];
   if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
   return null;
@@ -122,22 +122,28 @@ export default function SeasonSummary({ season, meets, athletes }) {
   const [loading, setLoading] = useState(true);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
 
+  // Use a stable key (comma-joined meet IDs) to avoid infinite refetch loops
+  const meetIdsKey = meets.map((m) => m.id).join(",");
+  const meetsRef = useRef(meets);
+  meetsRef.current = meets;
+
   // meetMap for quick lookup
   const meetMap = useMemo(() => {
     const m = {};
     for (const meet of meets) m[meet.id] = meet;
     return m;
-  }, [meets]);
+  }, [meetIdsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchAllResults = useCallback(async () => {
-    if (meets.length === 0) { setLoading(false); return; }
+    const currentMeets = meetsRef.current;
+    if (currentMeets.length === 0) { setLoading(false); return; }
     setLoading(true);
     try {
       // Load in chunks of 5 meets to avoid large queries freezing UI
       const CHUNK = 5;
       const chunks = [];
-      for (let i = 0; i < meets.length; i += CHUNK) {
-        chunks.push(meets.slice(i, i + CHUNK));
+      for (let i = 0; i < currentMeets.length; i += CHUNK) {
+        chunks.push(currentMeets.slice(i, i + CHUNK));
       }
       const collected = [];
       for (const chunk of chunks) {
@@ -152,11 +158,11 @@ export default function SeasonSummary({ season, meets, athletes }) {
     } finally {
       setLoading(false);
     }
-  }, [meets]);
+  }, []); // stable — uses meetsRef internally
 
   useEffect(() => {
     fetchAllResults();
-  }, [fetchAllResults]);
+  }, [meetIdsKey]); // re-fetch only when actual meet IDs change
 
   if (loading) {
     return (
