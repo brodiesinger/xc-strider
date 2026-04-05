@@ -68,11 +68,17 @@ export function hasTeam(user) {
   return !!user?.team_id;
 }
 
+/** Returns true only if the athlete has a team_group assigned */
+export function hasTeamGroup(user) {
+  return user?.user_type === "athlete" && (user?.team_group === "boys" || user?.team_group === "girls");
+}
+
 /** Derives the correct onboarding step for a given user object. Returns null if fully onboarded. */
 export function getOnboardingStep(user) {
   if (!user) return "unauthenticated";
   if (!hasRealName(user)) return "name";
   if (!hasRole(user)) return "role";
+  if (user.user_type === "athlete" && !hasTeamGroup(user)) return "team-group";
   if (user.user_type === "coach" && !hasTeam(user)) return "create-team";
   if (user.user_type === "athlete" && !hasTeam(user)) return "join-team";
   return null; // fully onboarded

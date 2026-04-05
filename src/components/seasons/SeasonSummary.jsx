@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from "react"
 import { base44 } from "@/api/base44Client";
 import { Loader2, ChevronRight, ChevronLeft, UserRound, Trophy } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
+import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
 
 // Parse "MM:SS" or "H:MM:SS" to total seconds for comparison. Returns null if unparseable.
 function timeToSeconds(timeStr) {
@@ -122,6 +123,7 @@ export default function SeasonSummary({ season, meets, athletes }) {
   const [allResults, setAllResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedAthlete, setSelectedAthlete] = useState(null);
+  const [teamGroup, setTeamGroup] = useState("boys");
 
   // Use a stable key (comma-joined meet IDs) to avoid infinite refetch loops
   const meetIdsKey = meets.map((m) => m.id).join(",");
@@ -194,8 +196,11 @@ export default function SeasonSummary({ season, meets, athletes }) {
     return { athlete, ...stats };
   });
 
+  // Filter by team group
+  const filteredRows = rows.filter((r) => r.athlete.team_group === teamGroup);
+
   // Sort by total points desc, then best time asc
-  const sorted = [...rows].sort((a, b) => {
+  const sorted = [...filteredRows].sort((a, b) => {
     if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
     const aS = timeToSeconds(a.bestTime);
     const bS = timeToSeconds(b.bestTime);
@@ -205,10 +210,11 @@ export default function SeasonSummary({ season, meets, athletes }) {
     return 0;
   });
 
-  const hasAnyData = rows.some((r) => r.meetsRun > 0);
+  const hasAnyData = filteredRows.some((r) => r.meetsRun > 0);
 
   return (
     <div className="space-y-3 pt-2">
+      <TeamGroupFilter value={teamGroup} onChange={setTeamGroup} />
       <div className="flex items-center gap-2 mb-1">
         <Trophy className="w-4 h-4 text-accent" />
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Season Summary — {season.season_name}</p>

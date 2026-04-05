@@ -18,18 +18,34 @@
       ],
       "description": "App role"
     },
-    "team_id": {
+    "first_name": {
       "type": "string",
-      "description": "Team this user belongs to"
+      "description": "User's first name"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "User's last name"
     },
     "display_name": {
       "type": "string",
       "description": "Display name: 'Coach - LastName' for coaches, 'First Last' for athletes"
     },
-    "name_confirmed": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether the user has confirmed their name during onboarding"
+    "team_id": {
+      "type": "string",
+      "description": "Team this user belongs to"
+    },
+    "team_group": {
+      "type": "string",
+      "enum": [
+        "boys",
+        "girls"
+      ],
+      "description": "Team group for athletes (boys or girls)"
     }
-  }
+  },
+  "required": [
+    "role",
+    "user_type",
+    "display_name"
+  ]
 }

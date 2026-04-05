@@ -3,6 +3,7 @@ import { ChevronRight, ShieldAlert, ShieldCheck, AlertTriangle, RotateCw, Zap, W
 import { base44 } from "@/api/base44Client";
 import { format, startOfWeek, subWeeks, parseISO } from "date-fns";
 import { getDisplayName } from "@/lib/displayName";
+import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
 
 
 const LEVEL = {
@@ -244,6 +245,7 @@ export default function CoachInsightsTab({ athletes, teamId }) {
   const [allWorkouts, setAllWorkouts] = useState([]);
   const [checkins, setCheckins] = useState({});
   const [loading, setLoading] = useState(true);
+  const [teamGroup, setTeamGroup] = useState("boys");
 
   useEffect(() => {
     if (!teamId) {
@@ -294,13 +296,18 @@ export default function CoachInsightsTab({ athletes, teamId }) {
     );
   }
 
+  const filtered = athletes.filter((a) => a.team_group === teamGroup);
+
   return (
     <div className="space-y-3">
+      <TeamGroupFilter value={teamGroup} onChange={setTeamGroup} />
       <p className="text-sm text-muted-foreground mb-4">Click on an athlete to view detailed insights.</p>
       {athletes.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">No athletes on your roster yet.</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">No {teamGroup} athletes on your roster.</p>
       ) : (
-        athletes.map((athlete) => {
+        filtered.map((athlete) => {
           const athleteWorkouts = allWorkouts.filter((w) => w.athlete_email === athlete.email);
           const athleteCheckin = checkins[athlete.email] || null;
           return (

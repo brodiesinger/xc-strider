@@ -8,6 +8,7 @@ import PostAnnouncement from "./PostAnnouncement";
 import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
 import WeeklyScheduleManager from "./WeeklyScheduleManager";
 import TeamAlerts from "./TeamAlerts";
+import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
 
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
@@ -51,12 +52,18 @@ export default function CoachHomeTab({
 }) {
   const [rosterOpen, setRosterOpen] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(false);
+  const [teamGroupFilter, setTeamGroupFilter] = useState("all");
 
-  // Weekly mileage across all athletes
+  // Filter athletes by team_group
+  const filteredAthletes = teamGroupFilter === "all"
+    ? athletes
+    : athletes.filter((a) => a.team_group === teamGroupFilter);
+
+  // Weekly mileage across filtered athletes
   const thisWeekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
   const nextWeekStart = format(new Date(startOfWeek(new Date(), { weekStartsOn: 1 }).getTime() + 7 * 86400000), "yyyy-MM-dd");
   const weekMiles = workouts
-    .filter((w) => w.date && w.date >= thisWeekStart && w.date < nextWeekStart)
+    .filter((w) => w.date && w.date >= thisWeekStart && w.date < nextWeekStart && filteredAthletes.some((a) => a.email === w.athlete_email))
     .reduce((s, w) => s + (w.distance || 0), 0);
 
   const recentWorkouts = [...workouts].sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 3);
@@ -85,9 +92,15 @@ export default function CoachHomeTab({
         onAthleteClick={onSelectAthlete}
       />
 
+      {/* Team Group Filter */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground font-medium">Filter by team group</p>
+        <TeamGroupFilter value={teamGroupFilter} onChange={setTeamGroupFilter} />
+      </div>
+
       {/* Stats Row */}
       <div className="flex gap-3">
-        <StatCard icon={Users} label="Athletes" value={athletes.length} />
+        <StatCard icon={Users} label="Athletes" value={filteredAthletes.length} />
         <StatCard icon={Activity} label="Team Miles" value={`${weekMiles.toFixed(1)}`} sub="this week" />
       </div>
 
@@ -182,7 +195,7 @@ export default function CoachHomeTab({
 
       {/* Roster Drawer */}
       <RosterDrawer
-        athletes={athletes}
+        athletes={filteredAthletes}
         open={rosterOpen}
         onClose={() => setRosterOpen(false)}
         onSelectAthlete={onSelectAthlete}

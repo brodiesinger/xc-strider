@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Trophy, Target } from "lucide-react";
 import { format } from "date-fns";
 import { getDisplayName } from "@/lib/displayName";
+import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
 
 const RACE_GOAL_TYPES = new Set(["5k_goal", "2mile_goal", "1mile_goal"]);
 
@@ -128,9 +129,15 @@ function AthletePerformanceCard({ athlete, workouts, goals, racePRs }) {
 export default function CoachPerformanceTab({ athletes = [], teamId }) {
   const [athleteData, setAthleteData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [teamGroupFilter, setTeamGroupFilter] = useState("all");
+
+  // Filter athletes by team_group
+  const filteredAthletes = teamGroupFilter === "all"
+    ? athletes
+    : athletes.filter((a) => a.team_group === teamGroupFilter);
 
   useEffect(() => {
-    if (!athletes || athletes.length === 0) {
+    if (!filteredAthletes || filteredAthletes.length === 0) {
       setLoading(false);
       setAthleteData({});
       return;
@@ -139,7 +146,7 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
       setLoading(true);
       try {
         const data = {};
-        for (const athlete of athletes) {
+        for (const athlete of filteredAthletes) {
           const [workouts, goals, racePRs] = await Promise.all([
             base44.entities.Workout.filter({ athlete_email: athlete.email }, "-date", 100).catch(() => []),
             base44.entities.Goal.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
@@ -155,7 +162,7 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
       }
     };
     loadData();
-  }, [athletes]);
+  }, [filteredAthletes]);
 
   if (loading) {
     return (
@@ -169,17 +176,56 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
     return <p className="text-sm text-muted-foreground text-center py-8">No athletes in this team yet.</p>;
   }
 
+  if (filteredAthletes.length === 0) {
+    return <p className="text-sm text-muted-foreground text-center py-8">No athletes in selected team group.</p>;
+  }
+
+  // Organize by team_group
+  const boys = filteredAthletes.filter((a) => a.team_group === "boys");
+  const girls = filteredAthletes.filter((a) => a.team_group === "girls");
+
   return (
-    <div className="space-y-4">
-      {athletes.map((athlete) => (
-        <AthletePerformanceCard
-          key={athlete.email}
-          athlete={athlete}
-          workouts={athleteData[athlete.email]?.workouts || []}
-          goals={athleteData[athlete.email]?.goals || []}
-          racePRs={athleteData[athlete.email]?.racePRs || []}
-        />
-      ))}
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground font-medium">Filter by team group</p>
+        <TeamGroupFilter value={teamGroupFilter} onChange={setTeamGroupFilter} />
+      </div>
+
+      {/* Boys Athletes */}
+      {boys.length > 0 && (
+        <div>
+          <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">👦 Boys Team</p>
+          <div className="space-y-4">
+            {boys.map((athlete) => (
+              <AthletePerformanceCard
+                key={athlete.email}
+                athlete={athlete}
+                workouts={athleteData[athlete.email]?.workouts || []}
+                goals={athleteData[athlete.email]?.goals || []}
+                racePRs={athleteData[athlete.email]?.racePRs || []}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Girls Athletes */}
+      {girls.length > 0 && (
+        <div>
+          <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">👩 Girls Team</p>
+          <div className="space-y-4">
+            {girls.map((athlete) => (
+              <AthletePerformanceCard
+                key={athlete.email}
+                athlete={athlete}
+                workouts={athleteData[athlete.email]?.workouts || []}
+                goals={athleteData[athlete.email]?.goals || []}
+                racePRs={athleteData[athlete.email]?.racePRs || []}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

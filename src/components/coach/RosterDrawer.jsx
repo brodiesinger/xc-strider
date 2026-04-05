@@ -3,19 +3,28 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, User, ChevronRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { getDisplayName } from "@/lib/displayName";
+import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
 
 export default function RosterDrawer({ athletes, open, onClose, onSelectAthlete }) {
   const [query, setQuery] = useState("");
+  const [teamGroupFilter, setTeamGroupFilter] = useState("all");
 
   // Reset search when opened
   useEffect(() => {
     if (open) setQuery("");
   }, [open]);
 
+  // Filter by team_group and search
   const filtered = athletes.filter((a) => {
     const q = query.toLowerCase();
-    return getDisplayName(a).toLowerCase().includes(q);
+    const matchesSearch = getDisplayName(a).toLowerCase().includes(q);
+    const matchesGroup = teamGroupFilter === "all" || a.team_group === teamGroupFilter;
+    return matchesSearch && matchesGroup;
   });
+
+  // Organize by team_group
+  const boys = filtered.filter((a) => a.team_group === "boys");
+  const girls = filtered.filter((a) => a.team_group === "girls");
 
   return (
     <AnimatePresence>
@@ -55,43 +64,86 @@ export default function RosterDrawer({ athletes, open, onClose, onSelectAthlete 
               </button>
             </div>
 
-            {/* Search */}
-            <div className="px-5 pb-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search athletes..."
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-            </div>
+            {/* Filter */}
+             <div className="px-5 pb-3 flex items-center justify-between gap-2">
+               <div className="flex-1">
+                 <div className="relative">
+                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                   <Input
+                     placeholder="Search athletes..."
+                     value={query}
+                     onChange={(e) => setQuery(e.target.value)}
+                     className="pl-9"
+                   />
+                 </div>
+               </div>
+             </div>
 
-            {/* List */}
-            <div className="overflow-y-auto flex-1 px-5 pb-24 space-y-2">
-              {filtered.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">No athletes found.</p>
-              ) : (
-                filtered.map((athlete) => (
-                  <button
-                    key={athlete.id}
-                    onClick={() => { onSelectAthlete(athlete); onClose(); }}
-                    className="w-full text-left rounded-2xl border border-border bg-background p-4 flex items-center gap-3 hover:border-primary/40 hover:bg-primary/5 transition-all"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <User className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground truncate">
-                        {getDisplayName(athlete)}
-                      </p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                  </button>
-                ))
-              )}
-            </div>
+             {/* Team Group Filter */}
+             <div className="px-5 pb-3">
+               <TeamGroupFilter value={teamGroupFilter} onChange={setTeamGroupFilter} className="w-full justify-center" />
+             </div>
+
+             {/* List */}
+             <div className="overflow-y-auto flex-1 px-5 pb-24 space-y-4">
+               {filtered.length === 0 ? (
+                 <p className="text-sm text-muted-foreground text-center py-8">No athletes found.</p>
+               ) : (
+                 <>
+                   {/* Boys Section */}
+                   {boys.length > 0 && (
+                     <div>
+                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1">👦 Boys Team ({boys.length})</p>
+                       <div className="space-y-2">
+                         {boys.map((athlete) => (
+                           <button
+                             key={athlete.id}
+                             onClick={() => { onSelectAthlete(athlete); onClose(); }}
+                             className="w-full text-left rounded-2xl border border-border bg-background p-4 flex items-center gap-3 hover:border-primary/40 hover:bg-primary/5 transition-all"
+                           >
+                             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-lg">
+                               👦
+                             </div>
+                             <div className="flex-1 min-w-0">
+                               <p className="font-semibold text-foreground truncate">
+                                 {getDisplayName(athlete)}
+                               </p>
+                             </div>
+                             <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                           </button>
+                         ))}
+                       </div>
+                     </div>
+                   )}
+
+                   {/* Girls Section */}
+                   {girls.length > 0 && (
+                     <div>
+                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 px-1">👩 Girls Team ({girls.length})</p>
+                       <div className="space-y-2">
+                         {girls.map((athlete) => (
+                           <button
+                             key={athlete.id}
+                             onClick={() => { onSelectAthlete(athlete); onClose(); }}
+                             className="w-full text-left rounded-2xl border border-border bg-background p-4 flex items-center gap-3 hover:border-primary/40 hover:bg-primary/5 transition-all"
+                           >
+                             <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center shrink-0 text-lg">
+                               👩
+                             </div>
+                             <div className="flex-1 min-w-0">
+                               <p className="font-semibold text-foreground truncate">
+                                 {getDisplayName(athlete)}
+                               </p>
+                             </div>
+                             <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                           </button>
+                         ))}
+                       </div>
+                     </div>
+                   )}
+                 </>
+               )}
+             </div>
           </motion.div>
         </>
       )}

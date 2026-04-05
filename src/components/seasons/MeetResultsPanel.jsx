@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, AlertCircle, Loader2, UserRound } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
+import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
 
 function validateResult(fields) {
   if (fields.did_not_run) {
@@ -184,6 +185,7 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
 export default function MeetResultsPanel({ meet, athletes }) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [teamGroupFilter, setTeamGroupFilter] = useState("all");
 
   const fetchResults = useCallback(async () => {
     try {
@@ -196,6 +198,11 @@ export default function MeetResultsPanel({ meet, athletes }) {
       setLoading(false);
     }
   }, [meet.id]);
+
+  // Filter athletes by team_group
+  const filteredAthletes = teamGroupFilter === "all"
+    ? athletes
+    : athletes.filter((a) => a.team_group === teamGroupFilter);
 
   useEffect(() => {
     fetchResults();
@@ -217,21 +224,64 @@ export default function MeetResultsPanel({ meet, athletes }) {
     );
   }
 
+  // Organize by team_group
+  const boys = filteredAthletes.filter((a) => a.team_group === "boys");
+  const girls = filteredAthletes.filter((a) => a.team_group === "girls");
+
   return (
-    <div className="space-y-2 pt-2">
-      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Results</p>
-      {athletes.map((athlete) => {
-        const existing = results.find((r) => r.athlete_id === athlete.email) || null;
-        return (
-          <AthleteResultRow
-            key={athlete.email}
-            meetId={meet.id}
-            athlete={athlete}
-            existingResult={existing}
-            onSaved={fetchResults}
-          />
-        );
-      })}
+    <div className="space-y-4 pt-2">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Enter Results</p>
+        <TeamGroupFilter value={teamGroupFilter} onChange={setTeamGroupFilter} className="!gap-1" />
+      </div>
+
+      {filteredAthletes.length === 0 ? (
+        <p className="text-xs text-muted-foreground text-center py-4">No athletes in selected team group.</p>
+      ) : (
+        <>
+          {/* Boys Results */}
+          {boys.length > 0 && (
+            <div>
+              <p className="text-xs text-muted-foreground mb-2 px-1 font-medium">👦 Boys</p>
+              <div className="space-y-2">
+                {boys.map((athlete) => {
+                  const existing = results.find((r) => r.athlete_id === athlete.email) || null;
+                  return (
+                    <AthleteResultRow
+                      key={athlete.email}
+                      meetId={meet.id}
+                      athlete={athlete}
+                      existingResult={existing}
+                      onSaved={fetchResults}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Girls Results */}
+          {girls.length > 0 && (
+            <div>
+              <p className="text-xs text-muted-foreground mb-2 px-1 font-medium">👩 Girls</p>
+              <div className="space-y-2">
+                {girls.map((athlete) => {
+                  const existing = results.find((r) => r.athlete_id === athlete.email) || null;
+                  return (
+                    <AthleteResultRow
+                      key={athlete.email}
+                      meetId={meet.id}
+                      athlete={athlete}
+                      existingResult={existing}
+                      onSaved={fetchResults}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
