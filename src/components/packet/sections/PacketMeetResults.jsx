@@ -96,7 +96,7 @@ export default function PacketMeetResults({ meets, teamId }) {
           Promise.all(
             meets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []).then((r) => [m.id, r || []]))
           ),
-          isAuth && teamId ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => null) : Promise.resolve(null),
+          isAuth && teamId ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => ({ data: { athletes: [] } })) : Promise.resolve(null),
         ]);
         const map = {};
         pairs.forEach(([id, results]) => { map[id] = results; });
