@@ -3,9 +3,19 @@ import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/lib/CurrentUserContext";
 import SeasonList from "@/components/seasons/SeasonList";
 import { CalendarRange } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function SeasonMeets() {
   const { currentUser: user } = useCurrentUser();
+  const navigate = useNavigate();
+
+  // If accessed as a standalone page (not embedded in CoachDashboard), redirect coaches to the dashboard
+  useEffect(() => {
+    // Only redirect if we're actually on the /seasons route (not embedded)
+    if (window.location.pathname === "/seasons" && user?.user_type === "coach") {
+      navigate("/coach?tab=seasons", { replace: true });
+    }
+  }, [user]);
 
   const [seasons, setSeasons] = useState([]);
   const [meets, setMeets] = useState([]);

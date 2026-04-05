@@ -194,7 +194,7 @@ export default function AthletePageBuilder() {
       <div className="no-print max-w-3xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => navigate("/seasons")}
+          <button onClick={() => { console.log("Navigating back to seasons"); navigate("/coach?tab=seasons"); }}
             className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
             <ArrowLeft className="w-5 h-5" />
           </button>

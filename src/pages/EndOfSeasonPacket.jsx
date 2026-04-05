@@ -65,7 +65,7 @@ export default function EndOfSeasonPacket() {
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center gap-3 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/seasons")} className="shrink-0">
+          <Button variant="ghost" size="icon" onClick={() => { console.log("Navigating back to seasons"); navigate("/coach?tab=seasons"); }} className="shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
