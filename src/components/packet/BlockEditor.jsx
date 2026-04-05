@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 /**
  * Renders the configuration UI for a single block based on its type.
  */
-export default function BlockEditor({ block, seasons, meets, onChange }) {
+export default function BlockEditor({ block, seasons, meets, athletes = [], onChange }) {
   const seasonMeets = meets.filter((m) => m.season_id === block.seasonId);
 
   switch (block.type) {
@@ -97,14 +97,19 @@ export default function BlockEditor({ block, seasons, meets, onChange }) {
     case "athlete_stats":
       return (
         <div className="space-y-2">
-          <SeasonSelect seasons={seasons} value={block.seasonId} onChange={(v) => onChange({ ...block, seasonId: v })} />
+          <SeasonSelect seasons={seasons} value={block.seasonId} onChange={(v) => onChange({ ...block, seasonId: v, athleteEmail: "" })} />
           <div className="space-y-1">
             <label className="text-xs text-muted-foreground">Select Athlete</label>
-            <Input
-              placeholder="Athlete email"
+            <select
+              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
               value={block.athleteEmail || ""}
               onChange={(e) => onChange({ ...block, athleteEmail: e.target.value })}
-            />
+            >
+              <option value="">— Select athlete —</option>
+              {athletes.map((a) => (
+                <option key={a.email} value={a.email}>{a.full_name || a.email}</option>
+              ))}
+            </select>
           </div>
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground font-medium">Include:</p>

@@ -5,20 +5,27 @@ import PacketAthleteStatsBlock from "./sections/PacketAthleteStatsBlock";
 import PacketTextBlock from "./sections/PacketTextBlock";
 import PacketImage from "./sections/PacketImage";
 
-// ── Error Boundary ──────────────────────────────────────────────────────────
+// ── Error Boundary — resets when blockId changes ──────────────────────────────
 class BlockErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false };
   }
   static getDerivedStateFromError() { return { hasError: true }; }
+  // Reset when the block id changes (e.g. block was replaced)
+  static getDerivedStateFromProps(props, state) {
+    if (state.prevBlockId !== props.blockId) {
+      return { hasError: false, prevBlockId: props.blockId };
+    }
+    return null;
+  }
   render() {
     if (this.state.hasError) return null;
     return this.props.children;
   }
 }
 
-// ── Single block renderer ────────────────────────────────────────────────────
+// ── Single block renderer — returns null for empty/unconfigured blocks ────────
 function BlockContent({ block, seasons, meets, athletes }) {
   const season = seasons.find((s) => s.id === block.seasonId) || null;
   const seasonMeets = season ? meets.filter((m) => m.season_id === season.id) : [];
@@ -72,14 +79,26 @@ function BlockContent({ block, seasons, meets, athletes }) {
   }
 }
 
+// Wrapper that avoids rendering an empty div when content is null
 function SafeBlock({ block, seasons, meets, athletes }) {
   return (
-    <BlockErrorBoundary>
+    <BlockErrorBoundary blockId={block.id}>
+      <BlockContentWrapper block={block} seasons={seasons} meets={meets} athletes={athletes} />
+    </BlockErrorBoundary>
+  );
+}
+
+// Inner wrapper so we can conditionally add spacing only when content exists
+class BlockContentWrapper extends React.Component {
+  constructor(props) { super(props); this.state = { hasContent: true }; }
+  render() {
+    const { block, seasons, meets, athletes } = this.props;
+    return (
       <div className="packet-block mb-8 break-inside-avoid">
         <BlockContent block={block} seasons={seasons} meets={meets} athletes={athletes} />
       </div>
-    </BlockErrorBoundary>
-  );
+    );
+  }
 }
 
 // ── Athlete page ─────────────────────────────────────────────────────────────
@@ -120,7 +139,7 @@ export default function PacketPreview({ title, blocks, athleteLayouts, athletes,
       </div>
 
       {/* Main page blocks */}
-      {blocks.map((block) => (
+      {(blocks || []).map((block) => (
         <SafeBlock
           key={block.id}
           block={block}

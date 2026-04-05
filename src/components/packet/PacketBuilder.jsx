@@ -35,7 +35,7 @@ export function newBlock(type, preselectedSeasonId = "") {
   }
 }
 
-function BlockRow({ block, index, total, seasons, meets, onChange, onDelete, onMoveUp, onMoveDown }) {
+function BlockRow({ block, index, total, seasons, meets, athletes, onChange, onDelete, onMoveUp, onMoveDown }) {
   const label = BLOCK_TYPES.find((b) => b.type === block.type)?.label || block.type;
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -68,13 +68,13 @@ function BlockRow({ block, index, total, seasons, meets, onChange, onDelete, onM
         </div>
       </div>
       <div className="p-4">
-        <BlockEditor block={block} seasons={seasons} meets={meets} onChange={onChange} />
+        <BlockEditor block={block} seasons={seasons} meets={meets} athletes={athletes} onChange={onChange} />
       </div>
     </div>
   );
 }
 
-function AthleteLayoutPanel({ athlete, blocks, seasons, meets, onBlocksChange, preselectedSeasonId }) {
+function AthleteLayoutPanel({ athlete, blocks, seasons, meets, athletes, onBlocksChange, preselectedSeasonId }) {
   const addBlock = (type) => {
     onBlocksChange([...blocks, newBlock(type, preselectedSeasonId)]);
   };
@@ -109,6 +109,7 @@ function AthleteLayoutPanel({ athlete, blocks, seasons, meets, onBlocksChange, p
           total={blocks.length}
           seasons={seasons}
           meets={meets}
+          athletes={athletes}
           onChange={updateBlock}
           onDelete={() => deleteBlock(block.id)}
           onMoveUp={() => moveUp(i)}
@@ -270,6 +271,7 @@ export default function PacketBuilder({ seasons, meets, athletes, teamId, presel
                       blocks={ath_blocks}
                       seasons={seasons}
                       meets={meets}
+                      athletes={athletes}
                       onBlocksChange={(b) => setAthleteBlocks(athlete.email, b)}
                       preselectedSeasonId={preselectedSeasonId}
                     />

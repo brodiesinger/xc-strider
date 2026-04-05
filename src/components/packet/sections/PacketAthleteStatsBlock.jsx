@@ -33,7 +33,14 @@ export default function PacketAthleteStatsBlock({ block, meets, athletes }) {
           ),
           base44.entities.RacePR.filter({ athlete_email: athleteEmail }).catch(() => []),
         ]);
-        setResults(resultChunks.flat());
+        // Deduplicate by meet_id (keep first occurrence per meet)
+        const seen = new Set();
+        const deduped = resultChunks.flat().filter((r) => {
+          if (!r.meet_id || seen.has(r.meet_id)) return false;
+          seen.add(r.meet_id);
+          return true;
+        });
+        setResults(deduped);
         setPRs(prData || []);
       } catch {
         // safe fallback
