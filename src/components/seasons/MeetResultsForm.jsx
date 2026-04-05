@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { getDisplayName } from "@/lib/displayName";
 
 function validateResult(fields) {
   if (fields.did_not_run) {
@@ -63,7 +64,7 @@ export default function MeetResultsForm({ meetId, athlete, existingResult, onSav
     const payload = {
       meet_id: meetId,
       athlete_id: athlete.email,
-      athlete_name: athlete.full_name || athlete.email,
+      athlete_name: getDisplayName(athlete),
       time: fields.did_not_run ? "" : fields.time.trim(),
       place: fields.did_not_run ? null : (fields.place !== "" ? Number(fields.place) : null),
       points: fields.did_not_run ? 0 : (fields.points !== "" ? Number(fields.points) : 0),

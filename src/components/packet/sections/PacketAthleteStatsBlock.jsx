@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { getDisplayName } from "@/lib/displayName";
 
 function timeToSeconds(t) {
   if (!t) return null;
@@ -35,7 +36,7 @@ export default function PacketAthleteStatsBlock({ block, meets, teamId }) {
           teamId ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => null) : Promise.resolve(null),
         ]);
         const found = (athleteRes?.data?.athletes || []).find((a) => a.email === athleteEmail);
-        setAthleteName(found?.full_name || athleteEmail);
+        setAthleteName(found ? getDisplayName(found) : athleteEmail);
         // Deduplicate by meet_id (keep first occurrence per meet)
         const seen = new Set();
         const deduped = resultChunks.flat().filter((r) => {

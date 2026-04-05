@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { getDisplayName } from "@/lib/displayName";
 
 function timeToSeconds(t) {
   if (!t) return null;
@@ -10,7 +11,7 @@ function timeToSeconds(t) {
   return null;
 }
 
-function MeetResultTable({ meet, results }) {
+function MeetResultTable({ meet, results, athleteMap = {} }) {
   const seen = new Set();
   const deduped = results.filter((r) => {
     if (!r.athlete_id || seen.has(r.athlete_id)) return false;
@@ -31,7 +32,10 @@ function MeetResultTable({ meet, results }) {
 
   if (deduped.length === 0) return null;
 
-  const getName = (email) => email;
+  const getName = (email) => {
+    const athlete = athleteMap[email];
+    return athlete ? getDisplayName(athlete) : email;
+  };
 
   return (
     <div className="mb-6">
@@ -76,23 +80,33 @@ function MeetResultTable({ meet, results }) {
   );
 }
 
-export default function PacketMeetResults({ meets }) {
+export default function PacketMeetResults({ meets, teamId }) {
   const [resultsByMeet, setResultsByMeet] = useState({});
+  const [athleteMap, setAthleteMap] = useState({});
   const [loaded, setLoaded] = useState(false);
 
   const meetIdsKey = meets.map((m) => m.id).join(",");
 
   useEffect(() => {
     if (!meets || meets.length === 0) { setLoaded(true); return; }
-    Promise.all(
-      meets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []).then((r) => [m.id, r || []]))
-    ).then((pairs) => {
+    Promise.all([
+      Promise.all(
+        meets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []).then((r) => [m.id, r || []]))
+      ),
+      teamId ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => null) : Promise.resolve(null),
+    ]).then(([pairs, athleteRes]) => {
       const map = {};
       pairs.forEach(([id, results]) => { map[id] = results; });
       setResultsByMeet(map);
+      
+      const athletes = athleteRes?.data?.athletes || [];
+      const aMap = {};
+      athletes.forEach((a) => { aMap[a.email] = a; });
+      setAthleteMap(aMap);
+      
       setLoaded(true);
     }).catch(() => setLoaded(true));
-  }, [meetIdsKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [meetIdsKey, teamId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!loaded) return <div className="text-gray-400 text-sm py-2">Loading results...</div>;
 
@@ -107,6 +121,7 @@ export default function PacketMeetResults({ meets }) {
           key={meet.id}
           meet={meet}
           results={resultsByMeet[meet.id] || []}
+          athleteMap={athleteMap}
         />
       ))}
     </div>
