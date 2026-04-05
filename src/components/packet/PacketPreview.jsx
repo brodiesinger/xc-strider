@@ -9,7 +9,7 @@ import PacketImage from "./sections/PacketImage";
 class BlockErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, prevBlockId: props.blockId };
   }
   static getDerivedStateFromError() { return { hasError: true }; }
   // Reset when the block id changes (e.g. block was replaced)

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/lib/CurrentUserContext";
 import { base44 } from "@/api/base44Client";
@@ -59,10 +59,11 @@ export default function AthletePageBuilder() {
   const { currentUser: user } = useCurrentUser();
   const navigate = useNavigate();
 
-  // Parse URL params
-  const urlParams = new URLSearchParams(window.location.search);
-  const athleteEmail = urlParams.get("athlete_email") || "";
-  const seasonId = urlParams.get("season_id") || "";
+  // Parse URL params — memoized so they're stable across re-renders
+  const { athleteEmail, seasonId } = useMemo(() => {
+    const p = new URLSearchParams(window.location.search);
+    return { athleteEmail: p.get("athlete_email") || "", seasonId: p.get("season_id") || "" };
+  }, []);
 
   const [athlete, setAthlete] = useState(null);
   const [season, setSeason] = useState(null);
@@ -90,7 +91,7 @@ export default function AthletePageBuilder() {
       setLoading(true);
       try {
         const [seasonData, meetData, existingLayouts, allUsers] = await Promise.all([
-          base44.entities.Season.filter({ id: seasonId }).catch(() => []),
+          base44.entities.Season.filter({ team_id: user.team_id }).catch(() => []),
           base44.entities.Meet.filter({ season_id: seasonId }).catch(() => []),
           base44.entities.AthletePageLayout.filter({
             athlete_email: athleteEmail,
@@ -99,7 +100,7 @@ export default function AthletePageBuilder() {
           base44.functions.invoke("getTeamAthletes", { team_id: user.team_id }).catch(() => null),
         ]);
 
-        setSeason(seasonData?.[0] || null);
+        setSeason((seasonData || []).find((s) => s.id === seasonId) || null);
         setMeets(meetData || []);
 
         // Find athlete info
@@ -165,14 +166,6 @@ export default function AthletePageBuilder() {
 
   if (!user || user.user_type !== "coach") return null;
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   if (!athleteEmail || !seasonId) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-12 text-center">
@@ -180,6 +173,14 @@ export default function AthletePageBuilder() {
         <Button className="mt-4" variant="outline" onClick={() => navigate("/seasons")}>
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Seasons
         </Button>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
       </div>
     );
   }

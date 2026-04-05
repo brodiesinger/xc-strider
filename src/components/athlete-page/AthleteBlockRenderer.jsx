@@ -6,10 +6,10 @@ import StreakBlock from "./blocks/StreakBlock";
 
 // ── Error Boundary ──────────────────────────────────────────────────────────
 class BlockBoundary extends React.Component {
-  constructor(props) { super(props); this.state = { hasError: false, prevId: props.blockId }; }
-  static getDerivedStateFromError() { return { hasError: true }; }
+  constructor(props) { super(props); this.state = { hasError: false, prevId: props.block?.id }; }
+  static getDerivedStateFromError(error) { return { hasError: true }; } // prevId preserved by React
   static getDerivedStateFromProps(props, state) {
-    if (props.blockId !== state.prevId) return { hasError: false, prevId: props.blockId };
+    if (props.block?.id !== state.prevId) return { hasError: false, prevId: props.block?.id };
     return null;
   }
   render() {
@@ -69,7 +69,7 @@ function BlockContent({ block, athleteEmail, meets }) {
 
 export default function AthleteBlockRenderer({ block, athleteEmail, meets }) {
   return (
-    <BlockBoundary blockId={block.id}>
+    <BlockBoundary block={block}>
       <div className="athlete-page-block mb-8 break-inside-avoid">
         <BlockContent block={block} athleteEmail={athleteEmail} meets={meets} />
       </div>
