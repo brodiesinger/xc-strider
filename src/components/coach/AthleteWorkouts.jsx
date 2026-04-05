@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { format, parseISO } from "date-fns";
 import { Ruler, Clock, FileText, User } from "lucide-react";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function AthleteWorkouts({ athlete }) {
   const [workouts, setWorkouts] = useState([]);
@@ -36,9 +37,8 @@ export default function AthleteWorkouts({ athlete }) {
         </div>
         <div>
           <h2 className="font-bold text-foreground text-lg">
-            {athlete.full_name || "Unknown Athlete"}
+            {getDisplayName(athlete)}
           </h2>
-          <p className="text-xs text-muted-foreground">{athlete.email}</p>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Trophy, Loader2 } from "lucide-react";
 import { format, startOfWeek } from "date-fns";
 import { base44 } from "@/api/base44Client";
+import { getDisplayName } from "@/lib/displayName";
 
 function getRank(n) {
   if (n === 1) return "🥇";
@@ -41,7 +42,7 @@ export default function ConsistencyLeaderboard({ teamId, currentUserEmail, athle
           const pct = Math.min(100, Math.round((logged / assignedCount) * 100));
           return {
             email,
-            name: a.full_name || "Unknown Athlete",
+            name: getDisplayName(a),
             logged,
             assigned: assignedCount,
             pct,

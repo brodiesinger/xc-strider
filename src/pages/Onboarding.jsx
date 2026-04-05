@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
+import { generateDisplayName } from "@/lib/displayName";
 import { TreePine, Users, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,7 +60,10 @@ export default function Onboarding() {
     setError("");
     setSaving(true);
     try {
-      await base44.auth.updateMe({ full_name: trimmed });
+      // Generate display_name using current role if already set
+      const existingRole = currentUser?.user_type;
+      const display_name = existingRole ? generateDisplayName(trimmed, existingRole) : undefined;
+      await base44.auth.updateMe({ full_name: trimmed, ...(display_name ? { display_name } : {}) });
       await refresh(); // refresh context → useEffect drives navigation
     } catch (err) {
       console.error("Failed to save name:", err);
@@ -74,7 +78,9 @@ export default function Onboarding() {
     if (saving) return;
     setSaving(true);
     try {
-      await base44.auth.updateMe({ user_type: selectedRole });
+      // Also regenerate display_name now that we know the role
+      const display_name = generateDisplayName(currentUser?.full_name, selectedRole);
+      await base44.auth.updateMe({ user_type: selectedRole, display_name });
       await refresh();
     } finally {
       setSaving(false);

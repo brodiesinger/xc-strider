@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
+import { getDisplayName } from "@/lib/displayName";
 
 const empty = () => ({
   distance: "",
@@ -35,7 +36,7 @@ export default function WorkoutForm({ onSaved, teamId }) {
         date: form.date,
         team_id: teamId || null,
         athlete_email: user?.email || null,
-        athlete_name: user?.full_name || null,
+        athlete_name: getDisplayName(user),
       });
       setForm(empty());
       onSaved();

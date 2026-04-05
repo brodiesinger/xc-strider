@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import MeetList from "./MeetList";
 import SeasonSummary from "./SeasonSummary";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function SeasonList({ seasons, meets, athletes, teamId, coachEmail, isCoach, onSeasonsChanged, onMeetsChanged }) {
   const navigate = useNavigate();
@@ -192,9 +193,9 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
                       }}
                     >
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                        {(a.full_name || a.email)[0].toUpperCase()}
+                        {getDisplayName(a)[0].toUpperCase()}
                       </div>
-                      <span className="text-sm font-medium text-foreground">{a.full_name || a.email}</span>
+                      <span className="text-sm font-medium text-foreground">{getDisplayName(a)}</span>
                     </button>
                   </li>
                 ))}

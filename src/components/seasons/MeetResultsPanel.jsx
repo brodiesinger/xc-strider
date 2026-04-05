@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, AlertCircle, Loader2, UserRound } from "lucide-react";
+import { getDisplayName } from "@/lib/displayName";
 
 function validateResult(fields) {
   if (fields.did_not_run) {
@@ -103,7 +104,7 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
         <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
           <UserRound className="w-3.5 h-3.5 text-primary" />
         </div>
-        <span className="text-sm font-medium text-foreground">{athlete.full_name || athlete.email}</span>
+        <span className="text-sm font-medium text-foreground">{getDisplayName(athlete)}</span>
       </div>
 
       {/* DNR toggle */}

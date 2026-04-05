@@ -61,6 +61,12 @@ export default function CoachHomeTab({
 
   const recentWorkouts = [...workouts].sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 3);
 
+  const getAthleteName = (workout) => {
+    const athlete = athletes.find((a) => a.email === workout.athlete_email);
+    if (athlete) return getDisplayName(athlete);
+    return workout.athlete_name || "Athlete";
+  };
+
   return (
     <div className="space-y-6 pb-24">
       {/* Header */}
@@ -147,7 +153,7 @@ export default function CoachHomeTab({
             recentWorkouts.map((w) => (
               <div key={w.id} className="flex items-center justify-between p-4">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">{w.athlete_name || "Unnamed Athlete"}</p>
+                  <p className="text-sm font-semibold text-foreground">{getAthleteName(w)}</p>
                   <p className="text-xs text-muted-foreground">{w.date} · {w.distance} mi</p>
                 </div>
                 <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">

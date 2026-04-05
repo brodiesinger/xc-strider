@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User, ChevronRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function RosterDrawer({ athletes, open, onClose, onSelectAthlete }) {
   const [query, setQuery] = useState("");
@@ -13,10 +14,7 @@ export default function RosterDrawer({ athletes, open, onClose, onSelectAthlete 
 
   const filtered = athletes.filter((a) => {
     const q = query.toLowerCase();
-    return (
-      (a.full_name || "").toLowerCase().includes(q) ||
-      (a.email || "").toLowerCase().includes(q)
-    );
+    return getDisplayName(a).toLowerCase().includes(q);
   });
 
   return (
@@ -86,7 +84,7 @@ export default function RosterDrawer({ athletes, open, onClose, onSelectAthlete 
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-foreground truncate">
-                        {athlete.full_name || "Unnamed Athlete"}
+                        {getDisplayName(athlete)}
                       </p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />

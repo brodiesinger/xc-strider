@@ -14,7 +14,7 @@ import CoachHomeTab from "@/components/coach/CoachHomeTab";
 import CoachSettingsTab from "@/components/coach/CoachSettingsTab";
 import SeasonMeets from "./SeasonMeets";
 import useTeamTheme from "@/lib/useTeamTheme";
-import { getDisplayName } from "@/lib/displayName";
+import { getDisplayName, generateDisplayName } from "@/lib/displayName";
 import useDarkMode from "@/lib/useDarkMode";
 export default function CoachDashboard() {
   const { currentUser: user, setCurrentUser: setUser } = useCurrentUser();

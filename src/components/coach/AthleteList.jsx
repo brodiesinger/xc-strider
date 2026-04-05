@@ -1,5 +1,6 @@
 import React from "react";
 import { User, ChevronRight } from "lucide-react";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function AthleteList({ athletes, onSelect }) {
   if (athletes.length === 0) {
@@ -27,11 +28,8 @@ export default function AthleteList({ athletes, onSelect }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-foreground truncate">
-                {athlete.full_name || athlete.email}
+                {getDisplayName(athlete)}
               </p>
-              {athlete.full_name && (
-                <p className="text-xs text-muted-foreground truncate">{athlete.email}</p>
-              )}
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
           </button>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Loader2, ChevronRight, ChevronLeft, UserRound, Trophy } from "lucide-react";
+import { getDisplayName } from "@/lib/displayName";
 
 // Parse "MM:SS" or "H:MM:SS" to total seconds for comparison. Returns null if unparseable.
 function timeToSeconds(timeStr) {
@@ -74,7 +75,7 @@ function AthleteDetailView({ athlete, stats, onBack }) {
           <UserRound className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <p className="font-semibold text-foreground">{athlete.full_name || athlete.email}</p>
+          <p className="font-semibold text-foreground">{getDisplayName(athlete)}</p>
           <p className="text-xs text-muted-foreground">{stats.meetsRun} meet{stats.meetsRun !== 1 ? "s" : ""} run · {stats.totalPoints} pts{stats.bestTime ? ` · Best: ${stats.bestTime}` : ""}</p>
         </div>
       </div>
@@ -235,7 +236,7 @@ export default function SeasonSummary({ season, meets, athletes }) {
                   <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                     <UserRound className="w-3 h-3 text-primary" />
                   </div>
-                  <span className="text-sm text-foreground truncate">{athlete.full_name || athlete.email}</span>
+                  <span className="text-sm text-foreground truncate">{getDisplayName(athlete)}</span>
                 </div>
                 <span className="text-sm text-foreground text-right">{meetsRun}</span>
                 <span className="text-sm font-mono text-foreground text-right">{bestTime || "—"}</span>

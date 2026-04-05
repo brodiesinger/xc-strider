@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { getDisplayName } from "@/lib/displayName";
 
 function timeToSeconds(t) {
   if (!t) return null;
@@ -41,7 +42,7 @@ function AthletePage({ athlete, meets, allResults, prs, options }) {
     <div className="break-before-page pt-2 pb-8 border-b-2 border-gray-200 mb-8">
       {/* Athlete header */}
       <div className="flex items-center justify-between border-b border-gray-300 pb-3 mb-4">
-        <h2 className="text-xl font-bold text-gray-900">{athlete.full_name || athlete.email}</h2>
+        <h2 className="text-xl font-bold text-gray-900">{getDisplayName(athlete)}</h2>
         {options.showPoints && (
           <div className="text-right">
             <p className="text-2xl font-bold text-gray-900">{totalPoints}</p>
@@ -168,7 +169,7 @@ export default function PacketAthletePages({ season, meets, athletes, options })
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Athlete Pages — {season.season_name}</h2>
       {athletes.map((athlete) => (
         <AthletePage
-          key={athlete.email}
+          key={athlete.email || athlete.id}
           athlete={athlete}
           meets={meets}
           allResults={allResults}

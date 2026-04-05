@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { getDisplayName } from "@/lib/displayName";
 import { format, startOfWeek, subWeeks, parseISO } from "date-fns";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -76,7 +77,7 @@ function computeAlerts({ athletes, workouts, checkins, schedule }) {
         severity: "warning",
         icon: "⚠️",
         message: `${athletesWithMissed.length} athlete${athletesWithMissed.length > 1 ? "s" : ""} missed multiple workouts this week`,
-        detail: athletesWithMissed.map((a) => a.full_name || "Unknown Athlete"),
+        detail: athletesWithMissed.map((a) => getDisplayName(a)),
       });
     }
   }
@@ -120,7 +121,7 @@ function computeAlerts({ athletes, workouts, checkins, schedule }) {
       severity: "urgent",
       icon: "🚨",
       message: `${highRiskAthletes.length} athlete${highRiskAthletes.length > 1 ? "s are" : " is"} at high injury risk`,
-      detail: highRiskAthletes.map((a) => a.full_name || "Unknown Athlete"),
+      detail: highRiskAthletes.map((a) => getDisplayName(a)),
     });
   }
 
@@ -169,7 +170,7 @@ function computeAlerts({ athletes, workouts, checkins, schedule }) {
       .map((c) => {
         const key = c.athlete_email || c.created_by;
         const athlete = athletes.find((a) => a.email === key);
-        return athlete?.full_name || key || "Unknown Athlete";
+        return athlete ? getDisplayName(athlete) : "Athlete";
       })
       .filter(Boolean);
 
@@ -205,7 +206,7 @@ function AlertCard({ alert, athletes, onAthleteClick }) {
   // Map detail names to athlete objects for clicking
   const detailAthletes = hasDetail
     ? alert.detail
-        .map((name) => athletes.find((a) => (a.full_name || "Unknown Athlete") === name))
+        .map((name) => athletes.find((a) => getDisplayName(a) === name))
         .filter(Boolean)
     : [];
 
@@ -240,7 +241,7 @@ function AlertCard({ alert, athletes, onAthleteClick }) {
                   onClick={() => onAthleteClick(athlete)}
                   className={`text-xs font-medium px-2 py-0.5 rounded-full border ${s.border} ${s.text} bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors cursor-pointer`}
                 >
-                  {athlete.full_name || "Unknown Athlete"}
+                  {getDisplayName(athlete)}
                 </button>
               ))}
             </div>
