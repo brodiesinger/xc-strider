@@ -143,14 +143,18 @@ function SectionConfigRow({ section, seasons, meets, onChange, onDelete }) {
   );
 }
 
-export default function PacketBuilder({ seasons, meets, athletes, teamId }) {
+export default function PacketBuilder({ seasons, meets, athletes, teamId, preselectedSeasonId }) {
   const [sections, setSections] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
   const [packetTitle, setPacketTitle] = useState("End-of-Season Packet");
   const [titleError, setTitleError] = useState("");
 
   const addSection = (type) => {
-    setSections((prev) => [...prev, newSection(type)]);
+    const s = newSection(type);
+    if (preselectedSeasonId && ["season_overview", "meet_results", "athlete_pages"].includes(type)) {
+      s.seasonId = preselectedSeasonId;
+    }
+    setSections((prev) => [...prev, s]);
   };
 
   const updateSection = (updated) => {

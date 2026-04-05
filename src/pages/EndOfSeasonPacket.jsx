@@ -13,10 +13,13 @@ export default function EndOfSeasonPacket() {
   const [athletes, setAthletes] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselectedSeasonId = urlParams.get("season_id") || "";
+
   // Access control: coaches only
   useEffect(() => {
     if (!user) { navigate("/"); return; }
-    if (user.user_type !== "coach") { navigate("/athlete"); return; }
+    if (user.user_type !== "coach" && user.role !== "coach") { navigate("/athlete"); return; }
   }, [user]);
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export default function EndOfSeasonPacket() {
     load();
   }, [user?.team_id]);
 
-  if (!user || user.user_type !== "coach") return null;
+  if (!user || (user.user_type !== "coach" && user.role !== "coach")) return null;
 
   if (loading) {
     return (
@@ -74,6 +77,7 @@ export default function EndOfSeasonPacket() {
           meets={meets}
           athletes={athletes}
           teamId={user.team_id}
+          preselectedSeasonId={preselectedSeasonId}
         />
       </div>
     </div>

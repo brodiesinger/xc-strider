@@ -14,7 +14,9 @@ export default function SeasonMeets() {
   const [error, setError] = useState(false);
 
   const teamId = user?.team_id;
-  const isCoach = user?.user_type === "coach";
+  const isCoach = user?.user_type === "coach" || user?.role === "coach";
+
+  console.log("[SeasonMeets] user role:", user?.role, "user_type:", user?.user_type, "isCoach:", isCoach);
 
   const fetchSeasons = useCallback(async () => {
     if (!teamId) { setLoading(false); return; }

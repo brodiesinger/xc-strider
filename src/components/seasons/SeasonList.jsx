@@ -1,17 +1,21 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { ChevronDown, ChevronRight, Trash2, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Trash2, Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 import MeetList from "./MeetList";
 import SeasonSummary from "./SeasonSummary";
 
 export default function SeasonList({ seasons, meets, athletes, teamId, coachEmail, isCoach, onSeasonsChanged, onMeetsChanged }) {
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState({});
   const [seasonName, setSeasonName] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
+
+  console.log("[SeasonList] isCoach:", isCoach, "seasons loaded:", seasons.length);
 
   const toggle = (id) => setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
 
@@ -57,9 +61,40 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
 
   return (
     <div className="space-y-3 pb-4">
+      {/* Create Season — always at the top for coaches */}
+      {isCoach && (
+        <div className="pb-1">
+          {showForm ? (
+            <form onSubmit={handleCreateSeason} className="rounded-xl border border-border bg-card p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">New Season</p>
+              <Input
+                placeholder="Season name (e.g. Fall 2025)"
+                value={seasonName}
+                onChange={(e) => { setSeasonName(e.target.value); setError(""); }}
+                autoFocus
+              />
+              {error && <p className="text-xs text-destructive">{error}</p>}
+              <div className="flex gap-2">
+                <Button type="submit" size="sm" disabled={creating}>
+                  {creating ? "Creating..." : "Create Season"}
+                </Button>
+                <Button type="button" size="sm" variant="ghost" onClick={() => { setShowForm(false); setError(""); }}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <Button className="w-full" onClick={() => setShowForm(true)}>
+              <Plus className="w-4 h-4 mr-1" />
+              New Season
+            </Button>
+          )}
+        </div>
+      )}
+
       {seasons.length === 0 ? (
-        <div className="text-center py-10 text-muted-foreground">
-          <p className="text-sm">{isCoach ? "No seasons yet. Create your first season below." : "No seasons available."}</p>
+        <div className="text-center py-10 text-muted-foreground border border-dashed border-border rounded-xl">
+          <p className="text-sm">{isCoach ? "No seasons yet. Create your first season above." : "No seasons available yet."}</p>
         </div>
       ) : (
         seasons.map((season) => {
@@ -76,15 +111,26 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
                   <span className="font-semibold text-foreground">{season.season_name}</span>
                   <span className="text-xs text-muted-foreground ml-1">({seasonMeets.length} meet{seasonMeets.length !== 1 ? "s" : ""})</span>
                 </div>
-                {isCoach && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDeleteSeason(season.id); }}
-                    className="text-muted-foreground hover:text-destructive transition-colors"
-                    aria-label="Delete season"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
+                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  {isCoach && (
+                    <button
+                      onClick={() => navigate(`/packet?season_id=${season.id}`)}
+                      className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 bg-primary/10 px-2.5 py-1 rounded-full transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      Packet
+                    </button>
+                  )}
+                  {isCoach && (
+                    <button
+                      onClick={() => handleDeleteSeason(season.id)}
+                      className="text-muted-foreground hover:text-destructive transition-colors"
+                      aria-label="Delete season"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
               {isOpen && (
                 <div className="px-4 pb-4 border-t border-border pt-3 space-y-6">
@@ -109,35 +155,6 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
             </div>
           );
         })
-      )}
-
-      {isCoach && (
-        <div className="pt-1">
-          {showForm ? (
-            <form onSubmit={handleCreateSeason} className="space-y-2">
-              <Input
-                placeholder="Season name (e.g. Fall 2025)"
-                value={seasonName}
-                onChange={(e) => { setSeasonName(e.target.value); setError(""); }}
-                autoFocus
-              />
-              {error && <p className="text-xs text-destructive">{error}</p>}
-              <div className="flex gap-2">
-                <Button type="submit" size="sm" disabled={creating}>
-                  {creating ? "Creating..." : "Create Season"}
-                </Button>
-                <Button type="button" size="sm" variant="ghost" onClick={() => { setShowForm(false); setError(""); }}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          ) : (
-            <Button variant="outline" className="w-full" onClick={() => setShowForm(true)}>
-              <Plus className="w-4 h-4 mr-1" />
-              New Season
-            </Button>
-          )}
-        </div>
       )}
     </div>
   );
