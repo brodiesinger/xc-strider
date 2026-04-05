@@ -29,10 +29,8 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const { currentUser, refresh } = useCurrentUser();
 
-  // Pre-fill with existing full_name only if it doesn't look like an email
-  const existingName = currentUser?.full_name ?? "";
-  const [fullName, setFullName] = useState(existingName.includes("@") ? "" : existingName);
-  const resolvedFullName = (fullName.trim() || existingName?.trim() || "").replace(/.*@.*/, "");
+  const [firstName, setFirstName] = useState(currentUser?.first_name || "");
+  const [lastName, setLastName] = useState(currentUser?.last_name || "");
   const [teamName, setTeamName] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [error, setError] = useState("");
@@ -52,24 +50,25 @@ export default function Onboarding() {
     }
   }, [step, currentUser]);
 
-  // ── Step 1: Full name ──────────────────────────────────────────
+  // ── Step 1: First & Last name ─────────────────────────────────
   const handleNameSubmit = async (e) => {
     e?.preventDefault();
-    const trimmed = fullName.trim();
-    if (!trimmed) {
-      setError("Please enter your name.");
+    const first = firstName.trim();
+    const last = lastName.trim();
+    if (!first || !last) {
+      setError("Please enter both first and last name.");
       return;
     }
     setError("");
     setSaving(true);
     try {
-      // Generate display_name using current role if already set
       await base44.auth.updateMe({
-        full_name: trimmed,
+        first_name: first,
+        last_name: last,
         name_confirmed: true,
-        display_name: generateDisplayName(trimmed, currentUser?.user_type),
+        display_name: generateDisplayName(first, last, currentUser?.user_type),
       });
-      await refresh(); // refresh context → useEffect drives navigation
+      await refresh();
     } catch (err) {
       console.error("Failed to save name:", err);
       setError("Failed to save name. Please try again.");
@@ -85,9 +84,7 @@ export default function Onboarding() {
     try {
       await base44.auth.updateMe({
         user_type: selectedRole,
-        full_name: resolvedFullName,
-        name_confirmed: true,
-        display_name: generateDisplayName(resolvedFullName, selectedRole),
+        display_name: generateDisplayName(firstName, lastName, selectedRole),
       });
       await refresh();
     } finally {
@@ -151,23 +148,33 @@ export default function Onboarding() {
 
   if (step === "name") {
     return (
-      <OnboardingShell title="What's your name?" subtitle="Enter your full name so your team can recognize you.">
+      <OnboardingShell title="What's your name?" subtitle="Enter your first and last name so your team can recognize you.">
         <form onSubmit={handleNameSubmit} className="w-full space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="full-name">Full Name</Label>
+            <Label htmlFor="first-name">First Name</Label>
             <Input
-              id="full-name"
+              id="first-name"
               type="text"
-              placeholder="e.g. Sarah Johnson"
-              value={fullName}
-              onChange={(e) => { setFullName(e.target.value); setError(""); }}
+              placeholder="e.g. Sarah"
+              value={firstName}
+              onChange={(e) => { setFirstName(e.target.value); setError(""); }}
               autoFocus
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="last-name">Last Name</Label>
+            <Input
+              id="last-name"
+              type="text"
+              placeholder="e.g. Johnson"
+              value={lastName}
+              onChange={(e) => { setLastName(e.target.value); setError(""); }}
             />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button
             type="submit"
-            disabled={saving || !fullName.trim()}
+            disabled={saving || !firstName.trim() || !lastName.trim()}
             className="w-full h-11"
           >
             {saving ? "Saving..." : "Continue"}

@@ -1,65 +1,44 @@
 /**
- * Generates the display_name from a user's full_name and user_type/role.
- *
+ * Generates display_name from first_name, last_name, and user_type.
  * Coach  → "Coach - LastName"
- * Athlete → "First Last"
- * Fallback → "Coach" | "Athlete" | "User"
+ * Athlete → "FirstName LastName"
  */
-export function generateDisplayName(fullName, userType) {
-  const name = fullName?.trim();
-  if (!name || name.includes("@")) {
-    if (userType === "coach") return "Coach";
-    if (userType === "athlete") return "Athlete";
-    return "User";
-  }
-
-  const parts = name.split(/\s+/).filter(Boolean);
-  const firstName = parts[0];
-  const lastName = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+export function generateDisplayName(firstName, lastName, userType) {
+  const first = firstName?.trim();
+  const last = lastName?.trim();
 
   if (userType === "coach") {
-    const dn = `Coach - ${lastName}`;
-    console.log("Generated display_name:", name, "→", dn);
-    return dn;
+    return last ? `Coach - ${last}` : "Coach";
   }
-
+  
   // athlete or unknown
-  const dn = parts.length > 1 ? `${firstName} ${lastName}` : firstName;
-  console.log("Generated display_name:", name, "→", dn);
-  return dn;
+  if (first && last) return `${first} ${last}`;
+  if (first) return first;
+  return "Athlete";
 }
 
 /**
- * Returns the best available display name for any user-like object.
- * Priority: display_name → generate from full_name → fallback label
- *
- * NEVER returns an email, null, or undefined.
+ * Returns the display_name from a user object.
+ * NEVER shows email, email prefix, or auth data.
+ * Only uses: display_name, first_name, last_name, user_type.
  */
 export function getDisplayName(user, fallback) {
   if (!user) return fallback ?? "User";
 
-  const userType = user.user_type || user.role;
-
-  // If the user confirmed their real name, always regenerate from full_name to avoid stale email-derived display_name
-  const confirmedName = user.full_name?.trim();
-  if (user.name_confirmed && confirmedName && !confirmedName.includes("@")) {
-    return generateDisplayName(confirmedName, userType);
-  }
-
-  // If display_name exists and looks valid (not an email)
+  // Always prefer display_name if it exists and isn't an email
   if (user.display_name?.trim() && !user.display_name.includes("@")) {
     return user.display_name.trim();
   }
 
-  // Regenerate from full_name
-  const name = user.full_name?.trim();
-  if (name && !name.includes("@")) {
-    return generateDisplayName(name, userType);
+  // Regenerate from first/last name
+  const userType = user.user_type || user.role;
+  const first = user.first_name?.trim();
+  const last = user.last_name?.trim();
+  
+  if (first || last) {
+    return generateDisplayName(first, last, userType);
   }
 
-  // Last resort fallback
-  if (fallback) return fallback;
-  if (userType === "coach") return "Coach";
-  if (userType === "athlete") return "Athlete";
-  return "User";
+  // Fallback only
+  return fallback ?? (userType === "coach" ? "Coach" : userType === "athlete" ? "Athlete" : "User");
 }

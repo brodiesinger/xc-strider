@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { ChevronRight, ShieldAlert, ShieldCheck, AlertTriangle, RotateCw, Zap, Wind } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { format, startOfWeek, subWeeks, parseISO } from "date-fns";
+import { getDisplayName } from "@/lib/displayName";
 
 
 const LEVEL = {
@@ -85,8 +86,8 @@ function AthleteRiskCard({ athlete, workouts, checkin, onSelect }) {
       className="w-full text-left rounded-xl border border-border bg-card p-4 hover:bg-muted/50 transition-colors"
     >
       <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="font-semibold text-foreground">{athlete.full_name || "Unknown Athlete"}</p>
+         <div className="flex-1">
+           <p className="font-semibold text-foreground">{getDisplayName(athlete)}</p>
           <div className="flex items-center gap-2 mt-2">
             <cfg.Icon className={`w-4 h-4 ${cfg.color}`} />
             <span className={`text-sm font-medium ${cfg.color}`}>{cfg.label}</span>
@@ -158,8 +159,8 @@ function AthleteDetailView({ athlete, workouts, checkin, onBack }) {
       </button>
 
       <div>
-        <h2 className="text-2xl font-bold text-foreground">{athlete.full_name || "Unknown Athlete"}</h2>
-      </div>
+         <h2 className="text-2xl font-bold text-foreground">{getDisplayName(athlete)}</h2>
+       </div>
 
       {/* Risk Level */}
       <div className={`rounded-2xl border p-5 ${cfg.bg}`}>

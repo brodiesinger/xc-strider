@@ -24,12 +24,11 @@ export default function AthleteProfileTab({ user, team, announcements, schedule,
     const lastName = parts.slice(1).join(" ");
     setSavingName(true);
     try {
-      const updated = await base44.auth.updateMe({
+      await base44.auth.updateMe({
         first_name: firstName,
         last_name: lastName,
         display_name: generateDisplayName(firstName, lastName, user?.user_type),
       });
-      onUserUpdated?.(updated);
       setShowEditName(false);
       setEditName("");
     } finally {

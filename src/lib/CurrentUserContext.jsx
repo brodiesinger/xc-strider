@@ -53,9 +53,9 @@ export function useCurrentUser() {
   return useContext(CurrentUserContext);
 }
 
-/** Returns true only if the user has explicitly confirmed their name during onboarding */
+/** Returns true only if the user has both first and last name */
 export function hasRealName(user) {
-  return !!user?.name_confirmed;
+  return !!user?.first_name?.trim() && !!user?.last_name?.trim();
 }
 
 /** Returns true only if the user has a recognized role */

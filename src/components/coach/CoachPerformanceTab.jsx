@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { Trophy, Target } from "lucide-react";
 import { format } from "date-fns";
+import { getDisplayName } from "@/lib/displayName";
 
 const RACE_GOAL_TYPES = new Set(["5k_goal", "2mile_goal", "1mile_goal"]);
 
@@ -69,7 +70,7 @@ function AthletePerformanceCard({ athlete, workouts, goals, racePRs }) {
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
-      <h3 className="font-semibold text-foreground">{athlete.full_name || athlete.email}</h3>
+      <h3 className="font-semibold text-foreground">{getDisplayName(athlete)}</h3>
 
       {/* Goals */}
       {goals.length > 0 ? (

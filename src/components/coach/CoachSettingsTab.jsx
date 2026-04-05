@@ -72,7 +72,7 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpda
                  placeholder="e.g. John Smith"
                  value={editName}
                  onChange={(e) => setEditName(e.target.value)}
-                 defaultValue={user?.full_name}
+                 defaultValue={`${user?.first_name || ""} ${user?.last_name || ""}`.trim()}
                  autoFocus
                />
                <div className="flex gap-2">
@@ -88,7 +88,7 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpda
              <Button type="button" size="sm" variant="outline" onClick={() => { setEditName(`${user?.first_name || ""} ${user?.last_name || ""}`.trim()); setShowEditName(true); }} className="w-full mt-2">
                Edit Name
              </Button>
-           )}
+             )}
          </div>
        </section>
 
