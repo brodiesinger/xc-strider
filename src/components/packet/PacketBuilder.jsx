@@ -214,6 +214,7 @@ export default function PacketBuilder({ seasons, meets, athletes, teamId, presel
             total={blocks.length}
             seasons={seasons}
             meets={meets}
+            athletes={athletes}
             onChange={updateBlock}
             onDelete={() => deleteBlock(block.id)}
             onMoveUp={() => moveUp(i)}
