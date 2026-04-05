@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
 import { generateDisplayName } from "@/lib/displayName";
-import { TreePine, Users, Trophy, Users2 } from "lucide-react";
+import { TreePine, Users, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { motion } from "framer-motion";
 
 function OnboardingShell({ title, subtitle, children }) {
   return (
@@ -36,6 +37,7 @@ export default function Onboarding() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Derive step directly from currentUser every render — no stale local step state
   const step = getOnboardingStep(currentUser);
 
   useEffect(() => {
@@ -44,10 +46,12 @@ export default function Onboarding() {
       return;
     }
     if (step === null) {
+      // Fully onboarded — go to dashboard
       navigate(currentUser.user_type === "coach" ? "/coach" : "/athlete");
     }
-  }, [step, currentUser, navigate]);
+  }, [step, currentUser]);
 
+  // ── Step 1: First & Last name ─────────────────────────────────
   const handleNameSubmit = async (e) => {
     e?.preventDefault();
     const first = firstName.trim();
@@ -74,6 +78,7 @@ export default function Onboarding() {
     }
   };
 
+  // ── Step 2: Role selection ─────────────────────────────────────
   const handleRoleSelect = async (selectedRole) => {
     if (saving) return;
     setSaving(true);
@@ -88,17 +93,21 @@ export default function Onboarding() {
     }
   };
 
-  const handleTeamGroupSelect = async (group) => {
+  // ── Step 2.5: Team group selection (for athletes) ────────────────
+  const handleTeamGroupSelect = async (selectedGroup) => {
     if (saving) return;
     setSaving(true);
     try {
-      await base44.auth.updateMe({ team_group: group });
+      await base44.auth.updateMe({
+        team_group: selectedGroup,
+      });
       await refresh();
     } finally {
       setSaving(false);
     }
   };
 
+  // ── Step 3a: Coach creates team ────────────────────────────────
   const handleCreateTeam = async (e) => {
     e.preventDefault();
     const name = teamName.trim();
@@ -122,6 +131,7 @@ export default function Onboarding() {
     }
   };
 
+  // ── Step 4b: Athlete joins team ────────────────────────────────
   const handleJoinTeam = async (e) => {
     e.preventDefault();
     const code = joinCode.trim().toUpperCase();
@@ -144,7 +154,10 @@ export default function Onboarding() {
     }
   };
 
+  // While saving, show a subtle spinner overlay so the user knows something is happening
+  // but we don't unmount the current step view (prevents flicker)
   if (step === null || step === "unauthenticated") {
+    // Navigating — show nothing to avoid a flash
     return null;
   }
 
@@ -187,80 +200,84 @@ export default function Onboarding() {
   }
 
   if (step === "role") {
-    return (
-      <OnboardingShell title="Who are you?" subtitle="Select your role to get started.">
-        <div className="flex flex-col gap-3 w-full">
-          <button
-            onClick={() => handleRoleSelect("coach")}
-            disabled={saving}
-            className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
-          >
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Trophy className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="font-semibold text-foreground">I'm a Coach</p>
-              <p className="text-sm text-muted-foreground">Create and manage your team</p>
-            </div>
-          </button>
+     return (
+       <OnboardingShell title="Who are you?" subtitle="Select your role to get started.">
+         <div className="flex flex-col gap-3 w-full">
+           <button
+             onClick={() => handleRoleSelect("coach")}
+             disabled={saving}
+             className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
+           >
+             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+               <Trophy className="w-6 h-6 text-primary" />
+             </div>
+             <div>
+               <p className="font-semibold text-foreground">I'm a Coach</p>
+               <p className="text-sm text-muted-foreground">Create and manage your team</p>
+             </div>
+           </button>
 
-          <button
-            onClick={() => handleRoleSelect("athlete")}
-            disabled={saving}
-            className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
-          >
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="font-semibold text-foreground">I'm an Athlete</p>
-              <p className="text-sm text-muted-foreground">Join your coach's team</p>
-            </div>
-          </button>
+           <button
+             onClick={() => handleRoleSelect("athlete")}
+             disabled={saving}
+             className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
+           >
+             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+               <Users className="w-6 h-6 text-primary" />
+             </div>
+             <div>
+               <p className="font-semibold text-foreground">I'm an Athlete</p>
+               <p className="text-sm text-muted-foreground">Join your coach's team</p>
+             </div>
+           </button>
 
-          {saving && <p className="text-sm text-center text-muted-foreground">Saving...</p>}
-        </div>
-      </OnboardingShell>
-    );
-  }
+           {saving && <p className="text-sm text-center text-muted-foreground">Saving...</p>}
+         </div>
+       </OnboardingShell>
+     );
+   }
 
-  if (step === "team-group") {
-    return (
-      <OnboardingShell title="Choose Your Team" subtitle="Are you on the boys or girls team?">
-        <div className="flex flex-col gap-3 w-full">
-          <button
-            onClick={() => handleTeamGroupSelect("boys")}
-            disabled={saving}
-            className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
-          >
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="font-semibold text-foreground">Boys Team</p>
-              <p className="text-sm text-muted-foreground">Join the boys team</p>
-            </div>
-          </button>
+   if (step === "team-group") {
+     return (
+       <OnboardingShell title="Which team?" subtitle="Select your team group to join.">
+         <div className="flex flex-col gap-3 w-full">
+           <motion.button
+             whileHover={{ y: -2 }}
+             whileTap={{ y: 0 }}
+             onClick={() => handleTeamGroupSelect("boys")}
+             disabled={saving}
+             className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
+           >
+             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-lg">
+               👦
+             </div>
+             <div>
+               <p className="font-semibold text-foreground">Boys Team</p>
+               <p className="text-sm text-muted-foreground">Join the boys team group</p>
+             </div>
+           </motion.button>
 
-          <button
-            onClick={() => handleTeamGroupSelect("girls")}
-            disabled={saving}
-            className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
-          >
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Users2 className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="font-semibold text-foreground">Girls Team</p>
-              <p className="text-sm text-muted-foreground">Join the girls team</p>
-            </div>
-          </button>
+           <motion.button
+             whileHover={{ y: -2 }}
+             whileTap={{ y: 0 }}
+             onClick={() => handleTeamGroupSelect("girls")}
+             disabled={saving}
+             className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
+           >
+             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-lg">
+               👩
+             </div>
+             <div>
+               <p className="font-semibold text-foreground">Girls Team</p>
+               <p className="text-sm text-muted-foreground">Join the girls team group</p>
+             </div>
+           </motion.button>
 
-          {saving && <p className="text-sm text-center text-muted-foreground">Saving...</p>}
-        </div>
-      </OnboardingShell>
-    );
-  }
+           {saving && <p className="text-sm text-center text-muted-foreground">Saving...</p>}
+         </div>
+       </OnboardingShell>
+     );
+   }
 
   if (step === "create-team") {
     return (
