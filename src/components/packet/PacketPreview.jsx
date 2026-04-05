@@ -1,123 +1,141 @@
 import React from "react";
 import PacketSeasonOverview from "./sections/PacketSeasonOverview";
 import PacketMeetResults from "./sections/PacketMeetResults";
-import PacketAthletePages from "./sections/PacketAthletePages";
+import PacketAthleteStatsBlock from "./sections/PacketAthleteStatsBlock";
 import PacketTextBlock from "./sections/PacketTextBlock";
 import PacketImage from "./sections/PacketImage";
 
-function SectionWrapper({ children }) {
-  return (
-    <div className="packet-section mb-8 break-inside-avoid">
-      {children}
-    </div>
-  );
-}
-
-// Proper React Error Boundary so async render errors in child sections are caught
-class SectionErrorBoundary extends React.Component {
+// ── Error Boundary ──────────────────────────────────────────────────────────
+class BlockErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false };
   }
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
+  static getDerivedStateFromError() { return { hasError: true }; }
   render() {
-    if (this.state.hasError) return null; // silently skip broken sections
+    if (this.state.hasError) return null;
     return this.props.children;
   }
 }
 
-function SectionContent({ section, seasons, meets, athletes }) {
-  const season = seasons.find((s) => s.id === section.seasonId) || null;
-  const sectionMeets = season ? meets.filter((m) => m.season_id === season.id) : [];
+// ── Single block renderer ────────────────────────────────────────────────────
+function BlockContent({ block, seasons, meets, athletes }) {
+  const season = seasons.find((s) => s.id === block.seasonId) || null;
+  const seasonMeets = season ? meets.filter((m) => m.season_id === season.id) : [];
 
-  if (section.type === "season_overview") {
-    if (!season) return null;
-    return (
-      <SectionWrapper>
-        <PacketSeasonOverview season={season} meets={sectionMeets} athletes={athletes} />
-      </SectionWrapper>
-    );
-  }
+  switch (block.type) {
+    case "title": {
+      const text = block.text?.trim();
+      if (!text) return null;
+      return <h1 className="text-3xl font-bold text-gray-900 mt-2 mb-4">{text}</h1>;
+    }
 
-  if (section.type === "meet_results") {
-    if (!season) return null;
-    const targetMeets = section.meetId
-      ? sectionMeets.filter((m) => m.id === section.meetId)
-      : sectionMeets;
-    if (targetMeets.length === 0) return null;
-    return (
-      <SectionWrapper>
-        <PacketMeetResults meets={targetMeets} athletes={athletes} />
-      </SectionWrapper>
-    );
-  }
+    case "text_block": {
+      const title = block.title?.trim();
+      if (!title) return null;
+      return <PacketTextBlock title={title} body={block.body || ""} />;
+    }
 
-  if (section.type === "athlete_pages") {
-    if (!season || athletes.length === 0) return null;
-    return (
-      <SectionWrapper>
-        <PacketAthletePages
-          season={season}
-          meets={sectionMeets}
+    case "image": {
+      const url = block.url?.trim();
+      if (!url) return null;
+      return <PacketImage url={url} caption={block.caption || ""} />;
+    }
+
+    case "season_overview": {
+      if (!season) return null;
+      return <PacketSeasonOverview season={season} meets={seasonMeets} athletes={athletes} filter={block.filter} />;
+    }
+
+    case "meet_results": {
+      if (!season) return null;
+      const targetMeets = block.meetId
+        ? seasonMeets.filter((m) => m.id === block.meetId)
+        : seasonMeets;
+      if (targetMeets.length === 0) return null;
+      return <PacketMeetResults meets={targetMeets} athletes={athletes} />;
+    }
+
+    case "athlete_stats": {
+      if (!season || !block.athleteEmail) return null;
+      return (
+        <PacketAthleteStatsBlock
+          block={block}
+          meets={meets}
           athletes={athletes}
-          options={{
-            showResults: section.showResults,
-            showPRs: section.showPRs,
-            showPoints: section.showPoints,
-            showBadges: section.showBadges,
-            showStreak: section.showStreak,
-          }}
         />
-      </SectionWrapper>
-    );
-  }
+      );
+    }
 
-  if (section.type === "text_block") {
-    const title = section.title?.trim();
-    if (!title) return null;
-    return (
-      <SectionWrapper>
-        <PacketTextBlock title={title} body={section.body || ""} />
-      </SectionWrapper>
-    );
+    default:
+      return null;
   }
-
-  if (section.type === "image") {
-    const url = section.url?.trim();
-    if (!url) return null;
-    return (
-      <SectionWrapper>
-        <PacketImage url={url} caption={section.caption || ""} />
-      </SectionWrapper>
-    );
-  }
-
-  return null;
 }
 
-function SafeSection(props) {
+function SafeBlock({ block, seasons, meets, athletes }) {
   return (
-    <SectionErrorBoundary key={props.section.id}>
-      <SectionContent {...props} />
-    </SectionErrorBoundary>
+    <BlockErrorBoundary>
+      <div className="packet-block mb-8 break-inside-avoid">
+        <BlockContent block={block} seasons={seasons} meets={meets} athletes={athletes} />
+      </div>
+    </BlockErrorBoundary>
   );
 }
 
-export default function PacketPreview({ title, sections, seasons, meets, athletes }) {
+// ── Athlete page ─────────────────────────────────────────────────────────────
+function AthletePageSection({ athlete, blocks, seasons, meets, athletes }) {
+  if (!blocks || blocks.length === 0) return null;
+  return (
+    <div className="break-before-page pt-2 pb-8 border-t-2 border-gray-300 mt-8">
+      <div className="mb-6 pb-3 border-b border-gray-200">
+        <h2 className="text-2xl font-bold text-gray-900">{athlete.full_name || athlete.email}</h2>
+      </div>
+      {blocks.map((block) => (
+        <SafeBlock
+          key={block.id}
+          block={block}
+          seasons={seasons}
+          meets={meets}
+          athletes={athletes}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── Main export ───────────────────────────────────────────────────────────────
+export default function PacketPreview({ title, blocks, athleteLayouts, athletes, seasons, meets }) {
+  const athletesWithLayouts = athletes.filter(
+    (a) => (athleteLayouts[a.email] || []).length > 0
+  );
+
   return (
     <div className="packet-preview bg-white text-gray-900 p-8 min-h-screen font-sans">
       {/* Packet header */}
       <div className="text-center border-b-2 border-gray-200 pb-6 mb-8">
         <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-        <p className="text-sm text-gray-500 mt-1">{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+        <p className="text-sm text-gray-500 mt-1">
+          {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+        </p>
       </div>
 
-      {sections.map((section) => (
-        <SafeSection
-          key={section.id}
-          section={section}
+      {/* Main page blocks */}
+      {blocks.map((block) => (
+        <SafeBlock
+          key={block.id}
+          block={block}
+          seasons={seasons}
+          meets={meets}
+          athletes={athletes}
+        />
+      ))}
+
+      {/* Per-athlete pages */}
+      {athletesWithLayouts.map((athlete) => (
+        <AthletePageSection
+          key={athlete.email}
+          athlete={athlete}
+          blocks={athleteLayouts[athlete.email] || []}
           seasons={seasons}
           meets={meets}
           athletes={athletes}
@@ -128,9 +146,16 @@ export default function PacketPreview({ title, sections, seasons, meets, athlete
         @media print {
           body * { visibility: hidden; }
           .packet-preview, .packet-preview * { visibility: visible; }
-          .packet-preview { position: absolute; left: 0; top: 0; width: 100%; }
-          .packet-section { page-break-inside: avoid; }
+          .packet-preview {
+            position: absolute; left: 0; top: 0; width: 100%;
+            padding: 1in;
+            font-size: 11pt;
+          }
+          .packet-block { page-break-inside: avoid; margin-bottom: 24pt; }
+          .break-before-page { page-break-before: always; }
           .no-print { display: none !important; }
+          table { border-collapse: collapse; width: 100%; }
+          th, td { padding: 4pt 6pt; }
         }
       `}</style>
     </div>
