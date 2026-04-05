@@ -1,19 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Input } from "@/components/ui/input";
-import { base44 } from "@/api/base44Client";
 
 /**
  * Renders the configuration UI for a single block based on its type.
  */
-export default function BlockEditor({ block, seasons, meets, teamId, onChange }) {
-  const [athletes, setAthletes] = useState([]);
-
-  useEffect(() => {
-    if (!teamId || block.type !== "athlete_stats") return;
-    base44.functions.invoke("getTeamAthletes", { team_id: teamId })
-      .then((res) => setAthletes(res.data?.athletes || []))
-      .catch(() => setAthletes([]));
-  }, [teamId, block.type]);
+export default function BlockEditor({ block, seasons, meets, onChange }) {
   const seasonMeets = meets.filter((m) => m.season_id === block.seasonId);
 
   switch (block.type) {
@@ -100,46 +91,6 @@ export default function BlockEditor({ block, seasons, meets, teamId, onChange })
               </select>
             </div>
           )}
-        </div>
-      );
-
-    case "athlete_stats":
-      return (
-        <div className="space-y-2">
-          <SeasonSelect seasons={seasons} value={block.seasonId} onChange={(v) => onChange({ ...block, seasonId: v, athleteEmail: "" })} />
-          <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">Select Athlete</label>
-            <select
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-              value={block.athleteEmail || ""}
-              onChange={(e) => onChange({ ...block, athleteEmail: e.target.value })}
-            >
-              <option value="">— Select athlete —</option>
-              {athletes.map((a) => (
-                <option key={a.email} value={a.email}>{a.full_name || a.email}</option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground font-medium">Include:</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-              {[
-                { key: "showResults", label: "Race Results" },
-                { key: "showPRs", label: "PRs" },
-                { key: "showPoints", label: "Points" },
-              ].map(({ key, label }) => (
-                <label key={key} className="flex items-center gap-1.5 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={!!block[key]}
-                    onChange={(e) => onChange({ ...block, [key]: e.target.checked })}
-                    className="w-3.5 h-3.5 accent-primary"
-                  />
-                  <span className="text-xs text-foreground">{label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
         </div>
       );
 

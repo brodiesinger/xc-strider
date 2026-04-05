@@ -1,7 +1,6 @@
 import React from "react";
 import PacketSeasonOverview from "./sections/PacketSeasonOverview";
 import PacketMeetResults from "./sections/PacketMeetResults";
-import PacketAthleteStatsBlock from "./sections/PacketAthleteStatsBlock";
 import PacketTextBlock from "./sections/PacketTextBlock";
 import PacketImage from "./sections/PacketImage";
 
@@ -61,17 +60,6 @@ function BlockContent({ block, seasons, meets, teamId }) {
         : seasonMeets;
       if (targetMeets.length === 0) return null;
       return <PacketMeetResults meets={targetMeets} />;
-    }
-
-    case "athlete_stats": {
-      if (!season || !block.athleteEmail) return null;
-      return (
-        <PacketAthleteStatsBlock
-          block={block}
-          meets={meets}
-          teamId={teamId}
-        />
-      );
     }
 
     default:

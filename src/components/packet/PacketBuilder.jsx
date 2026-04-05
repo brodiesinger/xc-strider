@@ -10,7 +10,6 @@ const BLOCK_TYPES = [
   { type: "image", label: "Image" },
   { type: "season_overview", label: "Season Overview" },
   { type: "meet_results", label: "Meet Results" },
-  { type: "athlete_stats", label: "Athlete Stats" },
 ];
 
 export function newBlock(type, preselectedSeasonId = "") {
@@ -22,14 +21,6 @@ export function newBlock(type, preselectedSeasonId = "") {
     case "image": return { ...base, url: "", caption: "" };
     case "season_overview": return { ...base, seasonId: preselectedSeasonId, filter: "all" };
     case "meet_results": return { ...base, seasonId: preselectedSeasonId, meetId: "" };
-    case "athlete_stats": return {
-      ...base,
-      seasonId: preselectedSeasonId,
-      athleteEmail: "",
-      showResults: true,
-      showPRs: true,
-      showPoints: true,
-    };
     default: return base;
   }
 }
@@ -67,7 +58,7 @@ function BlockRow({ block, index, total, seasons, meets, teamId, onChange, onDel
         </div>
       </div>
       <div className="p-4">
-        <BlockEditor block={block} seasons={seasons} meets={meets} teamId={teamId} onChange={onChange} />
+        <BlockEditor block={block} seasons={seasons} meets={meets} onChange={onChange} />
       </div>
     </div>
   );
