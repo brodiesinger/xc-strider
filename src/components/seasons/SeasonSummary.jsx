@@ -196,8 +196,8 @@ export default function SeasonSummary({ season, meets, athletes }) {
     return { athlete, ...stats };
   });
 
-  // Filter by team group
-  const filteredRows = rows.filter((r) => r.athlete.team_group === teamGroup);
+  // Filter by team group — default to "boys" if not set
+  const filteredRows = rows.filter((r) => (r.athlete.team_group || "boys") === teamGroup);
 
   // Sort by total points desc, then best time asc
   const sorted = [...filteredRows].sort((a, b) => {
