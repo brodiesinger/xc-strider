@@ -26,7 +26,7 @@ class BlockErrorBoundary extends React.Component {
 }
 
 // ── Single block renderer — returns null for empty/unconfigured blocks ────────
-function BlockContent({ block, seasons, meets, athletes }) {
+function BlockContent({ block, seasons, meets, teamId }) {
   const season = seasons.find((s) => s.id === block.seasonId) || null;
   const seasonMeets = season ? meets.filter((m) => m.season_id === season.id) : [];
 
@@ -51,7 +51,7 @@ function BlockContent({ block, seasons, meets, athletes }) {
 
     case "season_overview": {
       if (!season) return null;
-      return <PacketSeasonOverview season={season} meets={seasonMeets} athletes={athletes} filter={block.filter} />;
+      return <PacketSeasonOverview season={season} meets={seasonMeets} filter={block.filter} />;
     }
 
     case "meet_results": {
@@ -60,7 +60,7 @@ function BlockContent({ block, seasons, meets, athletes }) {
         ? seasonMeets.filter((m) => m.id === block.meetId)
         : seasonMeets;
       if (targetMeets.length === 0) return null;
-      return <PacketMeetResults meets={targetMeets} athletes={athletes} />;
+      return <PacketMeetResults meets={targetMeets} />;
     }
 
     case "athlete_stats": {
@@ -69,7 +69,7 @@ function BlockContent({ block, seasons, meets, athletes }) {
         <PacketAthleteStatsBlock
           block={block}
           meets={meets}
-          athletes={athletes}
+          teamId={teamId}
         />
       );
     }
@@ -80,10 +80,10 @@ function BlockContent({ block, seasons, meets, athletes }) {
 }
 
 // Wrapper that avoids rendering an empty div when content is null
-function SafeBlock({ block, seasons, meets, athletes }) {
+function SafeBlock({ block, seasons, meets, teamId }) {
   return (
     <BlockErrorBoundary blockId={block.id}>
-      <BlockContentWrapper block={block} seasons={seasons} meets={meets} athletes={athletes} />
+      <BlockContentWrapper block={block} seasons={seasons} meets={meets} teamId={teamId} />
     </BlockErrorBoundary>
   );
 }
@@ -92,42 +92,17 @@ function SafeBlock({ block, seasons, meets, athletes }) {
 class BlockContentWrapper extends React.Component {
   constructor(props) { super(props); this.state = { hasContent: true }; }
   render() {
-    const { block, seasons, meets, athletes } = this.props;
+    const { block, seasons, meets, teamId } = this.props;
     return (
       <div className="packet-block mb-8 break-inside-avoid">
-        <BlockContent block={block} seasons={seasons} meets={meets} athletes={athletes} />
+        <BlockContent block={block} seasons={seasons} meets={meets} teamId={teamId} />
       </div>
     );
   }
 }
 
-// ── Athlete page ─────────────────────────────────────────────────────────────
-function AthletePageSection({ athlete, blocks, seasons, meets, athletes }) {
-  if (!blocks || blocks.length === 0) return null;
-  return (
-    <div className="break-before-page pt-2 pb-8 border-t-2 border-gray-300 mt-8">
-      <div className="mb-6 pb-3 border-b border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-900">{athlete.full_name || athlete.email}</h2>
-      </div>
-      {blocks.map((block) => (
-        <SafeBlock
-          key={block.id}
-          block={block}
-          seasons={seasons}
-          meets={meets}
-          athletes={athletes}
-        />
-      ))}
-    </div>
-  );
-}
-
 // ── Main export ───────────────────────────────────────────────────────────────
-export default function PacketPreview({ title, blocks, athleteLayouts, athletes, seasons, meets }) {
-  const athletesWithLayouts = athletes.filter(
-    (a) => (athleteLayouts[a.email] || []).length > 0
-  );
-
+export default function PacketPreview({ title, blocks, seasons, meets, teamId }) {
   return (
     <div className="packet-preview bg-white text-gray-900 p-8 min-h-screen font-sans">
       {/* Packet header */}
@@ -145,19 +120,7 @@ export default function PacketPreview({ title, blocks, athleteLayouts, athletes,
           block={block}
           seasons={seasons}
           meets={meets}
-          athletes={athletes}
-        />
-      ))}
-
-      {/* Per-athlete pages */}
-      {athletesWithLayouts.map((athlete) => (
-        <AthletePageSection
-          key={athlete.email}
-          athlete={athlete}
-          blocks={athleteLayouts[athlete.email] || []}
-          seasons={seasons}
-          meets={meets}
-          athletes={athletes}
+          teamId={teamId}
         />
       ))}
 

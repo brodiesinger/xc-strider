@@ -10,7 +10,7 @@ function timeToSeconds(t) {
   return null;
 }
 
-function MeetResultTable({ meet, athletes, results }) {
+function MeetResultTable({ meet, results }) {
   const seen = new Set();
   const deduped = results.filter((r) => {
     if (!r.athlete_id || seen.has(r.athlete_id)) return false;
@@ -31,7 +31,7 @@ function MeetResultTable({ meet, athletes, results }) {
 
   if (deduped.length === 0) return null;
 
-  const getName = (email) => athletes.find((a) => a.email === email)?.full_name || email;
+  const getName = (email) => email;
 
   return (
     <div className="mb-6">
@@ -76,7 +76,7 @@ function MeetResultTable({ meet, athletes, results }) {
   );
 }
 
-export default function PacketMeetResults({ meets, athletes }) {
+export default function PacketMeetResults({ meets }) {
   const [resultsByMeet, setResultsByMeet] = useState({});
   const [loaded, setLoaded] = useState(false);
 
@@ -106,7 +106,6 @@ export default function PacketMeetResults({ meets, athletes }) {
         <MeetResultTable
           key={meet.id}
           meet={meet}
-          athletes={athletes}
           results={resultsByMeet[meet.id] || []}
         />
       ))}

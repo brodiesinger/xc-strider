@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 
-export default function PacketSeasonOverview({ season, meets, athletes }) {
+export default function PacketSeasonOverview({ season, meets, athleteCount = 0 }) {
   const [allResults, setAllResults] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -34,7 +34,7 @@ export default function PacketSeasonOverview({ season, meets, athletes }) {
           <p className="text-xs text-gray-500 mt-1">Meets</p>
         </div>
         <div className="border border-gray-200 rounded-lg p-4 text-center">
-          <p className="text-3xl font-bold text-gray-900">{athletes.length}</p>
+          <p className="text-3xl font-bold text-gray-900">{athleteCount}</p>
           <p className="text-xs text-gray-500 mt-1">Athletes</p>
         </div>
         <div className="border border-gray-200 rounded-lg p-4 text-center">

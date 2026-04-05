@@ -10,14 +10,14 @@ function timeToSeconds(t) {
   return null;
 }
 
-export default function PacketAthleteStatsBlock({ block, meets, athletes }) {
+export default function PacketAthleteStatsBlock({ block, meets, teamId }) {
   const [results, setResults] = useState([]);
   const [prs, setPRs] = useState([]);
+  const [athleteName, setAthleteName] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
   const season = block.seasonId;
   const athleteEmail = block.athleteEmail;
-  const athlete = athletes.find((a) => a.email === athleteEmail);
   const seasonMeets = meets.filter((m) => m.season_id === season);
   const meetIdsKey = seasonMeets.map((m) => m.id).join(",");
 
@@ -25,14 +25,17 @@ export default function PacketAthleteStatsBlock({ block, meets, athletes }) {
     if (!athleteEmail || seasonMeets.length === 0) { setLoaded(true); return; }
     const load = async () => {
       try {
-        const [resultChunks, prData] = await Promise.all([
+        const [resultChunks, prData, athleteRes] = await Promise.all([
           Promise.all(
             seasonMeets.map((m) =>
               base44.entities.MeetResult.filter({ meet_id: m.id, athlete_id: athleteEmail }).catch(() => [])
             )
           ),
           base44.entities.RacePR.filter({ athlete_email: athleteEmail }).catch(() => []),
+          teamId ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => null) : Promise.resolve(null),
         ]);
+        const found = (athleteRes?.data?.athletes || []).find((a) => a.email === athleteEmail);
+        setAthleteName(found?.full_name || athleteEmail);
         // Deduplicate by meet_id (keep first occurrence per meet)
         const seen = new Set();
         const deduped = resultChunks.flat().filter((r) => {
@@ -51,7 +54,6 @@ export default function PacketAthleteStatsBlock({ block, meets, athletes }) {
     load();
   }, [athleteEmail, meetIdsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!athlete) return null;
   if (!loaded) return <p className="text-gray-400 text-sm py-2">Loading stats for {athleteEmail}...</p>;
 
   const ranResults = results.filter((r) => !r.did_not_run);
@@ -74,7 +76,7 @@ export default function PacketAthleteStatsBlock({ block, meets, athletes }) {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-300 pb-3 mb-4">
-        <h3 className="text-xl font-bold text-gray-900">{athlete.full_name || athlete.email}</h3>
+        <h3 className="text-xl font-bold text-gray-900">{athleteName || athleteEmail}</h3>
         {block.showPoints && (
           <div className="text-right">
             <p className="text-2xl font-bold text-gray-900">{totalPoints}</p>

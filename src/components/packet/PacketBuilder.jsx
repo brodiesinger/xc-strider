@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Printer, Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import PacketPreview from "./PacketPreview";
 import BlockEditor from "./BlockEditor";
-import { base44 } from "@/api/base44Client";
-
 const BLOCK_TYPES = [
   { type: "title", label: "Title" },
   { type: "text_block", label: "Text Block" },
@@ -36,7 +34,7 @@ export function newBlock(type, preselectedSeasonId = "") {
   }
 }
 
-function BlockRow({ block, index, total, seasons, meets, athletes, onChange, onDelete, onMoveUp, onMoveDown }) {
+function BlockRow({ block, index, total, seasons, meets, teamId, onChange, onDelete, onMoveUp, onMoveDown }) {
   const label = BLOCK_TYPES.find((b) => b.type === block.type)?.label || block.type;
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -69,7 +67,7 @@ function BlockRow({ block, index, total, seasons, meets, athletes, onChange, onD
         </div>
       </div>
       <div className="p-4">
-        <BlockEditor block={block} seasons={seasons} meets={meets} athletes={athletes} onChange={onChange} />
+        <BlockEditor block={block} seasons={seasons} meets={meets} teamId={teamId} onChange={onChange} />
       </div>
     </div>
   );
@@ -81,14 +79,6 @@ export default function PacketBuilder({ seasons, meets, teamId, preselectedSeaso
   const [titleError, setTitleError] = useState("");
   const [blocks, setBlocks] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
-  const [athletes, setAthletes] = useState([]);
-
-  useEffect(() => {
-    if (!teamId) return;
-    base44.functions.invoke("getTeamAthletes", { team_id: teamId })
-      .then((res) => setAthletes(res.data?.athletes || []))
-      .catch(() => setAthletes([]));
-  }, [teamId]);
 
   const addBlock = (type) => {
     setBlocks((prev) => [...prev, newBlock(type, preselectedSeasonId)]);
@@ -158,7 +148,7 @@ export default function PacketBuilder({ seasons, meets, teamId, preselectedSeaso
             total={blocks.length}
             seasons={seasons}
             meets={meets}
-            athletes={athletes}
+            teamId={teamId}
             onChange={updateBlock}
             onDelete={() => deleteBlock(block.id)}
             onMoveUp={() => moveUp(i)}
@@ -199,10 +189,9 @@ export default function PacketBuilder({ seasons, meets, teamId, preselectedSeaso
           <PacketPreview
             title={packetTitle}
             blocks={blocks}
-            athleteLayouts={{}}
-            athletes={[]}
             seasons={seasons}
             meets={meets}
+            teamId={teamId}
           />
         </div>
       )}

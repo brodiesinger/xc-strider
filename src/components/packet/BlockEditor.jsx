@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { base44 } from "@/api/base44Client";
 
 /**
  * Renders the configuration UI for a single block based on its type.
  */
-export default function BlockEditor({ block, seasons, meets, athletes = [], onChange }) {
+export default function BlockEditor({ block, seasons, meets, teamId, onChange }) {
+  const [athletes, setAthletes] = useState([]);
+
+  useEffect(() => {
+    if (!teamId || block.type !== "athlete_stats") return;
+    base44.functions.invoke("getTeamAthletes", { team_id: teamId })
+      .then((res) => setAthletes(res.data?.athletes || []))
+      .catch(() => setAthletes([]));
+  }, [teamId, block.type]);
   const seasonMeets = meets.filter((m) => m.season_id === block.seasonId);
 
   switch (block.type) {
