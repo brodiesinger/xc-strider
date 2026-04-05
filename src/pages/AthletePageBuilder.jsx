@@ -4,6 +4,7 @@ import { useCurrentUser } from "@/lib/CurrentUserContext";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { ChevronUp, ChevronDown, Trash2, Plus, Printer, Save, ArrowLeft } from "lucide-react";
+import { getDisplayName } from "@/lib/displayName";
 import AthleteBlockEditor from "@/components/athlete-page/AthleteBlockEditor";
 import AthleteBlockRenderer from "@/components/athlete-page/AthleteBlockRenderer";
 
@@ -104,9 +105,9 @@ export default function AthletePageBuilder() {
         setMeets(meetData || []);
 
         // Find athlete info
-        const athleteList = allUsers?.data?.athletes || [];
-        const found = athleteList.find((a) => a.email === athleteEmail);
-        setAthlete(found || { email: athleteEmail, full_name: athleteEmail });
+         const athleteList = allUsers?.data?.athletes || [];
+         const found = athleteList.find((a) => a.email === athleteEmail);
+         setAthlete(found || { email: athleteEmail, first_name: "", last_name: "" });
 
         // Load saved layout
         if (existingLayouts?.length > 0) {
@@ -185,8 +186,8 @@ export default function AthletePageBuilder() {
     );
   }
 
-  const athleteName = athlete?.full_name || athleteEmail;
-  const seasonName = season?.season_name || "Season";
+  const athleteName = athlete ? getDisplayName(athlete) : athleteEmail;
+   const seasonName = season?.season_name || "Season";
 
   return (
     <div className="min-h-screen bg-background">

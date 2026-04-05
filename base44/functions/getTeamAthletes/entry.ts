@@ -18,7 +18,9 @@ Deno.serve(async (req) => {
     const mapped = athletes.map((a) => ({
       id: a.id,
       email: a.email,
-      full_name: a.full_name || "",
+      first_name: a.first_name || "",
+      last_name: a.last_name || "",
+      display_name: a.display_name || "",
       user_type: a.user_type,
       team_id: a.team_id,
     }));
