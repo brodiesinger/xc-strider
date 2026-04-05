@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
 import { useNavigate } from "react-router-dom";
 import AthleteWorkouts from "@/components/coach/AthleteWorkouts";
+import AthleteMeetHistory from "@/components/coach/AthleteMeetHistory";
 import CreateTeam from "@/components/coach/CreateTeam";
 import CoachInsightsTab from "@/components/coach/CoachInsightsTab";
 import CoachPerformanceTab from "@/components/coach/CoachPerformanceTab";
@@ -134,6 +135,7 @@ export default function CoachDashboard() {
             Back
           </button>
           <AthleteWorkouts athlete={selectedAthlete} />
+          <AthleteMeetHistory athlete={selectedAthlete} teamId={team?.id} />
         </div>
       </div>
     );
