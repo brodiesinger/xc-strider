@@ -26,9 +26,9 @@ export default function CoachDashboard() {
   const [checkins, setCheckins] = useState({});
   const [selectedAthlete, setSelectedAthlete] = useState(null);
   const [loading, setLoading] = useState(true);
-  const urlParams = new URLSearchParams(window.location.search);
-  const initialTab = urlParams.get("tab") || "dashboard";
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState(
+    () => new URLSearchParams(window.location.search).get("tab") || "dashboard"
+  );
 
   // Apply team color theme
   useTeamTheme(team);

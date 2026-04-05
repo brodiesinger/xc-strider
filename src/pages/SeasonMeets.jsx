@@ -15,7 +15,7 @@ export default function SeasonMeets() {
     if (window.location.pathname === "/seasons" && user?.user_type === "coach") {
       navigate("/coach?tab=seasons", { replace: true });
     }
-  }, [user]);
+  }, [user, navigate]);
 
   const [seasons, setSeasons] = useState([]);
   const [meets, setMeets] = useState([]);
