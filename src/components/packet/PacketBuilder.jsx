@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Printer, Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Users } from "lucide-react";
+import { Printer, Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import PacketPreview from "./PacketPreview";
 import BlockEditor from "./BlockEditor";
 
@@ -74,70 +74,11 @@ function BlockRow({ block, index, total, seasons, meets, athletes, onChange, onD
   );
 }
 
-function AthleteLayoutPanel({ athlete, blocks, seasons, meets, athletes, onBlocksChange, preselectedSeasonId }) {
-  const addBlock = (type) => {
-    onBlocksChange([...blocks, newBlock(type, preselectedSeasonId)]);
-  };
-  const updateBlock = (updated) => onBlocksChange(blocks.map((b) => b.id === updated.id ? updated : b));
-  const deleteBlock = (id) => onBlocksChange(blocks.filter((b) => b.id !== id));
-  const moveUp = (i) => {
-    if (i === 0) return;
-    const next = [...blocks];
-    [next[i - 1], next[i]] = [next[i], next[i - 1]];
-    onBlocksChange(next);
-  };
-  const moveDown = (i) => {
-    if (i === blocks.length - 1) return;
-    const next = [...blocks];
-    [next[i], next[i + 1]] = [next[i + 1], next[i]];
-    onBlocksChange(next);
-  };
 
-  return (
-    <div className="space-y-3 pl-4 border-l-2 border-primary/20 mt-3">
-      <p className="text-xs text-muted-foreground font-medium">
-        Layout for <span className="font-semibold text-foreground">{athlete.full_name || athlete.email}</span>
-      </p>
-      {blocks.length === 0 && (
-        <p className="text-xs text-muted-foreground italic">No blocks yet — add blocks below.</p>
-      )}
-      {blocks.map((block, i) => (
-        <BlockRow
-          key={block.id}
-          block={block}
-          index={i}
-          total={blocks.length}
-          seasons={seasons}
-          meets={meets}
-          athletes={athletes}
-          onChange={updateBlock}
-          onDelete={() => deleteBlock(block.id)}
-          onMoveUp={() => moveUp(i)}
-          onMoveDown={() => moveDown(i)}
-        />
-      ))}
-      <div className="flex flex-wrap gap-2 pt-1">
-        {BLOCK_TYPES.map(({ type, label }) => (
-          <button
-            key={type}
-            onClick={() => addBlock(type)}
-            className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-muted transition-colors flex items-center gap-1"
-          >
-            <Plus className="w-3 h-3" />{label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export default function PacketBuilder({ seasons, meets, athletes, teamId, preselectedSeasonId }) {
+export default function PacketBuilder({ seasons, meets, teamId, preselectedSeasonId }) {
   const [packetTitle, setPacketTitle] = useState("End-of-Season Packet");
   const [titleError, setTitleError] = useState("");
   const [blocks, setBlocks] = useState([]);
-  // athleteLayouts: { [athleteEmail]: block[] }
-  const [athleteLayouts, setAthleteLayouts] = useState({});
-  const [expandedAthletes, setExpandedAthletes] = useState({});
   const [showPreview, setShowPreview] = useState(false);
 
   const addBlock = (type) => {
@@ -158,12 +99,6 @@ export default function PacketBuilder({ seasons, meets, athletes, teamId, presel
     setBlocks(next);
   };
 
-  const toggleAthlete = (email) =>
-    setExpandedAthletes((prev) => ({ ...prev, [email]: !prev[email] }));
-
-  const setAthleteBlocks = (email, newBlocks) =>
-    setAthleteLayouts((prev) => ({ ...prev, [email]: newBlocks }));
-
   const validate = () => {
     const title = packetTitle.trim();
     if (!title) { setTitleError("Packet title is required."); return false; }
@@ -182,7 +117,7 @@ export default function PacketBuilder({ seasons, meets, athletes, teamId, presel
     setTimeout(() => window.print(), 400);
   };
 
-  const hasContent = blocks.length > 0 || Object.values(athleteLayouts).some((b) => b.length > 0);
+  const hasContent = blocks.length > 0;
 
   return (
     <div className="space-y-6">
@@ -233,56 +168,7 @@ export default function PacketBuilder({ seasons, meets, athletes, teamId, presel
         </div>
       </div>
 
-      {/* Per-athlete pages */}
-      {athletes.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-primary" />
-            <p className="text-sm font-semibold text-foreground">Athlete Pages</p>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Customize a separate block layout for each athlete's page. Layouts are independent per athlete.
-          </p>
-          {athletes.map((athlete) => {
-            const isOpen = !!expandedAthletes[athlete.email];
-            const ath_blocks = athleteLayouts[athlete.email] || [];
-            return (
-              <div key={athlete.email} className="rounded-xl border border-border bg-card overflow-hidden">
-                <button
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors"
-                  onClick={() => toggleAthlete(athlete.email)}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                      {(athlete.full_name || athlete.email)[0].toUpperCase()}
-                    </div>
-                    <span className="text-sm font-medium text-foreground">{athlete.full_name || athlete.email}</span>
-                    {ath_blocks.length > 0 && (
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                        {ath_blocks.length} block{ath_blocks.length !== 1 ? "s" : ""}
-                      </span>
-                    )}
-                  </div>
-                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
-                </button>
-                {isOpen && (
-                  <div className="px-4 pb-4">
-                    <AthleteLayoutPanel
-                      athlete={athlete}
-                      blocks={ath_blocks}
-                      seasons={seasons}
-                      meets={meets}
-                      athletes={athletes}
-                      onBlocksChange={(b) => setAthleteBlocks(athlete.email, b)}
-                      preselectedSeasonId={preselectedSeasonId}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+
 
       {/* Actions */}
       {hasContent && (
@@ -304,8 +190,8 @@ export default function PacketBuilder({ seasons, meets, athletes, teamId, presel
           <PacketPreview
             title={packetTitle}
             blocks={blocks}
-            athleteLayouts={athleteLayouts}
-            athletes={athletes}
+            athleteLayouts={{}}
+            athletes={[]}
             seasons={seasons}
             meets={meets}
           />

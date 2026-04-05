@@ -79,7 +79,6 @@ export default function EndOfSeasonPacket() {
         <PacketBuilder
           seasons={seasons}
           meets={meets}
-          athletes={athletes}
           teamId={user.team_id}
           preselectedSeasonId={preselectedSeasonId}
         />
