@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/lib/CurrentUserContext";
 import { base44 } from "@/api/base44Client";
 import PacketBuilder from "@/components/packet/PacketBuilder";
-import { FileText } from "lucide-react";
+import { FileText, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function EndOfSeasonPacket() {
   const { currentUser: user } = useCurrentUser();
@@ -64,7 +65,10 @@ export default function EndOfSeasonPacket() {
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/seasons")} className="shrink-0">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
             <FileText className="w-5 h-5 text-primary" />
           </div>
           <div>
