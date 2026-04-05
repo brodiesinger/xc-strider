@@ -16,14 +16,19 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpda
 
   const handleSaveName = async (e) => {
     e.preventDefault();
-    const trimmed = editName.trim();
-    if (!trimmed) return;
+    const parts = editName.trim().split(/\s+/);
+    if (parts.length < 2) {
+      alert("Please enter both first and last name.");
+      return;
+    }
+    const firstName = parts[0];
+    const lastName = parts.slice(1).join(" ");
     setSavingName(true);
     try {
       const updated = await base44.auth.updateMe({
-        full_name: trimmed,
-        name_confirmed: true,
-        display_name: generateDisplayName(trimmed, user?.user_type),
+        first_name: firstName,
+        last_name: lastName,
+        display_name: generateDisplayName(firstName, lastName, user?.user_type),
       });
       onUserUpdated?.(updated);
       setShowEditName(false);
@@ -57,9 +62,8 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpda
          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Profile</h2>
          <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
            <div className="space-y-1">
-             <p className="text-xs text-muted-foreground">Name</p>
+             <p className="text-xs text-muted-foreground">Display Name</p>
              <p className="font-semibold text-foreground">{getDisplayName(user)}</p>
-             <p className="text-xs text-muted-foreground">{user?.full_name || "Unnamed User"}</p>
            </div>
            {showEditName ? (
              <form onSubmit={handleSaveName} className="space-y-2 pt-2 border-t border-border">
@@ -81,7 +85,7 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpda
                </div>
              </form>
            ) : (
-             <Button type="button" size="sm" variant="outline" onClick={() => { setEditName(user?.full_name || ""); setShowEditName(true); }} className="w-full mt-2">
+             <Button type="button" size="sm" variant="outline" onClick={() => { setEditName(`${user?.first_name || ""} ${user?.last_name || ""}`.trim()); setShowEditName(true); }} className="w-full mt-2">
                Edit Name
              </Button>
            )}
