@@ -89,23 +89,30 @@ export default function PacketMeetResults({ meets, teamId }) {
 
   useEffect(() => {
     if (!meets || meets.length === 0) { setLoaded(true); return; }
-    Promise.all([
-      Promise.all(
-        meets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []).then((r) => [m.id, r || []]))
-      ),
-      teamId ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => null) : Promise.resolve(null),
-    ]).then(([pairs, athleteRes]) => {
-      const map = {};
-      pairs.forEach(([id, results]) => { map[id] = results; });
-      setResultsByMeet(map);
-      
-      const athletes = athleteRes?.data?.athletes || [];
-      const aMap = {};
-      athletes.forEach((a) => { aMap[a.email] = a; });
-      setAthleteMap(aMap);
-      
-      setLoaded(true);
-    }).catch(() => setLoaded(true));
+    const load = async () => {
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        const [pairs, athleteRes] = await Promise.all([
+          Promise.all(
+            meets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []).then((r) => [m.id, r || []]))
+          ),
+          isAuth && teamId ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => null) : Promise.resolve(null),
+        ]);
+        const map = {};
+        pairs.forEach(([id, results]) => { map[id] = results; });
+        setResultsByMeet(map);
+        
+        const athletes = athleteRes?.data?.athletes || [];
+        const aMap = {};
+        athletes.forEach((a) => { aMap[a.email] = a; });
+        setAthleteMap(aMap);
+        
+        setLoaded(true);
+      } catch {
+        setLoaded(true);
+      }
+    };
+    load();
   }, [meetIdsKey, teamId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!loaded) return <div className="text-gray-400 text-sm py-2">Loading results...</div>;

@@ -26,6 +26,7 @@ export default function PacketAthleteStatsBlock({ block, meets, teamId }) {
     if (!athleteEmail || seasonMeets.length === 0) { setLoaded(true); return; }
     const load = async () => {
       try {
+        const isAuth = await base44.auth.isAuthenticated();
         const [resultChunks, prData, athleteRes] = await Promise.all([
           Promise.all(
             seasonMeets.map((m) =>
@@ -33,7 +34,7 @@ export default function PacketAthleteStatsBlock({ block, meets, teamId }) {
             )
           ),
           base44.entities.RacePR.filter({ athlete_email: athleteEmail }).catch(() => []),
-          teamId ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => null) : Promise.resolve(null),
+          isAuth && teamId ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => null) : Promise.resolve(null),
         ]);
         const found = (athleteRes?.data?.athletes || []).find((a) => a.email === athleteEmail);
         setAthleteName(found ? getDisplayName(found) : athleteEmail);
