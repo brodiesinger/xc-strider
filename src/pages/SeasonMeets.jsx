@@ -14,7 +14,7 @@ export default function SeasonMeets() {
   const [error, setError] = useState(false);
 
   const teamId = user?.team_id;
-  const isCoach = user?.user_type === "coach" || user?.role === "coach";
+  const isCoach = user?.user_type === "coach";
 
   console.log("[SeasonMeets] user role:", user?.role, "user_type:", user?.user_type, "isCoach:", isCoach);
 

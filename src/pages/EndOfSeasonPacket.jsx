@@ -19,7 +19,7 @@ export default function EndOfSeasonPacket() {
   // Access control: coaches only
   useEffect(() => {
     if (!user) { navigate("/"); return; }
-    if (user.user_type !== "coach" && user.role !== "coach") { navigate("/athlete"); return; }
+    if (user.user_type !== "coach") { navigate("/athlete"); return; }
   }, [user]);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function EndOfSeasonPacket() {
     load();
   }, [user?.team_id]);
 
-  if (!user || (user.user_type !== "coach" && user.role !== "coach")) return null;
+  if (!user || user.user_type !== "coach") return null;
 
   if (loading) {
     return (
