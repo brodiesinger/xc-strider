@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Printer, Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import PacketPreview from "./PacketPreview";
 import BlockEditor from "./BlockEditor";
+import { base44 } from "@/api/base44Client";
 
 const BLOCK_TYPES = [
   { type: "title", label: "Title" },
@@ -80,6 +81,14 @@ export default function PacketBuilder({ seasons, meets, teamId, preselectedSeaso
   const [titleError, setTitleError] = useState("");
   const [blocks, setBlocks] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
+  const [athletes, setAthletes] = useState([]);
+
+  useEffect(() => {
+    if (!teamId) return;
+    base44.functions.invoke("getTeamAthletes", { team_id: teamId })
+      .then((res) => setAthletes(res.data?.athletes || []))
+      .catch(() => setAthletes([]));
+  }, [teamId]);
 
   const addBlock = (type) => {
     setBlocks((prev) => [...prev, newBlock(type, preselectedSeasonId)]);

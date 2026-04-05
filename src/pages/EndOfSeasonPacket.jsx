@@ -11,11 +11,9 @@ export default function EndOfSeasonPacket() {
   const navigate = useNavigate();
   const [seasons, setSeasons] = useState([]);
   const [meets, setMeets] = useState([]);
-  const [athletes, setAthletes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const preselectedSeasonId = urlParams.get("season_id") || "";
+  const preselectedSeasonId = useState(() => new URLSearchParams(window.location.search).get("season_id") || "")[0];
 
   // Access control: coaches only
   useEffect(() => {
@@ -29,12 +27,8 @@ export default function EndOfSeasonPacket() {
     const load = async () => {
       setLoading(true);
       try {
-        const [seasonData, athleteRes] = await Promise.all([
-          base44.entities.Season.filter({ team_id: user.team_id }, "-created_date", 100).catch(() => []),
-          base44.functions.invoke("getTeamAthletes", { team_id: user.team_id }).catch(() => null),
-        ]);
+        const seasonData = await base44.entities.Season.filter({ team_id: user.team_id }, "-created_date", 100).catch(() => []);
         setSeasons(seasonData || []);
-        setAthletes(athleteRes?.data?.athletes || []);
 
         // Fetch all meets for all seasons
         if (seasonData?.length > 0) {
@@ -65,7 +59,7 @@ export default function EndOfSeasonPacket() {
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center gap-3 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => { console.log("Navigating back to seasons"); navigate("/coach?tab=seasons"); }} className="shrink-0">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/coach?tab=seasons")} className="shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
