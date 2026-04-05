@@ -25,6 +25,11 @@
     "display_name": {
       "type": "string",
       "description": "Display name: 'Coach - LastName' for coaches, 'First Last' for athletes"
+    },
+    "name_confirmed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has confirmed their name during onboarding"
     }
   }
 }

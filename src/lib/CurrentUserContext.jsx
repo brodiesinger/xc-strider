@@ -53,10 +53,9 @@ export function useCurrentUser() {
   return useContext(CurrentUserContext);
 }
 
-/** Returns true only if the user has a real name (non-empty, not an email) */
+/** Returns true only if the user has explicitly confirmed their name during onboarding */
 export function hasRealName(user) {
-  const n = user?.full_name?.trim();
-  return !!(n && !n.includes("@") && n.length >= 2);
+  return !!user?.name_confirmed;
 }
 
 /** Returns true only if the user has a recognized role */
@@ -72,7 +71,9 @@ export function hasTeam(user) {
 /** Derives the correct onboarding step for a given user object. Returns null if fully onboarded. */
 export function getOnboardingStep(user) {
   if (!user) return "unauthenticated";
-  if (!hasRealName(user)) return "name";
+  // Skip name step if user is already fully onboarded (has role + team) — avoids trapping existing users
+  const alreadyOnboarded = hasRole(user) && hasTeam(user);
+  if (!hasRealName(user) && !alreadyOnboarded) return "name";
   if (!hasRole(user)) return "role";
   if (user.user_type === "coach" && !hasTeam(user)) return "create-team";
   if (user.user_type === "athlete" && !hasTeam(user)) return "join-team";
