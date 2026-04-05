@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { ChevronDown, ChevronRight, Trash2, Plus, FileText } from "lucide-react";
+import { ChevronDown, ChevronRight, Trash2, Plus, FileText, UserPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +14,8 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
   const [showForm, setShowForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
+  // Athlete page picker state
+  const [athletePickerSeasonId, setAthletePickerSeasonId] = useState(null);
 
   console.log("[SeasonList] isCoach:", isCoach, "seasons loaded:", seasons.length);
 
@@ -114,6 +116,15 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
                 <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   {isCoach && (
                     <button
+                      onClick={() => setAthletePickerSeasonId(season.id)}
+                      className="flex items-center gap-1 text-xs font-medium text-accent hover:text-accent/80 bg-accent/10 px-2.5 py-1 rounded-full transition-colors"
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      Athlete Page
+                    </button>
+                  )}
+                  {isCoach && (
+                    <button
                       onClick={() => navigate(`/packet?season_id=${season.id}`)}
                       className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 bg-primary/10 px-2.5 py-1 rounded-full transition-colors"
                     >
@@ -155,6 +166,42 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
             </div>
           );
         })
+      )}
+
+      {/* Athlete Page Picker Modal */}
+      {athletePickerSeasonId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-sm p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-foreground">Select Athlete</h3>
+              <button onClick={() => setAthletePickerSeasonId(null)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            {athletes.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No athletes on your team yet.</p>
+            ) : (
+              <ul className="space-y-2 max-h-64 overflow-y-auto">
+                {athletes.map((a) => (
+                  <li key={a.email}>
+                    <button
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/60 transition-colors text-left"
+                      onClick={() => {
+                        setAthletePickerSeasonId(null);
+                        navigate(`/athlete-page-builder?athlete_email=${encodeURIComponent(a.email)}&season_id=${athletePickerSeasonId}`);
+                      }}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                        {(a.full_name || a.email)[0].toUpperCase()}
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{a.full_name || a.email}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

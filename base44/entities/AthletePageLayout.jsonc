@@ -1,0 +1,30 @@
+{
+  "name": "AthletePageLayout",
+  "type": "object",
+  "properties": {
+    "athlete_email": {
+      "type": "string",
+      "description": "Email of the athlete this layout belongs to"
+    },
+    "season_id": {
+      "type": "string",
+      "description": "Season this layout is for"
+    },
+    "team_id": {
+      "type": "string",
+      "description": "Team this layout belongs to"
+    },
+    "blocks": {
+      "type": "array",
+      "description": "Ordered array of block objects",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "required": [
+    "athlete_email",
+    "season_id",
+    "team_id"
+  ]
+}
