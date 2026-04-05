@@ -56,7 +56,7 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 pb-4">
       {seasons.length === 0 ? (
         <div className="text-center py-10 text-muted-foreground">
           <p className="text-sm">{isCoach ? "No seasons yet. Create your first season below." : "No seasons available."}</p>
