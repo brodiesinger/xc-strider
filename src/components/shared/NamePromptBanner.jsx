@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { UserCircle } from "lucide-react";
+import { generateDisplayName } from "@/lib/displayName";
 
 export default function NamePromptBanner({ user, onSaved }) {
   const [name, setName] = useState(user?.full_name?.includes("@") ? "" : (user?.full_name?.includes(" ") ? "" : (user?.full_name || "")));
@@ -20,7 +21,11 @@ export default function NamePromptBanner({ user, onSaved }) {
     const trimmed = name.trim();
     if (!trimmed) return;
     setSaving(true);
-    await base44.auth.updateMe({ full_name: trimmed });
+    await base44.auth.updateMe({
+      full_name: trimmed,
+      name_confirmed: true,
+      display_name: generateDisplayName(trimmed, user?.user_type),
+    });
     const updated = await base44.auth.me();
     onSaved(updated);
     setSaving(false);

@@ -32,6 +32,7 @@ export default function Onboarding() {
   // Pre-fill with existing full_name only if it doesn't look like an email
   const existingName = currentUser?.full_name ?? "";
   const [fullName, setFullName] = useState(existingName.includes("@") ? "" : existingName);
+  const resolvedFullName = fullName.trim() || currentUser?.full_name?.trim() || "";
   const [teamName, setTeamName] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [error, setError] = useState("");
@@ -63,9 +64,11 @@ export default function Onboarding() {
     setSaving(true);
     try {
       // Generate display_name using current role if already set
-      const existingRole = currentUser?.user_type;
-      const display_name = existingRole ? generateDisplayName(trimmed, existingRole) : undefined;
-      await base44.auth.updateMe({ full_name: trimmed, name_confirmed: true, ...(display_name ? { display_name } : {}) });
+      await base44.auth.updateMe({
+        full_name: trimmed,
+        name_confirmed: true,
+        display_name: generateDisplayName(trimmed, currentUser?.user_type),
+      });
       await refresh(); // refresh context → useEffect drives navigation
     } catch (err) {
       console.error("Failed to save name:", err);
@@ -81,8 +84,12 @@ export default function Onboarding() {
     setSaving(true);
     try {
       // Also regenerate display_name now that we know the role
-      const display_name = generateDisplayName(currentUser?.full_name, selectedRole);
-      await base44.auth.updateMe({ user_type: selectedRole, display_name });
+      await base44.auth.updateMe({
+        user_type: selectedRole,
+        full_name: resolvedFullName || currentUser?.full_name,
+        name_confirmed: true,
+        display_name: generateDisplayName(resolvedFullName || currentUser?.full_name, selectedRole),
+      });
       await refresh();
     } finally {
       setSaving(false);

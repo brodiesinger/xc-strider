@@ -40,6 +40,12 @@ export function getDisplayName(user, fallback) {
 
   const userType = user.user_type || user.role;
 
+  // If the user confirmed their real name, always regenerate from full_name to avoid stale email-derived display_name
+  const confirmedName = user.full_name?.trim();
+  if (user.name_confirmed && confirmedName && !confirmedName.includes("@")) {
+    return generateDisplayName(confirmedName, userType);
+  }
+
   // If display_name exists and looks valid (not an email)
   if (user.display_name?.trim() && !user.display_name.includes("@")) {
     return user.display_name.trim();
