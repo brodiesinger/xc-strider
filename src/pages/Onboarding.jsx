@@ -32,7 +32,7 @@ export default function Onboarding() {
   // Pre-fill with existing full_name only if it doesn't look like an email
   const existingName = currentUser?.full_name ?? "";
   const [fullName, setFullName] = useState(existingName.includes("@") ? "" : existingName);
-  const resolvedFullName = fullName.trim() || currentUser?.full_name?.trim() || "";
+  const resolvedFullName = (fullName.trim() || existingName?.trim() || "").replace(/.*@.*/, "");
   const [teamName, setTeamName] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [error, setError] = useState("");
@@ -83,12 +83,11 @@ export default function Onboarding() {
     if (saving) return;
     setSaving(true);
     try {
-      // Also regenerate display_name now that we know the role
       await base44.auth.updateMe({
         user_type: selectedRole,
-        full_name: resolvedFullName || currentUser?.full_name,
+        full_name: resolvedFullName,
         name_confirmed: true,
-        display_name: generateDisplayName(resolvedFullName || currentUser?.full_name, selectedRole),
+        display_name: generateDisplayName(resolvedFullName, selectedRole),
       });
       await refresh();
     } finally {

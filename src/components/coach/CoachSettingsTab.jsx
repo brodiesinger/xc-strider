@@ -2,12 +2,36 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Settings, Copy, LogOut, ChevronRight, FileText } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import TeamCustomization from "@/components/coach/TeamCustomization";
 import DarkModeToggle from "@/components/shared/DarkModeToggle";
-import { getDisplayName } from "@/lib/displayName";
+import { getDisplayName, generateDisplayName } from "@/lib/displayName";
 
 export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpdated, isDark, onToggleDark }) {
   const [copied, setCopied] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [showEditName, setShowEditName] = useState(false);
+  const [savingName, setSavingName] = useState(false);
+
+  const handleSaveName = async (e) => {
+    e.preventDefault();
+    const trimmed = editName.trim();
+    if (!trimmed) return;
+    setSavingName(true);
+    try {
+      const updated = await base44.auth.updateMe({
+        full_name: trimmed,
+        name_confirmed: true,
+        display_name: generateDisplayName(trimmed, user?.user_type),
+      });
+      onUserUpdated?.(updated);
+      setShowEditName(false);
+      setEditName("");
+    } finally {
+      setSavingName(false);
+    }
+  };
 
   const copyCode = async () => {
     try {
@@ -29,14 +53,40 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpda
       </div>
 
       {/* Profile */}
-      <section>
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Profile</h2>
-        <div className="rounded-2xl border border-border bg-card p-4 space-y-1">
-          <p className="text-xs text-muted-foreground">Name</p>
-          <p className="font-semibold text-foreground">{getDisplayName(user)}</p>
-          <p className="text-xs text-muted-foreground">{user?.full_name || "Unnamed User"}</p>
-        </div>
-      </section>
+       <section>
+         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Profile</h2>
+         <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+           <div className="space-y-1">
+             <p className="text-xs text-muted-foreground">Name</p>
+             <p className="font-semibold text-foreground">{getDisplayName(user)}</p>
+             <p className="text-xs text-muted-foreground">{user?.full_name || "Unnamed User"}</p>
+           </div>
+           {showEditName ? (
+             <form onSubmit={handleSaveName} className="space-y-2 pt-2 border-t border-border">
+               <Input
+                 type="text"
+                 placeholder="e.g. John Smith"
+                 value={editName}
+                 onChange={(e) => setEditName(e.target.value)}
+                 defaultValue={user?.full_name}
+                 autoFocus
+               />
+               <div className="flex gap-2">
+                 <Button type="submit" size="sm" disabled={savingName || !editName.trim()}>
+                   {savingName ? "Saving..." : "Save Name"}
+                 </Button>
+                 <Button type="button" size="sm" variant="outline" onClick={() => { setShowEditName(false); setEditName(""); }}>
+                   Cancel
+                 </Button>
+               </div>
+             </form>
+           ) : (
+             <Button type="button" size="sm" variant="outline" onClick={() => { setEditName(user?.full_name || ""); setShowEditName(true); }} className="w-full mt-2">
+               Edit Name
+             </Button>
+           )}
+         </div>
+       </section>
 
       {/* Join Code */}
       {team && (

@@ -1,12 +1,36 @@
 import React, { useState } from "react";
 import { LogOut, Users, Copy } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import TeamDashboardView from "@/components/shared/TeamDashboardView";
 import DarkModeToggle from "@/components/shared/DarkModeToggle";
-import { getDisplayName } from "@/lib/displayName";
+import { getDisplayName, generateDisplayName } from "@/lib/displayName";
 
 export default function AthleteProfileTab({ user, team, announcements, schedule, isDark, onToggleDark, onUserUpdated }) {
   const [copied, setCopied] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [showEditName, setShowEditName] = useState(false);
+  const [savingName, setSavingName] = useState(false);
+
+  const handleSaveName = async (e) => {
+    e.preventDefault();
+    const trimmed = editName.trim();
+    if (!trimmed) return;
+    setSavingName(true);
+    try {
+      const updated = await base44.auth.updateMe({
+        full_name: trimmed,
+        name_confirmed: true,
+        display_name: generateDisplayName(trimmed, user?.user_type),
+      });
+      onUserUpdated?.(updated);
+      setShowEditName(false);
+      setEditName("");
+    } finally {
+      setSavingName(false);
+    }
+  };
 
   const handleLogout = () => base44.auth.logout("/");
 
