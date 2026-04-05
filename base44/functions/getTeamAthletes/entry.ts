@@ -23,6 +23,7 @@ Deno.serve(async (req) => {
       display_name: a.display_name || "",
       user_type: a.user_type,
       team_id: a.team_id,
+      team_group: a.team_group || null,
     }));
 
     return Response.json({ athletes: mapped });

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
 import { generateDisplayName } from "@/lib/displayName";
-import { TreePine, Users, Trophy } from "lucide-react";
+import { TreePine, Users, Trophy, Users2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -241,37 +241,33 @@ export default function Onboarding() {
      return (
        <OnboardingShell title="Which team?" subtitle="Select your team group to join.">
          <div className="flex flex-col gap-3 w-full">
-           <motion.button
-             whileHover={{ y: -2 }}
-             whileTap={{ y: 0 }}
+           <button
              onClick={() => handleTeamGroupSelect("boys")}
              disabled={saving}
              className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
            >
-             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-lg">
-               👦
+             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+               <Users className="w-6 h-6 text-primary" />
              </div>
              <div>
                <p className="font-semibold text-foreground">Boys Team</p>
                <p className="text-sm text-muted-foreground">Join the boys team group</p>
              </div>
-           </motion.button>
+           </button>
 
-           <motion.button
-             whileHover={{ y: -2 }}
-             whileTap={{ y: 0 }}
+           <button
              onClick={() => handleTeamGroupSelect("girls")}
              disabled={saving}
              className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left disabled:opacity-50"
            >
-             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-lg">
-               👩
+             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+               <Users2 className="w-6 h-6 text-primary" />
              </div>
              <div>
                <p className="font-semibold text-foreground">Girls Team</p>
                <p className="text-sm text-muted-foreground">Join the girls team group</p>
              </div>
-           </motion.button>
+           </button>
 
            {saving && <p className="text-sm text-center text-muted-foreground">Saving...</p>}
          </div>
