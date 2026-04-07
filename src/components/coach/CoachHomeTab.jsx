@@ -153,11 +153,6 @@ export default function CoachHomeTab({
             color="bg-accent/20 text-accent"
           />
           <QuickActionBtn
-            icon={Users}
-            label="Roster"
-            onClick={() => setRosterOpen(true)}
-          />
-          <QuickActionBtn
             icon={ShieldAlert}
             label="Alerts"
             onClick={onOpenInsights}
