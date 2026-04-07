@@ -29,9 +29,11 @@ export default function AthleteMeetHistory({ athlete, teamId }) {
           return;
         }
 
-        // Fetch meets for the result meet_ids
+        // Fetch only the specific meets referenced by results (not all meets)
         const meetIds = [...new Set(results.map((r) => r.meet_id).filter(Boolean))];
-        const allMeets = await base44.entities.Meet.list("-meet_date", 500).catch(() => []);
+        const allMeets = meetIds.length > 0
+          ? await Promise.all(meetIds.map((id) => base44.entities.Meet.get(id).catch(() => null))).then((m) => m.filter(Boolean))
+          : [];
         const meetMap = {};
         allMeets.forEach((m) => { meetMap[m.id] = m; });
 

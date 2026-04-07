@@ -148,15 +148,25 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
     const loadData = async () => {
       setLoading(true);
       try {
+        // Fetch all athletes in parallel instead of sequentially
+        const results = await Promise.all(
+          athletes.map((athlete) =>
+            Promise.all([
+              base44.entities.Workout.filter({ athlete_email: athlete.email }, "-date", 100).catch(() => []),
+              base44.entities.Goal.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
+              base44.entities.RacePR.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
+            ]).then(([workouts, goals, racePRs]) => ({
+              email: athlete.email,
+              workouts: workouts || [],
+              goals: goals || [],
+              racePRs: racePRs || [],
+            }))
+          )
+        );
         const data = {};
-        for (const athlete of athletes) {
-          const [workouts, goals, racePRs] = await Promise.all([
-            base44.entities.Workout.filter({ athlete_email: athlete.email }, "-date", 100).catch(() => []),
-            base44.entities.Goal.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
-            base44.entities.RacePR.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
-          ]);
-          data[athlete.email] = { workouts: workouts || [], goals: goals || [], racePRs: racePRs || [] };
-        }
+        results.forEach(({ email, workouts, goals, racePRs }) => {
+          data[email] = { workouts, goals, racePRs };
+        });
         setAthleteData(data);
       } catch {
         setAthleteData({});

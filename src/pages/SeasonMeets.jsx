@@ -4,7 +4,7 @@ import { useCurrentUser } from "@/lib/CurrentUserContext";
 import SeasonList from "@/components/seasons/SeasonList";
 import { CalendarRange } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { InlineSpinner, ErrorState, SkeletonList } from "@/components/shared/LoadingSkeleton";
+import { InlineSpinner, ErrorState } from "@/components/shared/LoadingSkeleton";
 
 export default function SeasonMeets() {
   const { currentUser: user } = useCurrentUser();
@@ -26,24 +26,12 @@ export default function SeasonMeets() {
   const teamId = user?.team_id;
   const isCoach = user?.user_type === "coach";
 
-  console.log("[SeasonMeets] user role:", user?.role, "user_type:", user?.user_type, "isCoach:", isCoach);
-
-  const fetchSeasons = useCallback(async () => {
-    if (!teamId) { setLoading(false); return; }
-    try {
-      const data = await base44.entities.Season.filter({ team_id: teamId }, "-created_date", 100);
-      setSeasons(data || []);
-    } catch {
-      setError(true);
-    }
-  }, [teamId]);
-
-  const fetchMeets = useCallback(async () => {
+  const fetchMeets = useCallback(async (seasonList) => {
     if (!teamId) return;
     try {
-      // Fetch all meets for seasons in this team
-      const allSeasons = await base44.entities.Season.filter({ team_id: teamId }, "-created_date", 100);
-      const seasonIds = allSeasons.map((s) => s.id);
+      // Use provided season list or re-fetch if not given
+      const list = seasonList ?? await base44.entities.Season.filter({ team_id: teamId }, "-created_date", 100).catch(() => []);
+      const seasonIds = list.map((s) => s.id);
       if (seasonIds.length === 0) { setMeets([]); return; }
       const allMeets = await base44.entities.Meet.list("-created_date", 500);
       setMeets((allMeets || []).filter((m) => seasonIds.includes(m.season_id)));
@@ -59,12 +47,14 @@ export default function SeasonMeets() {
       setLoading(true);
       setError(false);
       try {
-        const [,, athleteRes] = await Promise.all([
-          fetchSeasons(),
-          fetchMeets(),
+        // Fetch seasons + athletes in parallel, then fetch meets using the seasons result (no double-fetch)
+        const [seasonData, athleteRes] = await Promise.all([
+          base44.entities.Season.filter({ team_id: teamId }, "-created_date", 100).catch(() => []),
           base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => null),
         ]);
+        setSeasons(seasonData || []);
         setAthletes(athleteRes?.data?.athletes || []);
+        await fetchMeets(seasonData || []);
       } catch {
         setError(true);
       } finally {
@@ -75,8 +65,9 @@ export default function SeasonMeets() {
   }, [user, teamId]);
 
   const handleSeasonsChanged = async () => {
-    await fetchSeasons();
-    await fetchMeets();
+    const updated = await base44.entities.Season.filter({ team_id: teamId }, "-created_date", 100).catch(() => []);
+    setSeasons(updated || []);
+    await fetchMeets(updated || []);
   };
 
   const handleMeetsChanged = async () => {

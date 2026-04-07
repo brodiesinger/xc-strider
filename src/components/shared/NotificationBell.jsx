@@ -14,12 +14,13 @@ const TYPE_DOT = {
 export default function NotificationBell({ userEmail }) {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
+  const [markingRead, setMarkingRead] = useState(false);
   const ref = useRef(null);
 
   const load = useCallback(async () => {
     if (!userEmail) return;
-    const data = await base44.entities.Notification.filter({ user_email: userEmail }, "-created_date", 30);
-    setNotifications(data);
+    const data = await base44.entities.Notification.filter({ user_email: userEmail }, "-created_date", 30).catch(() => []);
+    setNotifications(data || []);
   }, [userEmail]);
 
   useEffect(() => { load(); }, [load]);
@@ -45,9 +46,16 @@ export default function NotificationBell({ userEmail }) {
   const unread = notifications.filter((n) => !n.read).length;
 
   const markAllRead = async () => {
+    if (markingRead) return;
     const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
-    await Promise.all(unreadIds.map((id) => base44.entities.Notification.update(id, { read: true })));
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    if (unreadIds.length === 0) return;
+    setMarkingRead(true);
+    try {
+      await Promise.all(unreadIds.map((id) => base44.entities.Notification.update(id, { read: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } finally {
+      setMarkingRead(false);
+    }
   };
 
   const dismiss = async (id) => {
@@ -74,7 +82,7 @@ export default function NotificationBell({ userEmail }) {
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <p className="font-semibold text-sm text-foreground">Notifications</p>
             {unread > 0 && (
-              <button onClick={markAllRead} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={markAllRead} disabled={markingRead} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50">
                 <CheckCheck className="w-3.5 h-3.5" />
                 Mark all read
               </button>

@@ -296,7 +296,9 @@ export default function CoachInsightsTab({ athletes, teamId }) {
     );
   }
 
-  const filtered = athletes.filter((a) => a.team_group === teamGroup);
+  const filtered = teamGroup === "all"
+    ? athletes
+    : athletes.filter((a) => a.team_group === teamGroup);
 
   return (
     <div className="space-y-3">

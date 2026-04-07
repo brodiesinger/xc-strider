@@ -18,8 +18,6 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
   // Athlete page picker state
   const [athletePickerSeasonId, setAthletePickerSeasonId] = useState(null);
 
-  console.log("[SeasonList] isCoach:", isCoach, "seasons loaded:", seasons.length);
-
   const toggle = (id) => setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const handleCreateSeason = async (e) => {
