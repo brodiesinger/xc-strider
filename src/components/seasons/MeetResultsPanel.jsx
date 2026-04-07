@@ -224,8 +224,8 @@ export default function MeetResultsPanel({ meet, athletes }) {
     );
   }
 
-  // Organize by team_group
-  const boys = filteredAthletes.filter((a) => a.team_group === "boys");
+  // Organize by team_group — athletes without team_group default to "boys"
+  const boys = filteredAthletes.filter((a) => (a.team_group || "boys") === "boys");
   const girls = filteredAthletes.filter((a) => a.team_group === "girls");
 
   return (

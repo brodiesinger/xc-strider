@@ -210,7 +210,7 @@ export default function SeasonSummary({ season, meets, athletes }) {
     return 0;
   });
 
-  const hasAnyData = filteredRows.some((r) => r.meetsRun > 0);
+  const hasAnyData = sorted.some((r) => r.meetsRun > 0);
 
   return (
     <div className="space-y-3 pt-2">

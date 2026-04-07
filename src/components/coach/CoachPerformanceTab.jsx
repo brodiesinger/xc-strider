@@ -136,8 +136,11 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
     ? athletes
     : athletes.filter((a) => a.team_group === teamGroupFilter);
 
+  // Use stable athlete emails key to avoid infinite re-fetch from derived array
+  const athleteEmailsKey = athletes.map((a) => a.email).join(",");
+
   useEffect(() => {
-    if (!filteredAthletes || filteredAthletes.length === 0) {
+    if (!athletes || athletes.length === 0) {
       setLoading(false);
       setAthleteData({});
       return;
@@ -146,7 +149,7 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
       setLoading(true);
       try {
         const data = {};
-        for (const athlete of filteredAthletes) {
+        for (const athlete of athletes) {
           const [workouts, goals, racePRs] = await Promise.all([
             base44.entities.Workout.filter({ athlete_email: athlete.email }, "-date", 100).catch(() => []),
             base44.entities.Goal.filter({ athlete_email: athlete.email }, "-created_date", 20).catch(() => []),
@@ -162,7 +165,7 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
       }
     };
     loadData();
-  }, [filteredAthletes]);
+  }, [athleteEmailsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
