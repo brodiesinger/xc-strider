@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Users, Activity, Megaphone, ShieldAlert, ChevronRight, CalendarDays } from "lucide-react";
+import { Users, Activity, Megaphone, ShieldAlert, ChevronRight, CalendarDays, Calendar, Package } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import { format, startOfWeek } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,7 +12,7 @@ import TeamAlerts from "./TeamAlerts";
 import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
 import NextMeetCountdown from "@/components/shared/NextMeetCountdown";
 import MeetLineupBuilder from "@/components/seasons/MeetLineupBuilder";
-import DashboardNav from "@/components/shared/DashboardNav";
+
 import DashboardHighlight from "@/components/shared/DashboardHighlight";
 
 function StatCard({ icon: Icon, label, value, sub }) {
@@ -90,8 +90,7 @@ export default function CoachHomeTab({
         {team && <p className="text-sm text-primary font-medium mt-1">{team.name}</p>}
       </motion.div>
 
-      {/* Navigation Shortcuts */}
-      <DashboardNav isCoach={true} onTabChange={onTabChange} />
+
 
       {/* Team Alerts */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
@@ -145,17 +144,27 @@ export default function CoachHomeTab({
       {/* Quick Actions */}
       <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="space-y-3">
         <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Quick Actions</h2>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <QuickActionBtn
-            icon={Megaphone}
-            label="Announce"
-            onClick={() => setShowAnnouncement((v) => !v)}
-            color="bg-accent/20 text-accent"
+            icon={Calendar}
+            label="Meets"
+            onClick={() => onTabChange("seasons")}
           />
           <QuickActionBtn
             icon={Users}
             label="Roster"
             onClick={() => setRosterOpen(true)}
+          />
+          <QuickActionBtn
+            icon={Package}
+            label="Packet"
+            onClick={() => onTabChange("packet")}
+          />
+          <QuickActionBtn
+            icon={Megaphone}
+            label="Announce"
+            onClick={() => setShowAnnouncement((v) => !v)}
+            color="bg-accent/20 text-accent"
           />
           <QuickActionBtn
             icon={ShieldAlert}
