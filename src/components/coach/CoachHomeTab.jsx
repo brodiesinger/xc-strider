@@ -9,6 +9,7 @@ import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
 import WeeklyScheduleManager from "./WeeklyScheduleManager";
 import TeamAlerts from "./TeamAlerts";
 import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
+import NextMeetCountdown from "@/components/shared/NextMeetCountdown";
 
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
@@ -97,6 +98,9 @@ export default function CoachHomeTab({
         <p className="text-sm text-muted-foreground font-medium">Filter by team group</p>
         <TeamGroupFilter value={teamGroupFilter} onChange={setTeamGroupFilter} />
       </div>
+
+      {/* Next Meet Countdown */}
+      {team?.id && <NextMeetCountdown teamId={team.id} />}
 
       {/* Stats Row */}
       <div className="flex gap-3">

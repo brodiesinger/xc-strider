@@ -7,6 +7,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import NotificationBell from "@/components/shared/NotificationBell";
+import NextMeetCountdown from "@/components/shared/NextMeetCountdown";
 import WorkoutList from "@/components/athlete/WorkoutList";
 import AnnouncementCard from "@/components/athlete/AnnouncementCard";
 import TodaysWorkoutCard from "@/components/athlete/TodaysWorkoutCard";
@@ -209,6 +210,9 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
           </div>
         </AnimatePresence>
       )}
+
+      {/* Next Meet Countdown */}
+      {team?.id && <NextMeetCountdown teamId={team.id} />}
 
       {/* Today's Workout */}
       <TodaysWorkoutCard schedule={todayWorkout} />
