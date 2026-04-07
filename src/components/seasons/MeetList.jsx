@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Trash2, Plus, CalendarDays, ClipboardList, ChevronDown, ChevronRight, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import EmptyState from "@/components/shared/EmptyState";
 import MeetResultsPanel from "./MeetResultsPanel";
 import MeetSummary from "./MeetSummary";
 import MeetLineupBuilder from "./MeetLineupBuilder";
@@ -66,10 +67,26 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
     }
   };
 
+  const handleAddMeetClick = () => setShowForm(true);
+
   return (
     <div className="space-y-3">
       {meets.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-4">No meets yet.</p>
+        isCoach ? (
+          <EmptyState
+            icon={CalendarDays}
+            title="No meets yet"
+            description="Add your first meet to start tracking results and building lineups."
+            action={handleAddMeetClick}
+            actionLabel="Add Meet"
+          />
+        ) : (
+          <EmptyState
+            icon={CalendarDays}
+            title="No meets scheduled"
+            description="Check back here for upcoming meets."
+          />
+        )
       ) : (
         <ul className="space-y-2">
           {localMeets.map((meet) => {

@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Loader2, UserRound, Medal } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import { deduplicateResults, deduplicateLineup, getAssignmentMap } from "@/lib/lineupValidation";
+import EmptyState from "@/components/shared/EmptyState";
 import { ordinal } from "./TeamPlacementEditor";
 
 const GENDER_TABS = [
@@ -156,7 +157,12 @@ export default function MeetSummary({ meet, athletes }) {
   }
 
   if (loadError) {
-    return <p className="text-xs text-destructive text-center py-3">Unable to load results.</p>;
+    return (
+      <EmptyState
+        title="Unable to load results"
+        description="Please try refreshing the page."
+      />
+    );
   }
 
   // Check for any placement data even if no result rows
@@ -165,7 +171,12 @@ export default function MeetSummary({ meet, athletes }) {
   );
 
   if (results.length === 0 && !hasAnyPlacement) {
-    return <p className="text-xs text-muted-foreground py-3 text-center">No results yet.</p>;
+    return (
+      <EmptyState
+        title="No results yet"
+        description="Results will appear here once meet data is entered."
+      />
+    );
   }
 
   const sections = SECTIONS[activeTab];

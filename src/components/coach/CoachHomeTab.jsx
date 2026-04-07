@@ -184,7 +184,7 @@ export default function CoachHomeTab({
         <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Recent Activity</h2>
         <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
           {recentWorkouts.length === 0 ? (
-            <p className="text-sm text-muted-foreground px-4 py-4">No workouts logged yet.</p>
+            <p className="text-sm text-muted-foreground px-4 py-6 text-center">No recent activity yet. Athletes will log workouts here.</p>
           ) : (
             recentWorkouts.map((w) => (
               <div key={w.id} className="flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors">

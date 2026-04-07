@@ -307,7 +307,7 @@ export default function CoachInsightsTab({ athletes, teamId }) {
       {athletes.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">No athletes on your roster yet.</p>
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-8">No {teamGroup} athletes on your roster.</p>
+        <p className="text-sm text-muted-foreground text-center py-12">No {teamGroup} athletes on your roster.</p>
       ) : (
         filtered.map((athlete) => {
           const athleteWorkouts = allWorkouts.filter((w) => w.athlete_email === athlete.email);

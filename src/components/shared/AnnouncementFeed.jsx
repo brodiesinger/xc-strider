@@ -1,12 +1,15 @@
 import React from "react";
 import { format, parseISO } from "date-fns";
+import { Megaphone } from "lucide-react";
 
 export default function AnnouncementFeed({ announcements = [] }) {
   if (announcements.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground text-center py-6">
-        No announcements yet.
-      </p>
+      <div className="flex flex-col items-center justify-center py-8">
+        <Megaphone className="w-8 h-8 text-muted-foreground mb-2" />
+        <p className="text-sm font-medium text-foreground">No announcements yet</p>
+        <p className="text-xs text-muted-foreground">Check back for team updates.</p>
+      </div>
     );
   }
 

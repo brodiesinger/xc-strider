@@ -1,13 +1,16 @@
 import React from "react";
 import { format, parseISO } from "date-fns";
-import { Clock, Ruler, FileText } from "lucide-react";
+import { Clock, Ruler, FileText, Activity } from "lucide-react";
+import EmptyState from "@/components/shared/EmptyState";
 
 export default function WorkoutList({ workouts }) {
   if (workouts.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground text-center py-8">
-        No workouts logged yet. Add your first one above!
-      </p>
+      <EmptyState
+        icon={Activity}
+        title="No workouts logged yet"
+        description="Start tracking your training by logging your first run."
+      />
     );
   }
 

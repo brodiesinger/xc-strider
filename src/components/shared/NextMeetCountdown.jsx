@@ -107,11 +107,10 @@ export default function NextMeetCountdown({ teamId, athletes = [], isCoach = fal
 
   if (!widgetData) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center shrink-0">
-          <Flag className="w-4 h-4 text-muted-foreground" />
-        </div>
-        <p className="text-sm text-muted-foreground">No upcoming meets scheduled.</p>
+      <div className="rounded-2xl border border-border bg-card p-6 text-center">
+        <Flag className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+        <p className="text-sm font-medium text-foreground">No upcoming meets</p>
+        <p className="text-xs text-muted-foreground mt-1">Add your first meet to get started.</p>
       </div>
     );
   }
