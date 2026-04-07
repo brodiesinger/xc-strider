@@ -21,13 +21,16 @@ export function generateDisplayName(firstName, lastName, userType) {
  * Returns the display_name from a user object.
  * NEVER shows email, email prefix, or auth data.
  * Only uses: display_name, first_name, last_name, user_type.
+ * 
+ * Guaranteed never to return: null, undefined, empty string, email, or email prefix
  */
 export function getDisplayName(user, fallback) {
   if (!user) return fallback ?? "User";
 
   // Always prefer display_name if it exists and isn't an email
-  if (user.display_name?.trim() && !user.display_name.includes("@")) {
-    return user.display_name.trim();
+  const dn = user.display_name?.trim();
+  if (dn && !dn.includes("@")) {
+    return dn;
   }
 
   // Regenerate from first/last name
@@ -39,6 +42,9 @@ export function getDisplayName(user, fallback) {
     return generateDisplayName(first, last, userType);
   }
 
-  // Fallback only
-  return fallback ?? (userType === "coach" ? "Coach" : userType === "athlete" ? "Athlete" : "User");
+  // Fallback only if all else is missing
+  const role = user.user_type || user.role;
+  if (role === "coach") return "Coach";
+  if (role === "athlete") return "Athlete";
+  return fallback ?? "User";
 }

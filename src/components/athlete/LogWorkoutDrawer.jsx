@@ -6,6 +6,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function LogWorkoutDrawer({ open, onClose, onSaved, teamId }) {
   const [user, setUser] = useState(null);
@@ -33,7 +34,7 @@ export default function LogWorkoutDrawer({ open, onClose, onSaved, teamId }) {
         notes: form.notes,
         team_id: teamId || null,
         athlete_email: user?.email || null,
-        athlete_name: user?.full_name || null,
+        athlete_name: getDisplayName(user),
       });
       setSaved(true);
       onSaved();
