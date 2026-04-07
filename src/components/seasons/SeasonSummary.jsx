@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Loader2, ChevronRight, ChevronLeft, UserRound, Trophy, Medal } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
@@ -151,34 +151,19 @@ export default function SeasonSummary({ season, meets, athletes }) {
     return m;
   }, [meetIdsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const fetchAllResults = useCallback(async () => {
+  useEffect(() => {
     const currentMeets = meetsRef.current;
     if (currentMeets.length === 0) { setLoading(false); return; }
     setLoading(true);
-    try {
-      // Load in chunks of 5 meets to avoid large queries freezing UI
-      const CHUNK = 5;
-      const chunks = [];
-      for (let i = 0; i < currentMeets.length; i += CHUNK) {
-        chunks.push(currentMeets.slice(i, i + CHUNK));
-      }
-      const collected = [];
-      for (const chunk of chunks) {
-        const results = await Promise.all(
-          chunk.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []))
-        );
-        results.forEach((r) => collected.push(...(r || [])));
-      }
-      setAllResults(collected);
-    } catch {
+    Promise.all(
+      currentMeets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []))
+    ).then((chunks) => {
+      setAllResults(chunks.flat());
+    }).catch(() => {
       setAllResults([]);
-    } finally {
+    }).finally(() => {
       setLoading(false);
-    }
-  }, []); // stable — uses meetsRef internally
-
-  useEffect(() => {
-    fetchAllResults();
+    });
   }, [meetIdsKey]); // re-fetch only when actual meet IDs change
 
   if (loading) {
