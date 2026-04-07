@@ -90,9 +90,6 @@ export default function CoachHomeTab({
         {team && <p className="text-sm text-primary font-medium mt-1">{team.name}</p>}
       </motion.div>
 
-      {/* Navigation Shortcuts */}
-      <DashboardNav isCoach={true} onTabChange={onTabChange} />
-
       {/* Team Alerts */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
         <TeamAlerts
