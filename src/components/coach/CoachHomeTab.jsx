@@ -10,6 +10,7 @@ import WeeklyScheduleManager from "./WeeklyScheduleManager";
 import TeamAlerts from "./TeamAlerts";
 import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
 import NextMeetCountdown from "@/components/shared/NextMeetCountdown";
+import MeetLineupBuilder from "@/components/seasons/MeetLineupBuilder";
 
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
@@ -54,6 +55,7 @@ export default function CoachHomeTab({
   const [rosterOpen, setRosterOpen] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(false);
   const [teamGroupFilter, setTeamGroupFilter] = useState("all");
+  const [lineupMeet, setLineupMeet] = useState(null);
 
   // Filter athletes by team_group
   const filteredAthletes = teamGroupFilter === "all"
@@ -100,7 +102,23 @@ export default function CoachHomeTab({
       </div>
 
       {/* Next Meet Countdown */}
-      {team?.id && <NextMeetCountdown teamId={team.id} />}
+      {team?.id && (
+        <NextMeetCountdown
+          teamId={team.id}
+          isCoach={true}
+          athletes={athletes}
+          onOpenLineup={(meet) => setLineupMeet(meet)}
+        />
+      )}
+
+      {/* Lineup Builder Modal (opened from Next Meet card) */}
+      {lineupMeet && (
+        <MeetLineupBuilder
+          meet={lineupMeet}
+          athletes={athletes}
+          onClose={() => setLineupMeet(null)}
+        />
+      )}
 
       {/* Stats Row */}
       <div className="flex gap-3">

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Trash2, Plus, CalendarDays, ClipboardList, ChevronDown, ChevronRight } from "lucide-react";
+import { Trash2, Plus, CalendarDays, ClipboardList, ChevronDown, ChevronRight, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import MeetResultsPanel from "./MeetResultsPanel";
 import MeetSummary from "./MeetSummary";
+import MeetLineupBuilder from "./MeetLineupBuilder";
 
 export default function MeetList({ season, meets, athletes, onMeetsChanged, isCoach }) {
   const [meetName, setMeetName] = useState("");
@@ -14,6 +15,25 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
   const [expandedResults, setExpandedResults] = useState({});
+  const [lineupMeet, setLineupMeet] = useState(null); // meet object for lineup builder
+  // meetsWithResults: set of meet IDs that already have final results
+  const [meetsWithResults, setMeetsWithResults] = useState(new Set());
+
+  useEffect(() => {
+    if (!isCoach || meets.length === 0) return;
+    const checkResults = async () => {
+      const checks = await Promise.all(
+        meets.map(async (m) => {
+          try {
+            const results = await base44.entities.MeetResult.filter({ meet_id: m.id }, "-created_date", 1);
+            return results && results.length > 0 ? m.id : null;
+          } catch { return null; }
+        })
+      );
+      setMeetsWithResults(new Set(checks.filter(Boolean)));
+    };
+    checkResults();
+  }, [meets, isCoach]);
 
   const toggleResults = (meetId) =>
     setExpandedResults((prev) => ({ ...prev, [meetId]: !prev[meetId] }));
@@ -84,6 +104,16 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
+                    {isCoach && !meetsWithResults.has(meet.id) && (
+                      <button
+                        onClick={() => setLineupMeet(meet)}
+                        className="flex items-center gap-1 text-xs text-accent hover:text-accent/80 transition-colors px-2 py-1 rounded-lg hover:bg-accent/10"
+                        title="Manage lineup"
+                      >
+                        <Users className="w-3.5 h-3.5" />
+                        Lineup
+                      </button>
+                    )}
                     {isCoach && (
                       <button
                         onClick={() => toggleResults(meet.id)}
@@ -124,6 +154,15 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
             );
           })}
         </ul>
+      )}
+
+      {/* Lineup Builder Modal */}
+      {lineupMeet && (
+        <MeetLineupBuilder
+          meet={lineupMeet}
+          athletes={athletes || []}
+          onClose={() => setLineupMeet(null)}
+        />
       )}
 
       {isCoach && (

@@ -1,0 +1,29 @@
+{
+  "name": "MeetLineup",
+  "type": "object",
+  "properties": {
+    "meet_id": {
+      "type": "string",
+      "description": "ID of the meet this lineup entry belongs to"
+    },
+    "athlete_id": {
+      "type": "string",
+      "description": "Email of the athlete being assigned"
+    },
+    "team_group": {
+      "type": "string",
+      "enum": [
+        "varsity_boys",
+        "jv_boys",
+        "varsity_girls",
+        "jv_girls"
+      ],
+      "description": "Lineup group assignment for this athlete"
+    }
+  },
+  "required": [
+    "meet_id",
+    "athlete_id",
+    "team_group"
+  ]
+}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { CalendarDays, Flag } from "lucide-react";
+import { CalendarDays, Flag, Users } from "lucide-react";
 import { parseISO, differenceInCalendarDays, format } from "date-fns";
 
 function getCountdownText(daysUntil) {
@@ -9,7 +9,7 @@ function getCountdownText(daysUntil) {
   return `${daysUntil} days away`;
 }
 
-export default function NextMeetCountdown({ teamId }) {
+export default function NextMeetCountdown({ teamId, athletes = [], isCoach = false, onOpenLineup }) {
   const [nextMeet, setNextMeet] = useState(null); // { meet, seasonName }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -108,6 +108,15 @@ export default function NextMeetCountdown({ teamId }) {
         <p className="text-xs text-muted-foreground">{seasonName} · {format(parseISO(meet.meet_date), "MMM d, yyyy")}</p>
         {meet.conditions && (
           <p className="text-xs text-muted-foreground mt-0.5 italic">{meet.conditions}</p>
+        )}
+        {isCoach && onOpenLineup && (
+          <button
+            onClick={() => onOpenLineup(meet)}
+            className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/15 px-2.5 py-1 rounded-full transition-colors"
+          >
+            <Users className="w-3 h-3" />
+            Add Lineup
+          </button>
         )}
       </div>
     </div>
