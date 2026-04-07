@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Ruler, TrendingUp, Activity, BarChart2, Lightbulb, Users, Zap, Plus, Trophy, ChevronRight } from "lucide-react";
+import { Ruler, TrendingUp, Activity, BarChart2, Lightbulb, Users, Zap, Plus, Trophy, ChevronRight, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { startOfWeek, format } from "date-fns";
 import { AnimatePresence } from "framer-motion";
@@ -13,7 +13,7 @@ import WorkoutList from "@/components/athlete/WorkoutList";
 import AnnouncementCard from "@/components/athlete/AnnouncementCard";
 import TodaysWorkoutCard from "@/components/athlete/TodaysWorkoutCard";
 import DailyCheckInCard from "@/components/athlete/DailyCheckInCard";
-import DashboardNav from "@/components/shared/DashboardNav";
+
 import DashboardHighlight from "@/components/shared/DashboardHighlight";
 import { base44 } from "@/api/base44Client";
 import { getDisplayName } from "@/lib/displayName";
@@ -200,9 +200,6 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
         </button>
       </motion.div>
 
-      {/* Navigation Shortcuts */}
-      <DashboardNav isCoach={false} onTabChange={onNavigate} />
-
       {/* Announcements */}
       {!loadingDismissals && activeAnnouncements.length > 0 && (
         <AnimatePresence>
@@ -283,8 +280,9 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
       {/* Quick Actions */}
       <section className="space-y-3">
         <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Quick Actions</h2>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {[
+            { Icon: Calendar, label: "Meets", color: "bg-primary/10 text-primary", action: () => onNavigate("seasons") },
             { Icon: BarChart2, label: "Performance", color: "bg-blue-100 text-blue-600", action: () => onNavigate("performance") },
             { Icon: Users, label: "Team", color: "bg-accent/15 text-accent", action: () => onNavigate("profile") },
             { Icon: Zap, label: "Recovery", color: "bg-orange-100 text-orange-500", action: () => onNavigate("insights") },
