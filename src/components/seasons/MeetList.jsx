@@ -103,10 +103,13 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
                       {meet.conditions && (
                         <span className="text-xs text-muted-foreground">{meet.conditions}</span>
                       )}
+                      {!isCoach && athleteEmail && (
+                        <AthleteLineupCard meet={meet} athleteEmail={athleteEmail} inline />
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    {isCoach && !meetsWithResults.has(meet.id) && (
+                    {isCoach && (
                       <button
                         onClick={() => setLineupMeet(meet)}
                         className="flex items-center gap-1 text-xs text-accent hover:text-accent/80 transition-colors px-2 py-1 rounded-lg hover:bg-accent/10"
@@ -140,13 +143,6 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
                     )}
                   </div>
                 </div>
-
-                {/* Athlete: lineup assignment card (for upcoming meets) */}
-                {!isCoach && athleteEmail && (
-                  <div className="px-3 pb-2">
-                    <AthleteLineupCard meet={meet} athleteEmail={athleteEmail} />
-                  </div>
-                )}
 
                 {/* Results panel (coach-only, expandable) */}
                 {isCoach && resultsOpen && (

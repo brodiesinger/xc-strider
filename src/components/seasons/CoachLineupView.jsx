@@ -30,9 +30,15 @@ export default function CoachLineupView({ meet, athletes }) {
     );
   }
 
-  if (error || lineup.length === 0) {
+  if (error) {
     return (
-      <p className="text-xs text-muted-foreground italic py-2">No lineup saved yet.</p>
+      <p className="text-xs text-muted-foreground italic py-2">Unable to load lineup.</p>
+    );
+  }
+
+  if (lineup.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground italic py-2">No lineup saved yet. Use "Lineup" to assign athletes.</p>
     );
   }
 
