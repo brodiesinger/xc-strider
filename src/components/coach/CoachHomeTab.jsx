@@ -13,6 +13,7 @@ import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
 import NextMeetCountdown from "@/components/shared/NextMeetCountdown";
 import MeetLineupBuilder from "@/components/seasons/MeetLineupBuilder";
 import DashboardNav from "@/components/shared/DashboardNav";
+import DashboardHighlight from "@/components/shared/DashboardHighlight";
 
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
@@ -81,40 +82,49 @@ export default function CoachHomeTab({
   };
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-6 pb-24 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
       {/* Header */}
-      <div>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
         <p className="text-sm text-muted-foreground">Good to see you,</p>
         <h1 className="text-2xl font-bold text-foreground leading-tight mt-0.5">{getDisplayName(user)} 👋</h1>
         {team && <p className="text-sm text-primary font-medium mt-1">{team.name}</p>}
-      </div>
+      </motion.div>
 
       {/* Navigation Shortcuts */}
       <DashboardNav isCoach={true} onTabChange={onTabChange} />
 
       {/* Team Alerts */}
-      <TeamAlerts
-        athletes={athletes}
-        workouts={workouts}
-        checkins={checkins}
-        schedule={schedule}
-        onAthleteClick={onSelectAthlete}
-      />
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+        <TeamAlerts
+          athletes={athletes}
+          workouts={workouts}
+          checkins={checkins}
+          schedule={schedule}
+          onAthleteClick={onSelectAthlete}
+        />
+      </motion.div>
 
       {/* Team Group Filter */}
-      <div className="flex items-center justify-between gap-3">
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex items-center justify-between gap-3">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide shrink-0">Filter</p>
         <TeamGroupFilter value={teamGroupFilter} onChange={setTeamGroupFilter} />
-      </div>
+      </motion.div>
 
-      {/* Next Meet Countdown */}
+      {/* Next Meet Countdown - Highlighted */}
       {team?.id && (
-        <NextMeetCountdown
-          teamId={team.id}
-          isCoach={true}
-          athletes={athletes}
-          onOpenLineup={(meet) => setLineupMeet(meet)}
-        />
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <DashboardHighlight 
+            title="Upcoming Meet"
+            description="Set lineups and track results"
+          >
+            <NextMeetCountdown
+              teamId={team.id}
+              isCoach={true}
+              athletes={athletes}
+              onOpenLineup={(meet) => setLineupMeet(meet)}
+            />
+          </DashboardHighlight>
+        </motion.div>
       )}
 
       {/* Lineup Builder Modal */}
@@ -127,13 +137,13 @@ export default function CoachHomeTab({
       )}
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 gap-3">
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="grid grid-cols-2 gap-3">
         <StatCard icon={Users} label="Athletes" value={filteredAthletes.length} />
         <StatCard icon={Activity} label="Team Miles" value={`${weekMiles.toFixed(1)}`} sub="this week" />
-      </div>
+      </motion.div>
 
       {/* Quick Actions */}
-      <section className="space-y-3">
+      <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="space-y-3">
         <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Quick Actions</h2>
         <div className="grid grid-cols-4 gap-2">
           <QuickActionBtn
@@ -160,7 +170,7 @@ export default function CoachHomeTab({
             color="bg-blue-100 text-blue-500"
           />
         </div>
-      </section>
+      </motion.section>
 
       {/* Post Announcement (collapsible) */}
       <AnimatePresence>

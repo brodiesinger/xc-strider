@@ -23,7 +23,7 @@ export default function NextMeetCountdown({ teamId, athletes = [], isCoach = fal
     setLoading(true);
     setError(false);
     try {
-      const seasons = await base44.entities.Season.filter({ team_id: teamId }, "-created_date", 50);
+      const seasons = await base44.entities.Season.filter({ team_id: teamId }, "-created_date", 20);
       if (!seasons || seasons.length === 0) { setLoading(false); return; }
 
       const seasonMap = {};
@@ -33,7 +33,7 @@ export default function NextMeetCountdown({ teamId, athletes = [], isCoach = fal
 
       const meetArrays = await Promise.all(
         seasons.map((s) =>
-          base44.entities.Meet.filter({ season_id: s.id }, "meet_date", 50).catch(() => [])
+          base44.entities.Meet.filter({ season_id: s.id }, "meet_date", 20).catch(() => [])
         )
       );
       const allMeets = meetArrays.flat().filter((m) => m.meet_date);

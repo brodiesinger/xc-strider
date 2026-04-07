@@ -14,6 +14,7 @@ import AnnouncementCard from "@/components/athlete/AnnouncementCard";
 import TodaysWorkoutCard from "@/components/athlete/TodaysWorkoutCard";
 import DailyCheckInCard from "@/components/athlete/DailyCheckInCard";
 import DashboardNav from "@/components/shared/DashboardNav";
+import DashboardHighlight from "@/components/shared/DashboardHighlight";
 import { base44 } from "@/api/base44Client";
 import { getDisplayName } from "@/lib/displayName";
 
@@ -217,8 +218,15 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
         </AnimatePresence>
       )}
 
-      {/* Next Meet Countdown */}
-      {team?.id && <NextMeetCountdown teamId={team.id} />}
+      {/* Next Meet Countdown - Highlighted */}
+      {team?.id && (
+        <DashboardHighlight 
+          title="Next Meet"
+          description="Check meet details and your performance"
+        >
+          <NextMeetCountdown teamId={team.id} />
+        </DashboardHighlight>
+      )}
 
       {/* Today's Workout */}
       <TodaysWorkoutCard schedule={todayWorkout} />

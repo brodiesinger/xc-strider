@@ -179,6 +179,7 @@ export default function Onboarding() {
               placeholder="e.g. Sarah"
               value={firstName}
               onChange={(e) => { setFirstName(e.target.value); setError(""); }}
+              onKeyPress={(e) => e.key === "Enter" && lastName.trim() && handleNameSubmit(e)}
               autoFocus
             />
           </div>
@@ -190,6 +191,7 @@ export default function Onboarding() {
               placeholder="e.g. Johnson"
               value={lastName}
               onChange={(e) => { setLastName(e.target.value); setError(""); }}
+              onKeyPress={(e) => e.key === "Enter" && firstName.trim() && handleNameSubmit(e)}
             />
           </div>
           {error && <p className="text-xs text-destructive">{error}</p>}
@@ -295,6 +297,7 @@ export default function Onboarding() {
              placeholder="e.g. Lincoln High XC"
              value={teamName}
              onChange={(e) => setTeamName(e.target.value)}
+             onKeyPress={(e) => e.key === "Enter" && teamName.trim() && handleCreateTeam(e)}
              required
              autoFocus
            />
@@ -322,6 +325,7 @@ export default function Onboarding() {
              placeholder="e.g. ABC123"
              value={joinCode}
              onChange={(e) => { setJoinCode(e.target.value.toUpperCase()); setError(""); }}
+             onKeyPress={(e) => e.key === "Enter" && joinCode.trim() && handleJoinTeam(e)}
              className="text-center text-lg font-bold tracking-widest uppercase"
              required
              autoFocus

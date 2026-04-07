@@ -27,18 +27,18 @@ export default function EndOfSeasonPacket() {
     const load = async () => {
       setLoading(true);
       try {
-        const seasonData = await base44.entities.Season.filter({ team_id: user.team_id }, "-created_date", 100).catch(() => []);
+        const seasonData = await base44.entities.Season.filter({ team_id: user.team_id }, "-created_date", 20).catch(() => []);
         setSeasons(seasonData || []);
+        setLoading(false);
 
-        // Fetch all meets for all seasons
+        // Fetch meets in background (non-blocking)
         if (seasonData?.length > 0) {
-          const allMeets = await base44.entities.Meet.list("-created_date", 500).catch(() => []);
-          const seasonIds = new Set(seasonData.map((s) => s.id));
-          setMeets((allMeets || []).filter((m) => seasonIds.has(m.season_id)));
+          base44.entities.Meet.filter({ season_id: seasonData[0].id }, "-created_date", 50).catch(() => []).then((meets) => {
+            setMeets(meets || []);
+          });
         }
       } catch {
         // fail safe — proceed with empty data
-      } finally {
         setLoading(false);
       }
     };

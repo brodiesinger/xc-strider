@@ -92,6 +92,7 @@ export default function Home() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && email && password && handleSubmit(e)}
               required
             />
           </div>

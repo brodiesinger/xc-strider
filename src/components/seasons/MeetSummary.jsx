@@ -122,8 +122,8 @@ export default function MeetSummary({ meet, athletes }) {
     setLoadError(false);
     try {
       const [data, lineupData] = await Promise.all([
-        base44.entities.MeetResult.filter({ meet_id: meet.id }),
-        base44.entities.MeetLineup.filter({ meet_id: meet.id }),
+        base44.entities.MeetResult.filter({ meet_id: meet.id }, "-place", 100),
+        base44.entities.MeetLineup.filter({ meet_id: meet.id }, "-created_date", 50),
       ]);
 
       // Deduplicate and build assignment map
