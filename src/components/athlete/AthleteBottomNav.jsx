@@ -1,6 +1,7 @@
 import React from "react";
 import { Home, Plus, BarChart2, Lightbulb, User, Trophy, CalendarRange } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Home", Icon: Home },
@@ -20,27 +21,31 @@ export default function AthleteBottomNav({ active, onChange }) {
           const isActive = active === id;
           const isLog = id === "log";
           return (
-            <button
+            <motion.button
               key={id}
               onClick={() => onChange(id)}
+              whileTap={{ scale: 0.85 }}
               className={cn(
                 "flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors",
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               )}
             >
               {isLog ? (
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-md mb-0.5 -mt-4">
+                <motion.div
+                  whileTap={{ scale: 0.9 }}
+                  className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-md mb-0.5 -mt-4"
+                >
                   <Icon className="w-5 h-5 text-primary-foreground" />
-                </div>
+                </motion.div>
               ) : (
-                <Icon className={cn("w-5 h-5", isActive && "fill-primary/10")} />
+                <Icon className={cn("w-5 h-5 transition-transform", isActive && "fill-primary/10")} />
               )}
               {!isLog && (
                 <span className={cn("text-[10px] font-medium", isActive ? "text-primary" : "text-muted-foreground")}>
                   {label}
                 </span>
               )}
-            </button>
+            </motion.button>
           );
         })}
       </div>

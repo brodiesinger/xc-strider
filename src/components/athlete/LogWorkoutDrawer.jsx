@@ -11,6 +11,7 @@ export default function LogWorkoutDrawer({ open, onClose, onSaved, teamId }) {
   const [user, setUser] = useState(null);
   const [form, setForm] = useState({ distance: "", time_minutes: "", date: format(new Date(), "yyyy-MM-dd"), notes: "" });
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -34,8 +35,12 @@ export default function LogWorkoutDrawer({ open, onClose, onSaved, teamId }) {
         athlete_email: user?.email || null,
         athlete_name: user?.full_name || null,
       });
+      setSaved(true);
       onSaved();
-      onClose();
+      setTimeout(() => {
+        setSaved(false);
+        onClose();
+      }, 900);
     } finally {
       setSaving(false);
     }
@@ -121,9 +126,18 @@ export default function LogWorkoutDrawer({ open, onClose, onSaved, teamId }) {
                   onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                 />
               </div>
-              <Button type="submit" disabled={saving} className="w-full h-12 text-base font-semibold mt-2">
-                {saving ? "Saving..." : "Save Workout"}
-              </Button>
+              <motion.div
+                animate={saved ? { scale: [1, 1.04, 1] } : {}}
+                transition={{ duration: 0.3 }}
+              >
+                <Button
+                  type="submit"
+                  disabled={saving || saved}
+                  className={`w-full h-12 text-base font-semibold mt-2 transition-colors ${saved ? "bg-green-600 hover:bg-green-600" : ""}`}
+                >
+                  {saved ? "✓ Saved!" : saving ? "Saving..." : "Save Workout"}
+                </Button>
+              </motion.div>
             </form>
           </motion.div>
         </>

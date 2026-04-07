@@ -1,6 +1,7 @@
 import React from "react";
 import { Home, BarChart2, Lightbulb, CalendarRange, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", Icon: Home },
@@ -17,9 +18,10 @@ export default function BottomNav({ active, onChange }) {
         {NAV_ITEMS.map(({ id, label, Icon }) => {
           const isActive = active === id;
           return (
-            <button
+            <motion.button
               key={id}
               onClick={() => onChange(id)}
+              whileTap={{ scale: 0.85 }}
               className={cn(
                 "flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors",
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
@@ -29,7 +31,7 @@ export default function BottomNav({ active, onChange }) {
               <span className={cn("text-[10px] font-medium", isActive ? "text-primary" : "text-muted-foreground")}>
                 {label}
               </span>
-            </button>
+            </motion.button>
           );
         })}
       </div>

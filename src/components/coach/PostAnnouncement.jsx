@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { motion } from "framer-motion";
 
 export default function PostAnnouncement({ teamId, coachName, onPosted }) {
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [posted, setPosted] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,7 +20,11 @@ export default function PostAnnouncement({ teamId, coachName, onPosted }) {
         coach_name: coachName,
       });
       setMessage("");
-      onPosted();
+      setPosted(true);
+      setTimeout(() => {
+        setPosted(false);
+        onPosted();
+      }, 1000);
     } finally {
       setSaving(false);
     }
@@ -33,9 +39,16 @@ export default function PostAnnouncement({ teamId, coachName, onPosted }) {
         rows={3}
         required
       />
-      <Button type="submit" disabled={saving || !message.trim()} size="sm">
-        {saving ? "Posting..." : "Post Announcement"}
-      </Button>
+      <motion.div animate={posted ? { scale: [1, 1.04, 1] } : {}} transition={{ duration: 0.3 }}>
+        <Button
+          type="submit"
+          disabled={saving || !message.trim() || posted}
+          size="sm"
+          className={posted ? "bg-green-600 hover:bg-green-600" : ""}
+        >
+          {posted ? "✓ Posted!" : saving ? "Posting..." : "Post Announcement"}
+        </Button>
+      </motion.div>
     </form>
   );
 }

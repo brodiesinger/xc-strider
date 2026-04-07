@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { getDisplayName } from "@/lib/displayName";
+import { motion } from "framer-motion";
 
 const empty = () => ({
   distance: "",
@@ -14,9 +15,11 @@ const empty = () => ({
   date: format(new Date(), "yyyy-MM-dd"),
 });
 
+
 export default function WorkoutForm({ onSaved, teamId }) {
   const [form, setForm] = useState(empty());
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -39,6 +42,8 @@ export default function WorkoutForm({ onSaved, teamId }) {
         athlete_name: getDisplayName(user),
       });
       setForm(empty());
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
       onSaved();
     } finally {
       setSaving(false);
@@ -98,9 +103,15 @@ export default function WorkoutForm({ onSaved, teamId }) {
         />
       </div>
 
-      <Button type="submit" className="w-full" disabled={saving}>
-        {saving ? "Saving..." : "Log Workout"}
-      </Button>
+      <motion.div animate={saved ? { scale: [1, 1.04, 1] } : {}} transition={{ duration: 0.3 }}>
+        <Button
+          type="submit"
+          className={`w-full transition-colors ${saved ? "bg-green-600 hover:bg-green-600" : ""}`}
+          disabled={saving}
+        >
+          {saved ? "✓ Logged!" : saving ? "Saving..." : "Log Workout"}
+        </Button>
+      </motion.div>
     </form>
   );
 }

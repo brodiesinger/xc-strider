@@ -18,6 +18,13 @@ import { useGamification, ALL_BADGES } from "@/components/athlete/gamification/u
 import useTeamTheme from "@/lib/useTeamTheme";
 import useDarkMode from "@/lib/useDarkMode";
 import { PageSpinner } from "@/components/shared/LoadingSkeleton";
+import { AnimatePresence, motion } from "framer-motion";
+
+const tabVariants = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.22, ease: "easeOut" } },
+  exit: { opacity: 0, y: -6, transition: { duration: 0.15 } },
+};
 
 export default function AthleteDashboard() {
   const { currentUser: user, setCurrentUser: setUser } = useCurrentUser();
@@ -155,109 +162,112 @@ export default function AthleteDashboard() {
       />
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
+        <AnimatePresence mode="wait">
+          {activeTab === "dashboard" && (
+            <motion.div key="dashboard" variants={tabVariants} initial="initial" animate="animate" exit="exit">
+              <AthleteDashboardHome
+                user={user}
+                team={team}
+                workouts={workouts}
+                announcements={announcements}
+                schedule={schedule}
+                streak={streak}
+                earnedBadgeIds={earnedBadgeIds}
+                onLogWorkout={() => setLogDrawerOpen(true)}
+                onNavigate={setActiveTab}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === "dashboard" && (
-          <AthleteDashboardHome
-            user={user}
-            team={team}
-            workouts={workouts}
-            announcements={announcements}
-            schedule={schedule}
-            streak={streak}
-            earnedBadgeIds={earnedBadgeIds}
-            onLogWorkout={() => setLogDrawerOpen(true)}
-            onNavigate={setActiveTab}
-          />
-        )}
-
-        {activeTab === "performance" && (
-          <div className="space-y-5 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
-            <div className="pt-2 pb-1">
-              <h1 className="text-2xl font-bold text-foreground leading-tight">Performance</h1>
-              <p className="text-sm text-muted-foreground mt-1">Your PRs and goals</p>
-            </div>
-            {loadingWorkouts ? (
-              <div className="flex justify-center py-16">
-                <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
+          {activeTab === "performance" && (
+            <motion.div key="performance" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="space-y-5 pb-28">
+              <div className="pt-2 pb-1">
+                <h1 className="text-2xl font-bold text-foreground leading-tight">Performance</h1>
+                <p className="text-sm text-muted-foreground mt-1">Your PRs and goals</p>
               </div>
-            ) : (
-              <>
-                <RacePRManager userEmail={user?.email} />
-                <GoalTracker workouts={workouts} userEmail={user?.email} />
-              </>
-            )}
-          </div>
-        )}
-
-        {activeTab === "insights" && (
-          <div className="space-y-5 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
-            <div className="pt-2 pb-1">
-              <h1 className="text-2xl font-bold text-foreground leading-tight">Insights</h1>
-              <p className="text-sm text-muted-foreground mt-1">Recovery and injury intel</p>
-            </div>
-            {loadingWorkouts ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-2">
-                <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
-                <p className="text-xs text-muted-foreground">Analyzing your data...</p>
-              </div>
-            ) : (
-              <>
-                <div className="flex gap-1 bg-muted rounded-xl p-1">
-                  {[
-                    { id: "risk", label: "🛡️ Injury Risk" },
-                    { id: "chat", label: "💬 AI Chat" },
-                    { id: "recovery", label: "⚡ Recovery" },
-                  ].map((t) => (
-                    <button
-                      key={t.id}
-                      onClick={() => setInsightTab(t.id)}
-                      className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors ${
-                        insightTab === t.id ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
+              {loadingWorkouts ? (
+                <div className="flex justify-center py-16">
+                  <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
                 </div>
-                {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user?.email} />}
-                {insightTab === "chat" && <AIInjuryChat workouts={workouts} />}
-                {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
-              </>
-            )}
-          </div>
-        )}
+              ) : (
+                <>
+                  <RacePRManager userEmail={user?.email} />
+                  <GoalTracker workouts={workouts} userEmail={user?.email} />
+                </>
+              )}
+            </motion.div>
+          )}
 
-        {activeTab === "seasons" && (
-          <div className="pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
-            <SeasonMeets />
-          </div>
-        )}
+          {activeTab === "insights" && (
+            <motion.div key="insights" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="space-y-5 pb-28">
+              <div className="pt-2 pb-1">
+                <h1 className="text-2xl font-bold text-foreground leading-tight">Insights</h1>
+                <p className="text-sm text-muted-foreground mt-1">Recovery and injury intel</p>
+              </div>
+              {loadingWorkouts ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-2">
+                  <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
+                  <p className="text-xs text-muted-foreground">Analyzing your data...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex gap-1 bg-muted rounded-xl p-1">
+                    {[
+                      { id: "risk", label: "🛡️ Injury Risk" },
+                      { id: "chat", label: "💬 AI Chat" },
+                      { id: "recovery", label: "⚡ Recovery" },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => setInsightTab(t.id)}
+                        className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors ${
+                          insightTab === t.id ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                  {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user?.email} />}
+                  {insightTab === "chat" && <AIInjuryChat workouts={workouts} />}
+                  {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
+                </>
+              )}
+            </motion.div>
+          )}
 
-        {activeTab === "leaderboard" && (
-          <div className="pb-28">
-            <GamificationTab
-              user={user}
-              team={team}
-              athletes={athletes}
-              streak={streak}
-              earnedBadgeIds={earnedBadgeIds}
-            />
-          </div>
-        )}
+          {activeTab === "seasons" && (
+            <motion.div key="seasons" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-28">
+              <SeasonMeets />
+            </motion.div>
+          )}
 
-        {activeTab === "profile" && (
-          <div className="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
-            <AthleteProfileTab
-              user={user}
-              team={team}
-              announcements={announcements}
-              schedule={schedule}
-              isDark={isDark}
-              onToggleDark={toggleDark}
-              onUserUpdated={setUser}
-            />
-          </div>
-        )}
+          {activeTab === "leaderboard" && (
+            <motion.div key="leaderboard" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-28">
+              <GamificationTab
+                user={user}
+                team={team}
+                athletes={athletes}
+                streak={streak}
+                earnedBadgeIds={earnedBadgeIds}
+              />
+            </motion.div>
+          )}
+
+          {activeTab === "profile" && (
+            <motion.div key="profile" variants={tabVariants} initial="initial" animate="animate" exit="exit">
+              <AthleteProfileTab
+                user={user}
+                team={team}
+                announcements={announcements}
+                schedule={schedule}
+                isDark={isDark}
+                onToggleDark={toggleDark}
+                onUserUpdated={setUser}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       <AthleteBottomNav active={activeTab} onChange={handleTabChange} />

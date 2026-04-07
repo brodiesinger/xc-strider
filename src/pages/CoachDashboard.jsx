@@ -17,6 +17,13 @@ import useTeamTheme from "@/lib/useTeamTheme";
 import { getDisplayName, generateDisplayName } from "@/lib/displayName";
 import useDarkMode from "@/lib/useDarkMode";
 import { PageSpinner, ErrorState } from "@/components/shared/LoadingSkeleton";
+import { AnimatePresence, motion } from "framer-motion";
+
+const tabVariants = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.22, ease: "easeOut" } },
+  exit: { opacity: 0, y: -6, transition: { duration: 0.15 } },
+};
 export default function CoachDashboard() {
   const { currentUser: user, setCurrentUser: setUser } = useCurrentUser();
   const navigate = useNavigate();
@@ -147,49 +154,53 @@ export default function CoachDashboard() {
             <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
           </div>
         ) : (
-          <>
+          <AnimatePresence mode="wait">
             {activeTab === "dashboard" && (
-              <CoachHomeTab
-                user={user}
-                team={team}
-                athletes={athletes}
-                announcements={announcements}
-                schedule={schedule}
-                workouts={workouts}
-                checkins={checkins}
-                onAnnouncementPosted={refreshAnnouncements}
-                onScheduleRefresh={refreshSchedule}
-                onSelectAthlete={setSelectedAthlete}
-                onOpenInsights={() => setActiveTab("insights")}
-              />
+              <motion.div key="dashboard" variants={tabVariants} initial="initial" animate="animate" exit="exit">
+                <CoachHomeTab
+                  user={user}
+                  team={team}
+                  athletes={athletes}
+                  announcements={announcements}
+                  schedule={schedule}
+                  workouts={workouts}
+                  checkins={checkins}
+                  onAnnouncementPosted={refreshAnnouncements}
+                  onScheduleRefresh={refreshSchedule}
+                  onSelectAthlete={setSelectedAthlete}
+                  onOpenInsights={() => setActiveTab("insights")}
+                />
+              </motion.div>
             )}
             {activeTab === "performance" && (
-              <div className="pb-24 space-y-5 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+              <motion.div key="performance" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-24 space-y-5">
                 <div className="pt-2 pb-1">
                   <h1 className="text-2xl font-bold text-foreground leading-tight">Performance</h1>
                   <p className="text-sm text-muted-foreground mt-1">Athlete goals and race PRs</p>
                 </div>
                 <CoachPerformanceTab athletes={athletes} teamId={team.id} />
-              </div>
+              </motion.div>
             )}
             {activeTab === "insights" && (
-              <div className="pb-24 space-y-5 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+              <motion.div key="insights" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-24 space-y-5">
                 <div className="pt-2 pb-1">
                   <h1 className="text-2xl font-bold text-foreground leading-tight">Insights</h1>
                   <p className="text-sm text-muted-foreground mt-1">Injury risk and team health</p>
                 </div>
                 <CoachInsightsTab athletes={athletes} teamId={team.id} />
-              </div>
+              </motion.div>
             )}
             {activeTab === "seasons" && (
-              <div className="pb-24 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+              <motion.div key="seasons" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-24">
                 <SeasonMeets />
-              </div>
+              </motion.div>
             )}
             {activeTab === "settings" && (
-              <CoachSettingsTab user={user} team={team} onTeamUpdated={setTeam} onUserUpdated={setUser} isDark={isDark} onToggleDark={toggleDark} />
+              <motion.div key="settings" variants={tabVariants} initial="initial" animate="animate" exit="exit">
+                <CoachSettingsTab user={user} team={team} onTeamUpdated={setTeam} onUserUpdated={setUser} isDark={isDark} onToggleDark={toggleDark} />
+              </motion.div>
             )}
-          </>
+          </AnimatePresence>
         )}
       </main>
 
