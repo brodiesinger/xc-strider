@@ -3,16 +3,29 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, AlertCircle, Loader2, UserRound } from "lucide-react";
+import { CheckCircle2, AlertCircle, Loader2, UserRound, Medal } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
+import { ordinal } from "./TeamPlacementEditor";
 
-const SECTIONS = [
-  { key: "varsity_boys",  label: "Varsity Boys",  emoji: "🏆" },
-  { key: "jv_boys",       label: "JV Boys",        emoji: "🔵" },
-  { key: "varsity_girls", label: "Varsity Girls",  emoji: "🏆" },
-  { key: "jv_girls",      label: "JV Girls",       emoji: "🔴" },
-  { key: "unassigned",    label: "Unassigned",     emoji: "📋" },
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const GENDER_TABS = [
+  { key: "boys",  label: "Boys" },
+  { key: "girls", label: "Girls" },
 ];
+
+const GENDER_SECTIONS = {
+  boys:  [
+    { key: "varsity_boys", label: "Varsity Boys",  placeField: "varsity_boys_place" },
+    { key: "jv_boys",      label: "JV Boys",       placeField: "jv_boys_place" },
+  ],
+  girls: [
+    { key: "varsity_girls", label: "Varsity Girls", placeField: "varsity_girls_place" },
+    { key: "jv_girls",      label: "JV Girls",      placeField: "jv_girls_place" },
+  ],
+};
+
+// ─── Validation ───────────────────────────────────────────────────────────────
 
 function validateResult(fields) {
   if (fields.did_not_run) {
@@ -27,6 +40,8 @@ function validateResult(fields) {
   if (isNaN(pts) || pts < 0) return "Points must be 0 or greater.";
   return null;
 }
+
+// ─── Athlete result row (unchanged logic) ─────────────────────────────────────
 
 function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
   const [time, setTime] = useState(existingResult?.time ?? "");
@@ -149,12 +164,71 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
   );
 }
 
+// ─── Section block (Varsity Boys / JV Boys / etc.) ────────────────────────────
+
+function ResultSection({ section, athletes, results, meetId, meet, onSaved }) {
+  const teamPlace = meet[section.placeField];
+
+  if (athletes.length === 0) {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wide">{section.label}</p>
+          {teamPlace != null && (
+            <span className="flex items-center gap-1 text-xs font-semibold text-accent">
+              <Medal className="w-3 h-3" /> Team Place: {ordinal(teamPlace)}
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground py-2 text-center">
+          No {section.label.toLowerCase()} results yet
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-foreground uppercase tracking-wide">
+          {section.label}
+          <span className="text-muted-foreground font-normal ml-1">({athletes.length})</span>
+        </p>
+        {teamPlace != null && (
+          <span className="flex items-center gap-1 text-xs font-semibold text-accent">
+            <Medal className="w-3 h-3" /> Team Place: {ordinal(teamPlace)}
+          </span>
+        )}
+      </div>
+      <div className="space-y-2">
+        {athletes.map((athlete) => {
+          const existing = results.find((r) => r.athlete_id === athlete.email) || null;
+          return (
+            <AthleteResultRow
+              key={athlete.email}
+              meetId={meetId}
+              athlete={athlete}
+              existingResult={existing}
+              onSaved={onSaved}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main component ────────────────────────────────────────────────────────────
+
 export default function MeetResultsPanel({ meet, athletes }) {
   const [results, setResults] = useState([]);
   const [lineup, setLineup] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [activeTab, setActiveTab] = useState("boys");
 
   const fetchResults = useCallback(async () => {
+    setError(false);
     try {
       const [data, lineupData] = await Promise.all([
         base44.entities.MeetResult.filter({ meet_id: meet.id }),
@@ -165,6 +239,7 @@ export default function MeetResultsPanel({ meet, athletes }) {
     } catch {
       setResults([]);
       setLineup([]);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -182,6 +257,10 @@ export default function MeetResultsPanel({ meet, athletes }) {
     );
   }
 
+  if (error) {
+    return <p className="text-xs text-destructive text-center py-4">Unable to load results.</p>;
+  }
+
   if (!athletes || athletes.length === 0) {
     return <p className="text-xs text-muted-foreground text-center py-4">No athletes on this team yet.</p>;
   }
@@ -190,44 +269,76 @@ export default function MeetResultsPanel({ meet, athletes }) {
   const assignmentMap = {};
   (lineup || []).forEach((r) => { assignmentMap[r.athlete_id] = r.team_group; });
 
-  // Deduplicate: each athlete appears only once
-  const seenEmails = new Set();
-  const sectionAthletes = { varsity_boys: [], jv_boys: [], varsity_girls: [], jv_girls: [], unassigned: [] };
+  const hasLineup = lineup.length > 0;
 
+  // Bucket athletes into sections (deduped)
+  const seen = new Set();
+  const sectionAthletes = { varsity_boys: [], jv_boys: [], varsity_girls: [], jv_girls: [], unassigned: [] };
   athletes.forEach((athlete) => {
-    if (seenEmails.has(athlete.email)) return;
-    seenEmails.add(athlete.email);
+    if (seen.has(athlete.email)) return;
+    seen.add(athlete.email);
     const group = assignmentMap[athlete.email];
-    if (group && sectionAthletes[group]) {
+    if (group && sectionAthletes[group] !== undefined) {
       sectionAthletes[group].push(athlete);
     } else {
       sectionAthletes.unassigned.push(athlete);
     }
   });
 
-  const hasLineup = (lineup || []).length > 0;
+  const sections = GENDER_SECTIONS[activeTab];
 
   return (
-    <div className="space-y-5 pt-2">
+    <div className="space-y-4 pt-2">
       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Enter Results</p>
 
       {!hasLineup && (
         <div className="rounded-lg bg-muted/50 border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
-          No lineup saved — all athletes shown as Unassigned. Save a lineup first to organize by section.
+          No lineup saved — athletes may appear unassigned. Save a lineup first to organize by section.
         </div>
       )}
 
-      {SECTIONS.map((section) => {
-        const sectionList = sectionAthletes[section.key] || [];
-        if (sectionList.length === 0) return null;
-        return (
-          <div key={section.key} className="space-y-2">
-            <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <span>{section.emoji}</span> {section.label}
-              <span className="text-muted-foreground font-normal">({sectionList.length})</span>
-            </p>
+      {/* Boys / Girls tabs */}
+      <div className="flex gap-1 bg-muted rounded-xl p-1">
+        {GENDER_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex-1 text-sm font-medium py-1.5 rounded-lg transition-colors ${
+              activeTab === tab.key
+                ? "bg-card shadow text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Sections within active tab */}
+      <div className="space-y-5">
+        {sections.map((section, i) => (
+          <div key={section.key}>
+            {i > 0 && <div className="border-t border-border mb-5" />}
+            <ResultSection
+              section={section}
+              athletes={sectionAthletes[section.key] || []}
+              results={results}
+              meetId={meet.id}
+              meet={meet}
+              onSaved={fetchResults}
+            />
+          </div>
+        ))}
+
+        {/* Unassigned athletes — only shown if lineup exists but some slipped through */}
+        {hasLineup && sectionAthletes.unassigned.length > 0 && (
+          <div>
+            <div className="border-t border-border mb-5" />
             <div className="space-y-2">
-              {sectionList.map((athlete) => {
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Unassigned <span className="font-normal">({sectionAthletes.unassigned.length})</span>
+              </p>
+              {sectionAthletes.unassigned.map((athlete) => {
                 const existing = results.find((r) => r.athlete_id === athlete.email) || null;
                 return (
                   <AthleteResultRow
@@ -241,8 +352,8 @@ export default function MeetResultsPanel({ meet, athletes }) {
               })}
             </div>
           </div>
-        );
-      })}
+        )}
+      </div>
     </div>
   );
 }
