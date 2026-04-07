@@ -69,16 +69,21 @@ export default function AthleteDashboard() {
         const found = await base44.entities.Team.get(user.team_id);
         if (found) {
           setTeam(found);
-          await Promise.all([fetchWorkouts(user), fetchTeamData(found.id)]);
-          // Load teammates for leaderboard
-          try {
-            const res = await base44.functions.invoke("getTeamAthletes", { team_id: found.id });
-            setAthletes(res.data?.athletes || []);
-          } catch {
-            setAthletes([]);
-          }
+          // Load workouts first (critical for dashboard)
+          await fetchWorkouts(user);
+          setLoading(false);
+
+          // Load secondary data async in background
+          Promise.all([
+            fetchTeamData(found.id),
+            base44.functions.invoke("getTeamAthletes", { team_id: found.id }).catch(() => ({ data: { athletes: [] } })),
+          ]).then(([, res]) => {
+            setAthletes(res?.data?.athletes || []);
+          });
+        } else {
+          setLoading(false);
         }
-      } finally {
+      } catch {
         setLoading(false);
       }
     };

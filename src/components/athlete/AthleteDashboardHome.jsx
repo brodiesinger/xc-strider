@@ -13,6 +13,7 @@ import WorkoutList from "@/components/athlete/WorkoutList";
 import AnnouncementCard from "@/components/athlete/AnnouncementCard";
 import TodaysWorkoutCard from "@/components/athlete/TodaysWorkoutCard";
 import DailyCheckInCard from "@/components/athlete/DailyCheckInCard";
+import DashboardNav from "@/components/shared/DashboardNav";
 import { base44 } from "@/api/base44Client";
 import { getDisplayName } from "@/lib/displayName";
 
@@ -197,6 +198,9 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
           </div>
         </button>
       </motion.div>
+
+      {/* Navigation Shortcuts */}
+      <DashboardNav isCoach={false} onTabChange={onNavigate} />
 
       {/* Announcements */}
       {!loadingDismissals && activeAnnouncements.length > 0 && (

@@ -12,6 +12,7 @@ import TeamAlerts from "./TeamAlerts";
 import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
 import NextMeetCountdown from "@/components/shared/NextMeetCountdown";
 import MeetLineupBuilder from "@/components/seasons/MeetLineupBuilder";
+import DashboardNav from "@/components/shared/DashboardNav";
 
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
@@ -52,6 +53,7 @@ export default function CoachHomeTab({
   onScheduleRefresh,
   onSelectAthlete,
   onOpenInsights,
+  onTabChange,
 }) {
   const [rosterOpen, setRosterOpen] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(false);
@@ -86,6 +88,9 @@ export default function CoachHomeTab({
         <h1 className="text-2xl font-bold text-foreground leading-tight mt-0.5">{getDisplayName(user)} 👋</h1>
         {team && <p className="text-sm text-primary font-medium mt-1">{team.name}</p>}
       </div>
+
+      {/* Navigation Shortcuts */}
+      <DashboardNav isCoach={true} onTabChange={onTabChange} />
 
       {/* Team Alerts */}
       <TeamAlerts

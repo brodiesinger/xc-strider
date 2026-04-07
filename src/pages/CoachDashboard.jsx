@@ -64,36 +64,46 @@ export default function CoachDashboard() {
     const loadTeam = async () => {
       setLoading(true);
       try {
+        // Load team and athletes first (critical path)
         const found = await base44.entities.Team.get(user.team_id);
         if (!found) {
           setLoading(false);
           return;
         }
         setTeam(found);
-        const [ann, sched] = await Promise.all([
-          base44.entities.Announcement.filter({ team_id: found.id }, "-created_date", 20),
-          base44.entities.PracticeSchedule.filter({ team_id: found.id }, "date", 50),
-        ]);
-        setAnnouncements(ann);
-        setSchedule(sched);
+
+        // Fetch athletes in parallel with team
+        let athleteList = [];
         try {
           const res = await base44.functions.invoke("getTeamAthletes", { team_id: found.id });
-          const athleteList = res.data?.athletes || [];
+          athleteList = res.data?.athletes || [];
           setAthletes(athleteList);
-          if (athleteList.length > 0) {
-            const [allWorkouts, todayCheckins] = await Promise.all([
-              base44.entities.Workout.filter({ team_id: found.id }, "-date", 200),
-              base44.entities.DailyCheckin.filter({ date: format(new Date(), "yyyy-MM-dd") }, "-created_date", 100),
-            ]);
-            setWorkouts(allWorkouts);
-            const checkinMap = {};
-            todayCheckins.forEach((c) => { checkinMap[c.athlete_email] = c; });
-            setCheckins(checkinMap);
-          }
         } catch {
           setAthletes([]);
         }
-      } finally {
+
+        // Mark dashboard ready, then load secondary data async
+        setLoading(false);
+
+        // Load secondary data (announcements, schedule, workouts, checkins) in background
+        Promise.all([
+          base44.entities.Announcement.filter({ team_id: found.id }, "-created_date", 20).catch(() => []),
+          base44.entities.PracticeSchedule.filter({ team_id: found.id }, "date", 50).catch(() => []),
+          athleteList.length > 0 
+            ? base44.entities.Workout.filter({ team_id: found.id }, "-date", 200).catch(() => [])
+            : Promise.resolve([]),
+          athleteList.length > 0
+            ? base44.entities.DailyCheckin.filter({ date: format(new Date(), "yyyy-MM-dd") }, "-created_date", 100).catch(() => [])
+            : Promise.resolve([]),
+        ]).then(([ann, sched, allWorkouts, todayCheckins]) => {
+          setAnnouncements(ann || []);
+          setSchedule(sched || []);
+          setWorkouts(allWorkouts || []);
+          const checkinMap = {};
+          (todayCheckins || []).forEach((c) => { checkinMap[c.athlete_email] = c; });
+          setCheckins(checkinMap);
+        });
+      } catch {
         setLoading(false);
       }
     };
@@ -158,18 +168,19 @@ export default function CoachDashboard() {
             {activeTab === "dashboard" && (
               <motion.div key="dashboard" variants={tabVariants} initial="initial" animate="animate" exit="exit">
                 <CoachHomeTab
-                  user={user}
-                  team={team}
-                  athletes={athletes}
-                  announcements={announcements}
-                  schedule={schedule}
-                  workouts={workouts}
-                  checkins={checkins}
-                  onAnnouncementPosted={refreshAnnouncements}
-                  onScheduleRefresh={refreshSchedule}
-                  onSelectAthlete={setSelectedAthlete}
-                  onOpenInsights={() => setActiveTab("insights")}
-                />
+                   user={user}
+                   team={team}
+                   athletes={athletes}
+                   announcements={announcements}
+                   schedule={schedule}
+                   workouts={workouts}
+                   checkins={checkins}
+                   onAnnouncementPosted={refreshAnnouncements}
+                   onScheduleRefresh={refreshSchedule}
+                   onSelectAthlete={setSelectedAthlete}
+                   onOpenInsights={() => setActiveTab("insights")}
+                   onTabChange={setActiveTab}
+                 />
               </motion.div>
             )}
             {activeTab === "performance" && (
