@@ -146,14 +146,14 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="flex items-start justify-between gap-3 pt-2"
+        className="flex items-start justify-between gap-3"
       >
         <div>
           <p className="text-sm text-muted-foreground">Good to see you,</p>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-2xl font-bold text-foreground leading-tight mt-0.5">
             {getDisplayName(user)} 👋
           </h1>
-          {team && <p className="text-sm text-primary font-medium mt-0.5">{team.name}</p>}
+          {team && <p className="text-sm text-primary font-medium mt-1">{team.name}</p>}
         </div>
         {user && <NotificationBell userEmail={user.email} />}
       </motion.div>
@@ -239,7 +239,7 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
             transition={{ delay: 0.05 }}
             className="rounded-2xl border border-border bg-card p-4 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow"
           >
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center mb-1">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Icon className="w-4 h-4 text-primary" />
             </div>
             <p className="text-xl font-bold text-foreground leading-tight">
@@ -267,8 +267,8 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
       </motion.button>
 
       {/* Quick Actions */}
-      <section>
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
+      <section className="space-y-3">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Quick Actions</h2>
         <div className="grid grid-cols-3 gap-2">
           {[
             { Icon: BarChart2, label: "Performance", color: "bg-blue-100 text-blue-600", action: () => onNavigate("performance") },
@@ -296,7 +296,7 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-2xl border border-border bg-card p-5"
+        className="rounded-2xl border border-border bg-card p-4"
       >
         <p className="text-sm font-semibold text-foreground mb-4">Weekly Mileage</p>
          <ResponsiveContainer width="100%" height={150}>
@@ -315,8 +315,8 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
 
       {/* Recent Workouts */}
       {recentWorkouts.length > 0 && (
-        <section>
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Recent Activity</h2>
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Recent Activity</h2>
           <WorkoutList workouts={recentWorkouts} />
         </section>
       )}

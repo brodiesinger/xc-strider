@@ -127,7 +127,7 @@ export default function CoachDashboard() {
   if (selectedAthlete) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-6">
           <button
             onClick={() => setSelectedAthlete(null)}
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
@@ -144,12 +144,12 @@ export default function CoachDashboard() {
 
   return (
     <div className="min-h-screen bg-background motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-6">
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
         {!team ? (
-          <div className="py-8 space-y-6">
+          <div className="py-6 space-y-6">
             <div>
-              <h1 className="text-2xl font-bold text-foreground mb-1">Welcome, {getDisplayName(user)} 👋</h1>
-              <p className="text-sm text-muted-foreground">Create or manage your team to get started</p>
+              <h1 className="text-2xl font-bold text-foreground leading-tight">Welcome, {getDisplayName(user)} 👋</h1>
+              <p className="text-sm text-muted-foreground mt-1">Create or manage your team to get started</p>
             </div>
             <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
           </div>
@@ -173,8 +173,8 @@ export default function CoachDashboard() {
               </motion.div>
             )}
             {activeTab === "performance" && (
-              <motion.div key="performance" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-24 space-y-5">
-                <div className="pt-2 pb-1">
+              <motion.div key="performance" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-24 space-y-6">
+                <div>
                   <h1 className="text-2xl font-bold text-foreground leading-tight">Performance</h1>
                   <p className="text-sm text-muted-foreground mt-1">Athlete goals and race PRs</p>
                 </div>
@@ -182,8 +182,8 @@ export default function CoachDashboard() {
               </motion.div>
             )}
             {activeTab === "insights" && (
-              <motion.div key="insights" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-24 space-y-5">
-                <div className="pt-2 pb-1">
+              <motion.div key="insights" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-24 space-y-6">
+                <div>
                   <h1 className="text-2xl font-bold text-foreground leading-tight">Insights</h1>
                   <p className="text-sm text-muted-foreground mt-1">Injury risk and team health</p>
                 </div>
@@ -196,7 +196,7 @@ export default function CoachDashboard() {
               </motion.div>
             )}
             {activeTab === "settings" && (
-              <motion.div key="settings" variants={tabVariants} initial="initial" animate="animate" exit="exit">
+              <motion.div key="settings" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-24">
                 <CoachSettingsTab user={user} team={team} onTeamUpdated={setTeam} onUserUpdated={setUser} isDark={isDark} onToggleDark={toggleDark} />
               </motion.div>
             )}

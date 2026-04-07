@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 
 function OnboardingShell({ title, subtitle, children }) {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 sm:px-6 py-6">
       <div className="flex flex-col items-center gap-8 w-full max-w-sm">
         <div className="flex flex-col items-center gap-3">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
@@ -164,7 +164,7 @@ export default function Onboarding() {
   if (step === "name") {
     return (
       <OnboardingShell title="What's your name?" subtitle="Enter your first and last name so your team can recognize you.">
-        <form onSubmit={handleNameSubmit} className="w-full space-y-4">
+        <form onSubmit={handleNameSubmit} className="w-full space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="first-name">First Name</Label>
             <Input
@@ -186,11 +186,11 @@ export default function Onboarding() {
               onChange={(e) => { setLastName(e.target.value); setError(""); }}
             />
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <p className="text-xs text-destructive">{error}</p>}
           <Button
             type="submit"
             disabled={saving || !firstName.trim() || !lastName.trim()}
-            className="w-full h-11"
+            className="w-full h-10 mt-1"
           >
             {saving ? "Saving..." : "Continue"}
           </Button>
@@ -276,54 +276,54 @@ export default function Onboarding() {
    }
 
   if (step === "create-team") {
-    return (
-      <OnboardingShell title="Create Your Team" subtitle="Set up your team so athletes can join.">
-        <form onSubmit={handleCreateTeam} className="w-full space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="team-name">Team Name</Label>
-            <Input
-              id="team-name"
-              type="text"
-              placeholder="e.g. Lincoln High XC"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-              required
-              autoFocus
-            />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" disabled={saving || !teamName.trim()} className="w-full h-11">
-            {saving ? "Creating..." : "Create Team"}
-          </Button>
-        </form>
-      </OnboardingShell>
-    );
+   return (
+     <OnboardingShell title="Create Your Team" subtitle="Set up your team so athletes can join.">
+       <form onSubmit={handleCreateTeam} className="w-full space-y-3">
+         <div className="space-y-1.5">
+           <Label htmlFor="team-name">Team Name</Label>
+           <Input
+             id="team-name"
+             type="text"
+             placeholder="e.g. Lincoln High XC"
+             value={teamName}
+             onChange={(e) => setTeamName(e.target.value)}
+             required
+             autoFocus
+           />
+         </div>
+         {error && <p className="text-xs text-destructive">{error}</p>}
+         <Button type="submit" disabled={saving || !teamName.trim()} className="w-full h-10 mt-1">
+           {saving ? "Creating..." : "Create Team"}
+         </Button>
+       </form>
+     </OnboardingShell>
+   );
   }
 
   if (step === "join-team") {
-    return (
-      <OnboardingShell title="Join Your Team" subtitle="Enter the join code your coach gave you.">
-        <form onSubmit={handleJoinTeam} className="w-full space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="join-code">Team Join Code</Label>
-            <Input
-              id="join-code"
-              type="text"
-              placeholder="e.g. ABC123"
-              value={joinCode}
-              onChange={(e) => { setJoinCode(e.target.value.toUpperCase()); setError(""); }}
-              className="text-center text-lg font-bold tracking-widest uppercase"
-              required
-              autoFocus
-            />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" disabled={saving || !joinCode.trim()} className="w-full h-11">
-            {saving ? "Joining..." : "Join Team"}
-          </Button>
-        </form>
-      </OnboardingShell>
-    );
+   return (
+     <OnboardingShell title="Join Your Team" subtitle="Enter the join code your coach gave you.">
+       <form onSubmit={handleJoinTeam} className="w-full space-y-3">
+         <div className="space-y-1.5">
+           <Label htmlFor="join-code">Team Join Code</Label>
+           <Input
+             id="join-code"
+             type="text"
+             placeholder="e.g. ABC123"
+             value={joinCode}
+             onChange={(e) => { setJoinCode(e.target.value.toUpperCase()); setError(""); }}
+             className="text-center text-lg font-bold tracking-widest uppercase"
+             required
+             autoFocus
+           />
+         </div>
+         {error && <p className="text-xs text-destructive">{error}</p>}
+         <Button type="submit" disabled={saving || !joinCode.trim()} className="w-full h-10 mt-1">
+           {saving ? "Joining..." : "Join Team"}
+         </Button>
+       </form>
+     </OnboardingShell>
+   );
   }
 
   return null;
