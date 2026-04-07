@@ -158,7 +158,7 @@ export default function CoachHomeTab({
           <QuickActionBtn
             icon={Package}
             label="Packet"
-            onClick={() => onTabChange("packet")}
+            onClick={() => window.location.href = "/packet"}
           />
           <QuickActionBtn
             icon={Megaphone}
