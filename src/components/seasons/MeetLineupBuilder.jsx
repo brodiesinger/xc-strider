@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { X, Loader2, CheckCircle2, AlertCircle, Check } from "lucide-react";
+import { X, Loader2, CheckCircle2, AlertCircle, Check, Copy } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import { deduplicateLineup, validateNoDualAssignment } from "@/lib/lineupValidation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -57,9 +57,11 @@ export default function MeetLineupBuilder({ meet, athletes, onClose }) {
   const [lineupRecords, setLineupRecords] = useState({});
   const [loading, setLoading]             = useState(true);
   const [saving, setSaving]               = useState(false);
+  const [copying, setCopying]             = useState(false);
   const [saveStatus, setSaveStatus]       = useState(null); // "success" | "error" | "load_error"
   const [gender, setGender]               = useState("boys");
   const [level, setLevel]                 = useState("varsity");
+  const [showCopyConfirm, setShowCopyConfirm] = useState(false);
 
   // Reset level to varsity when switching gender
   const handleGenderChange = (g) => { setGender(g); setLevel("varsity"); };
@@ -99,6 +101,102 @@ export default function MeetLineupBuilder({ meet, athletes, onClose }) {
       setLoading(false);
     }
   }, [meet.id]);
+
+  const findPreviousMeetWithLineup = useCallback(async () => {
+    try {
+      // Get the season for the current meet
+      const currentMeet = meet;
+      const season = await base44.entities.Season.get(currentMeet.season_id);
+      if (!season) return null;
+
+      // Get all meets in the same season, sorted by date descending
+      const allMeets = await base44.entities.Meet.filter({ season_id: season.id }, "-meet_date", 100);
+      
+      // Filter to meets before the current one and in descending date order
+      const previousMeets = allMeets
+        .filter(m => m.id !== currentMeet.id && m.meet_date && m.meet_date < currentMeet.meet_date)
+        .sort((a, b) => (b.meet_date || "").localeCompare(a.meet_date || ""));
+
+      // Find the first one with a lineup
+      for (const prevMeet of previousMeets) {
+        const lineups = await base44.entities.MeetLineup.filter({ meet_id: prevMeet.id });
+        if (lineups && lineups.length > 0) {
+          return { meet: prevMeet, lineups };
+        }
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }, [meet]);
+
+  const handleCopyPreviousLineup = async () => {
+    setSaveStatus(null);
+    const currentLineupCount = Object.keys(assignments).length;
+    
+    if (currentLineupCount > 0) {
+      setShowCopyConfirm(true);
+      return;
+    }
+
+    await proceedWithCopy();
+  };
+
+  const proceedWithCopy = async () => {
+    setCopying(true);
+    try {
+      const prevData = await findPreviousMeetWithLineup();
+      if (!prevData) {
+        setSaveStatus("no_previous");
+        setCopying(false);
+        return;
+      }
+
+      const { lineups: prevLineups } = prevData;
+      const currentRosterEmails = new Set((athletes || []).map(a => a.email));
+
+      // Build new assignments from previous lineup, filtering by current roster
+      const newAssignments = {};
+      prevLineups.forEach(lineup => {
+        if (currentRosterEmails.has(lineup.athlete_id)) {
+          newAssignments[lineup.athlete_id] = lineup.team_group;
+        }
+      });
+
+      // Prepare operations: create/update
+      const ops = [];
+      const newRecordMap = { ...lineupRecords };
+
+      Object.entries(newAssignments).forEach(([athleteEmail, teamGroup]) => {
+        const existing = lineupRecords[athleteEmail];
+        if (existing) {
+          ops.push(
+            base44.entities.MeetLineup.update(existing.id, { team_group: teamGroup })
+          );
+          newRecordMap[athleteEmail] = { id: existing.id, team_group: teamGroup };
+        } else {
+          ops.push(
+            base44.entities.MeetLineup.create({
+              meet_id: meet.id,
+              athlete_id: athleteEmail,
+              team_group: teamGroup,
+            })
+          );
+          newRecordMap[athleteEmail] = { id: athleteEmail, team_group: teamGroup };
+        }
+      });
+
+      await Promise.all(ops);
+      setAssignments(newAssignments);
+      setLineupRecords(newRecordMap);
+      setSaveStatus("copy_success");
+      setShowCopyConfirm(false);
+    } catch {
+      setSaveStatus("copy_error");
+    } finally {
+      setCopying(false);
+    }
+  };
 
   useEffect(() => { loadLineup(); }, [loadLineup]);
 
@@ -193,9 +291,20 @@ export default function MeetLineupBuilder({ meet, athletes, onClose }) {
             <h2 className="font-bold text-foreground text-base">Meet Lineup</h2>
             <p className="text-xs text-muted-foreground mt-0.5">{meet.meet_name}</p>
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={handleCopyPreviousLineup}
+              disabled={copying || loading}
+              title="Copy previous meet's lineup"
+            >
+              <Copy className="w-4 h-4" />
+            </Button>
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Top Tabs: Boys / Girls */}
@@ -240,7 +349,34 @@ export default function MeetLineupBuilder({ meet, athletes, onClose }) {
           </div>
         </div>
 
-        {/* Roster Body */}
+        {/* Copy Confirmation Modal */}
+      {showCopyConfirm && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} className="bg-card rounded-2xl border border-border p-6 w-full max-w-sm">
+            <h3 className="font-semibold text-foreground mb-2">Replace Current Lineup?</h3>
+            <p className="text-sm text-muted-foreground mb-4">This will replace the current lineup with the previous meet's lineup.</p>
+            <div className="flex gap-2 justify-end">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowCopyConfirm(false)}
+                disabled={copying}
+              >
+                Cancel
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={proceedWithCopy}
+                disabled={copying}
+              >
+                {copying ? "Copying..." : "Replace"}
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Roster Body */}
         <div className="flex-1 overflow-y-auto px-5 pb-2">
           {loading ? (
             <div className="flex items-center justify-center py-12">
@@ -288,9 +424,19 @@ export default function MeetLineupBuilder({ meet, athletes, onClose }) {
                 <CheckCircle2 className="w-3.5 h-3.5" /> Saved
               </span>
             )}
-            {saveStatus === "error" && (
+            {saveStatus === "copy_success" && (
+              <span className="flex items-center gap-1 text-green-600 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Previous lineup copied
+              </span>
+            )}
+            {saveStatus === "no_previous" && (
+              <span className="flex items-center gap-1 text-muted-foreground font-medium">
+                <AlertCircle className="w-3.5 h-3.5" /> No previous lineup available
+              </span>
+            )}
+            {(saveStatus === "error" || saveStatus === "copy_error") && (
               <span className="flex items-center gap-1 text-destructive font-medium">
-                <AlertCircle className="w-3.5 h-3.5" /> Save failed
+                <AlertCircle className="w-3.5 h-3.5" /> {saveStatus === "copy_error" ? "Copy failed" : "Save failed"}
               </span>
             )}
           </div>
