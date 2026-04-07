@@ -37,8 +37,8 @@ export default function MeetLineupBuilder({ meet, athletes, onClose }) {
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null); // "success" | "error"
 
-  const boyAthletes = (athletes || []).filter((a) => (a.team_group || "boys") === "boys");
-  const girlAthletes = (athletes || []).filter((a) => a.team_group === "girls");
+  const boyAthletes = (athletes || []).filter((a) => !a.team_group || a.team_group === "boys");
+  const girlAthletes = (athletes || []).filter((a) => !a.team_group || a.team_group === "girls");
 
   const loadLineup = useCallback(async () => {
     console.log("[MeetLineupBuilder] Loading lineup for meet:", meet.id);
