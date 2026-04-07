@@ -39,14 +39,23 @@ export default function NextMeetCountdown({ teamId, athletes = [], isCoach = fal
       const allMeets = meetArrays.flat().filter((m) => m.meet_date);
 
       // 1. Find the most recent past meet with results (not dismissed)
+      // Fetch results for all past meets in parallel instead of sequentially
       const pastMeets = allMeets
-        .filter((m) => m.meet_date < todayStr && m.id !== dismissedMeetId)
-        .sort((a, b) => b.meet_date.localeCompare(a.meet_date));
+        .filter((m) => m.meet_date < todayStr)
+        .sort((a, b) => b.meet_date.localeCompare(a.meet_date))
+        .slice(0, 5); // only check last 5 past meets
 
-      for (const meet of pastMeets) {
-        const results = await base44.entities.MeetResult.filter({ meet_id: meet.id }).catch(() => []);
-        if (results && results.length > 0) {
-          setWidgetData({ type: "completed", meet, seasonName: seasonMap[meet.season_id] || "Season", hasResults: true });
+      const pastResultCounts = await Promise.all(
+        pastMeets.map((m) =>
+          base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => [])
+        )
+      );
+
+      for (let i = 0; i < pastMeets.length; i++) {
+        const meet = pastMeets[i];
+        if (meet.id === dismissedMeetId) continue;
+        if (pastResultCounts[i] && pastResultCounts[i].length > 0) {
+          setWidgetData({ type: "completed", meet, seasonName: seasonMap[meet.season_id] || "Season" });
           setLoading(false);
           return;
         }

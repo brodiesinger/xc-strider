@@ -60,7 +60,7 @@ export default function MeetResultsViewer({ meet, athletes = [], seasonName, onC
   const [error,   setError]   = useState(false);
 
   useEffect(() => {
-    const fetch = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
         const [res, lin] = await Promise.all([
@@ -75,16 +75,26 @@ export default function MeetResultsViewer({ meet, athletes = [], seasonName, onC
         setLoading(false);
       }
     };
-    fetch();
+    loadData();
   }, [meet.id]);
 
-  // Group athletes by lineup assignment
+  // Build a merged athlete list: provided roster + any result athletes not in roster
+  const athleteMap = {};
+  (athletes || []).forEach(a => { if (a.email) athleteMap[a.email] = a; });
+  // Add synthetic entries for result athletes not in roster (athlete dashboard case)
+  results.forEach(r => {
+    if (!athleteMap[r.athlete_id]) {
+      athleteMap[r.athlete_id] = { email: r.athlete_id, full_name: r.athlete_id };
+    }
+  });
+  const mergedAthletes = Object.values(athleteMap);
+
   const assignmentMap = {};
   lineup.forEach(r => { assignmentMap[r.athlete_id] = r.team_group; });
 
   const sectionAthletes = { varsity_boys: [], jv_boys: [], varsity_girls: [], jv_girls: [], unassigned: [] };
   const seen = new Set();
-  athletes.forEach(a => {
+  mergedAthletes.forEach(a => {
     if (seen.has(a.email)) return;
     seen.add(a.email);
     const group = assignmentMap[a.email];
