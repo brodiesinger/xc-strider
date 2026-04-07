@@ -118,6 +118,20 @@ function FlatMeetBlock({ meet, results, athleteMap }) {
   );
 }
 
+// Maps lineup section key to the meet placement field
+const SECTION_PLACE_FIELD = {
+  varsity_boys:  "varsity_boys_place",
+  jv_boys:       "jv_boys_place",
+  varsity_girls: "varsity_girls_place",
+  jv_girls:      "jv_girls_place",
+};
+
+function ordStr(n) {
+  if (n == null || isNaN(n)) return "";
+  const s = ["th","st","nd","rd"], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
 // Grouped single meet block
 function GroupedMeetBlock({ meet, results, lineup, athleteMap, sections }) {
   if (!results || results.length === 0) return null;
@@ -165,9 +179,18 @@ function GroupedMeetBlock({ meet, results, lineup, athleteMap, sections }) {
       {sections.map((section) => {
         const sResults = sectionResults[section.key];
         if (!sResults || sResults.length === 0) return null;
+        const placeField = SECTION_PLACE_FIELD[section.key];
+        const teamPlace = placeField && meet[placeField] != null ? meet[placeField] : null;
         return (
           <div key={section.key} className="mb-4">
-            <p className="text-sm font-bold text-gray-700 border-b border-gray-200 pb-1 mb-2">{section.label}</p>
+            <div className="flex items-center justify-between border-b border-gray-200 pb-1 mb-2">
+              <p className="text-sm font-bold text-gray-700">{section.label}</p>
+              {teamPlace != null && (
+                <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                  Team Place: {ordStr(teamPlace)}
+                </span>
+              )}
+            </div>
             <ResultTable results={sResults} athleteMap={athleteMap} />
           </div>
         );

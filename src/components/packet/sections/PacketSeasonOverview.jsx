@@ -158,17 +158,45 @@ export default function PacketSeasonOverview({ season, meets = [], filter = "who
         />
       ))}
 
-      {/* Meets list */}
+      {/* Meets list with team placements */}
       {safeMeets.length > 0 && (
         <div>
           <p className="text-sm font-semibold text-gray-700 mb-2">Meets This Season</p>
-          <ul className="space-y-1">
-            {safeMeets.map((m) => (
-              <li key={m.id} className="flex items-center justify-between text-sm text-gray-800 border-b border-gray-100 pb-1">
-                <span>{m.meet_name}</span>
-                {m.meet_date && <span className="text-gray-400 text-xs">{m.meet_date}</span>}
-              </li>
-            ))}
+          <ul className="space-y-2">
+            {safeMeets.map((m) => {
+              // Determine which placement fields to show based on filter
+              const filterFields = {
+                whole_team: ["varsity_boys_place","jv_boys_place","varsity_girls_place","jv_girls_place"],
+                boys:  ["varsity_boys_place","jv_boys_place"],
+                girls: ["varsity_girls_place","jv_girls_place"],
+              };
+              const placeFieldLabels = {
+                varsity_boys_place:  "Varsity Boys",
+                jv_boys_place:       "JV Boys",
+                varsity_girls_place: "Varsity Girls",
+                jv_girls_place:      "JV Girls",
+              };
+              const fields = filterFields[filter] || filterFields.whole_team;
+              const filledFields = fields.filter((f) => m[f] != null);
+              const ordStr = (n) => { const s=["th","st","nd","rd"],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
+              return (
+                <li key={m.id} className="border-b border-gray-100 pb-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-800">{m.meet_name}</span>
+                    {m.meet_date && <span className="text-gray-400 text-xs">{m.meet_date}</span>}
+                  </div>
+                  {filledFields.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {filledFields.map((f) => (
+                        <span key={f} className="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                          {placeFieldLabels[f]}: {ordStr(m[f])}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

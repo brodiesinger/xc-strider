@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { Loader2, UserRound, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, UserRound, ChevronDown, ChevronRight, Medal } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import { motion, AnimatePresence } from "framer-motion";
+import { FIELDS, ordinal } from "./TeamPlacementEditor";
 
 /**
  * Deduplicates results: one entry per athlete_id (keep first encountered).
@@ -150,8 +151,22 @@ export default function MeetSummary({ meet, athletes }) {
     </div>
   );
 
+  // Team placement pills — only show fields with a value
+  const placementFields = FIELDS.filter(({ key }) => meet[key] != null && meet[key] !== "");
+  const TeamPlacementBadges = placementFields.length > 0 ? (
+    <div className="flex flex-wrap gap-1.5 pb-2">
+      <Medal className="w-3.5 h-3.5 text-accent shrink-0 mt-0.5" />
+      {placementFields.map(({ key, label }) => (
+        <span key={key} className="text-xs font-semibold bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+          {label} — {ordinal(meet[key])}
+        </span>
+      ))}
+    </div>
+  ) : null;
+
   return (
     <div className="space-y-3 pt-2">
+      {TeamPlacementBadges}
       {boysRunners.length > 0 || boysDnrs.length > 0 ? renderGroup("👦 Boys Team", boysRunners, boysDnrs) : null}
       {girlsRunners.length > 0 || girlsDnrs.length > 0 ? renderGroup("👩 Girls Team", girlsRunners, girlsDnrs) : null}
     </div>

@@ -1,8 +1,22 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Loader2, ChevronRight, ChevronLeft, UserRound, Trophy } from "lucide-react";
+import { Loader2, ChevronRight, ChevronLeft, UserRound, Trophy, Medal } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
+import { ordinal } from "./TeamPlacementEditor";
+
+// Maps teamGroup filter value → placement field keys to display
+const GROUP_PLACE_FIELDS = {
+  all:   ["varsity_boys_place", "jv_boys_place", "varsity_girls_place", "jv_girls_place"],
+  boys:  ["varsity_boys_place", "jv_boys_place"],
+  girls: ["varsity_girls_place", "jv_girls_place"],
+};
+const PLACE_LABELS = {
+  varsity_boys_place:  "VB",
+  jv_boys_place:       "JVB",
+  varsity_girls_place: "VG",
+  jv_girls_place:      "JVG",
+};
 
 // Parse "MM:SS" or "H:MM:SS" to total seconds for comparison. Returns null if unparseable.
 function timeToSeconds(timeStr) {
@@ -212,6 +226,8 @@ export default function SeasonSummary({ season, meets, athletes }) {
 
   const hasAnyData = sorted.some((r) => r.meetsRun > 0);
 
+  const placeFields = GROUP_PLACE_FIELDS[teamGroup] || GROUP_PLACE_FIELDS.all;
+
   return (
     <div className="space-y-3 pt-2">
       <TeamGroupFilter value={teamGroup} onChange={setTeamGroup} />
@@ -252,6 +268,33 @@ export default function SeasonSummary({ season, meets, athletes }) {
             ))}
           </div>
         </>
+      )}
+
+      {/* Team placements per meet */}
+      {meets.some((m) => placeFields.some((f) => m[f] != null)) && (
+        <div className="pt-2">
+          <div className="flex items-center gap-2 mb-2">
+            <Medal className="w-4 h-4 text-accent" />
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Team Places by Meet</p>
+          </div>
+          <div className="rounded-xl border border-border overflow-hidden divide-y divide-border">
+            {meets.filter((m) => placeFields.some((f) => m[f] != null)).map((m) => (
+              <div key={m.id} className="px-3 py-2.5 bg-card flex items-start justify-between gap-2">
+                <div>
+                  <p className="text-sm font-medium text-foreground">{m.meet_name}</p>
+                  {m.meet_date && <p className="text-xs text-muted-foreground">{m.meet_date}</p>}
+                </div>
+                <div className="flex flex-wrap gap-1.5 justify-end">
+                  {placeFields.filter((f) => m[f] != null).map((f) => (
+                    <span key={f} className="text-xs font-semibold bg-accent/10 text-accent px-2 py-0.5 rounded-full whitespace-nowrap">
+                      {PLACE_LABELS[f]} — {ordinal(m[f])}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

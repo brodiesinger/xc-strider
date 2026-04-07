@@ -8,8 +8,10 @@ import MeetSummary from "./MeetSummary";
 import MeetLineupBuilder from "./MeetLineupBuilder";
 import CoachLineupView from "./CoachLineupView";
 import AthleteLineupCard from "./AthleteLineupCard";
+import TeamPlacementEditor from "./TeamPlacementEditor";
 
 export default function MeetList({ season, meets, athletes, onMeetsChanged, isCoach, athleteEmail }) {
+  const [localMeets, setLocalMeets] = useState(meets);
   const [meetName, setMeetName] = useState("");
   const [meetDate, setMeetDate] = useState("");
   const [conditions, setConditions] = useState("");
@@ -20,6 +22,9 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
   const [lineupMeet, setLineupMeet] = useState(null); // meet object for lineup builder
   // meetsWithResults: set of meet IDs that already have final results
   const [meetsWithResults, setMeetsWithResults] = useState(new Set());
+
+  // Keep localMeets in sync with prop (for parent-driven refreshes)
+  useEffect(() => { setLocalMeets(meets); }, [meets]);
 
   useEffect(() => {
     if (!isCoach || meets.length === 0) return;
@@ -85,7 +90,7 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
         <p className="text-sm text-muted-foreground text-center py-4">No meets yet.</p>
       ) : (
         <ul className="space-y-2">
-          {meets.map((meet) => {
+          {localMeets.map((meet) => {
             const resultsOpen = !!expandedResults[meet.id];
             return (
               <li key={meet.id} className="rounded-xl border border-border bg-card overflow-hidden">
@@ -153,6 +158,14 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
                     </div>
                     <div className="border-t border-border pt-3">
                       <MeetResultsPanel meet={meet} athletes={athletes || []} />
+                    </div>
+                    <div className="border-t border-border pt-3">
+                      <TeamPlacementEditor
+                        meet={meet}
+                        onSaved={(updated) =>
+                          setLocalMeets((prev) => prev.map((m) => m.id === updated.id ? updated : m))
+                        }
+                      />
                     </div>
                   </div>
                 )}

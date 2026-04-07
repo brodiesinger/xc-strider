@@ -19,6 +19,22 @@
       "type": "string",
       "default": "",
       "description": "Weather or course conditions"
+    },
+    "varsity_boys_place": {
+      "type": "number",
+      "description": "Team placement for Varsity Boys (positive integer, optional)"
+    },
+    "varsity_girls_place": {
+      "type": "number",
+      "description": "Team placement for Varsity Girls (positive integer, optional)"
+    },
+    "jv_boys_place": {
+      "type": "number",
+      "description": "Team placement for JV Boys (positive integer, optional)"
+    },
+    "jv_girls_place": {
+      "type": "number",
+      "description": "Team placement for JV Girls (positive integer, optional)"
     }
   },
   "required": [
