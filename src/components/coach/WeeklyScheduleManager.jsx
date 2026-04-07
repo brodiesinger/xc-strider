@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -50,6 +52,7 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
       if (editingDay.id) {
         // Update existing
         await base44.entities.PracticeSchedule.update(editingDay.id, form);
+        toast.success("Practice updated!");
       } else {
         // Create new
         await base44.entities.PracticeSchedule.create({
@@ -57,6 +60,7 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
           team_id: teamId,
           date: editingDay.date,
         });
+        toast.success("Practice added!");
       }
       setEditingDay(null);
       setForm({ title: "", time: "", location: "", notes: "" });
@@ -71,6 +75,7 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
     setSaving(true);
     try {
       await base44.entities.PracticeSchedule.delete(editingDay.id);
+      toast.success("Practice removed");
       setEditingDay(null);
       setForm({ title: "", time: "", location: "", notes: "" });
       onRefresh();
@@ -107,17 +112,19 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
           const isToday = format(new Date(), "yyyy-MM-dd") === dateStr;
 
           return (
-            <div
-              key={i}
-              className={`rounded-lg border-2 p-3 min-h-32 flex flex-col cursor-pointer transition-all ${
-                isToday
-                  ? "border-primary bg-primary/5"
-                  : practice
-                  ? "border-primary/30 bg-card"
-                  : "border-border hover:border-primary/50"
-              }`}
-              onClick={() => handleOpenEdit(i)}
-            >
+           <motion.div
+             key={i}
+             whileHover={{ scale: 1.02, y: -2 }}
+             whileTap={{ scale: 0.98 }}
+             className={`rounded-lg border-2 p-3 min-h-32 flex flex-col cursor-pointer transition-all shadow-sm ${
+               isToday
+                 ? "border-primary bg-primary/5"
+                 : practice
+                 ? "border-primary/30 bg-card"
+                 : "border-border hover:border-primary/50"
+             }`}
+             onClick={() => handleOpenEdit(i)}
+           >
               <p className="text-xs font-semibold text-muted-foreground truncate">{day}</p>
               <p className="text-xs text-muted-foreground font-medium">{format(date, "d")}</p>
               {practice ? (
@@ -129,15 +136,15 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
               ) : (
                 <p className="mt-2 text-xs text-muted-foreground">No practice</p>
               )}
-            </div>
+            </motion.div>
           );
         })}
       </div>
 
       {/* Edit Modal */}
       {editingDay && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-sm my-8">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} className="bg-card rounded-2xl border border-border p-6 w-full max-w-sm my-8">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">
                 {DAYS[editingDay.index]} – {format(parseISO(editingDay.date), "MMM d")}
@@ -174,13 +181,15 @@ export default function WeeklyScheduleManager({ teamId, schedule, onRefresh }) {
                     Delete
                   </Button>
                 )}
-                <Button type="submit" size="sm" disabled={saving}>
-                  {saving ? "Saving..." : "Save"}
-                </Button>
+                <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                  <Button type="submit" size="sm" disabled={saving}>
+                    {saving ? "Saving..." : "Save"}
+                  </Button>
+                </motion.div>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   );

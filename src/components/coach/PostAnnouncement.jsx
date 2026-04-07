@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 export default function PostAnnouncement({ teamId, coachName, onPosted }) {
@@ -19,6 +20,7 @@ export default function PostAnnouncement({ teamId, coachName, onPosted }) {
         team_id: teamId,
         coach_name: coachName,
       });
+      toast.success("Announcement posted!");
       setMessage("");
       setPosted(true);
       setTimeout(() => {
@@ -39,7 +41,7 @@ export default function PostAnnouncement({ teamId, coachName, onPosted }) {
         rows={3}
         required
       />
-      <motion.div animate={posted ? { scale: [1, 1.04, 1] } : {}} transition={{ duration: 0.3 }}>
+      <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} animate={posted ? { scale: [1, 1.04, 1] } : {}} transition={{ duration: 0.3 }}>
         <Button
           type="submit"
           disabled={saving || !message.trim() || posted}

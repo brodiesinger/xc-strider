@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 function OnboardingShell({ title, subtitle, children }) {
   return (
@@ -69,6 +70,7 @@ export default function Onboarding() {
         name_confirmed: true,
         display_name: generateDisplayName(first, last, currentUser?.user_type),
       });
+      toast.success("Name saved!");
       await refresh();
     } catch (err) {
       console.error("Failed to save name:", err);
@@ -87,6 +89,7 @@ export default function Onboarding() {
         user_type: selectedRole,
         display_name: generateDisplayName(firstName, lastName, selectedRole),
       });
+      toast.success(selectedRole === "coach" ? "Coach mode activated!" : "Athlete mode activated!");
       await refresh();
     } finally {
       setSaving(false);
@@ -101,6 +104,7 @@ export default function Onboarding() {
       await base44.auth.updateMe({
         team_group: selectedGroup,
       });
+      toast.success(`Joined ${selectedGroup} team!`);
       await refresh();
     } finally {
       setSaving(false);
@@ -109,49 +113,51 @@ export default function Onboarding() {
 
   // ── Step 3a: Coach creates team ────────────────────────────────
   const handleCreateTeam = async (e) => {
-    e.preventDefault();
-    const name = teamName.trim();
-    if (!name) return;
-    setError("");
-    setSaving(true);
-    try {
-      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-      const team = await base44.entities.Team.create({
-        name,
-        join_code: code,
-        coach_email: currentUser.email,
-      });
-      if (!team?.id) throw new Error("Team creation failed.");
-      await base44.auth.updateMe({ team_id: team.id });
-      await refresh();
-    } catch (err) {
-      setError(err.message || "Failed to create team. Please try again.");
-    } finally {
-      setSaving(false);
-    }
+   e.preventDefault();
+   const name = teamName.trim();
+   if (!name) return;
+   setError("");
+   setSaving(true);
+   try {
+     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+     const team = await base44.entities.Team.create({
+       name,
+       join_code: code,
+       coach_email: currentUser.email,
+     });
+     if (!team?.id) throw new Error("Team creation failed.");
+     await base44.auth.updateMe({ team_id: team.id });
+     toast.success(`Team "${name}" created!`);
+     await refresh();
+   } catch (err) {
+     setError(err.message || "Failed to create team. Please try again.");
+   } finally {
+     setSaving(false);
+   }
   };
 
   // ── Step 4b: Athlete joins team ────────────────────────────────
   const handleJoinTeam = async (e) => {
-    e.preventDefault();
-    const code = joinCode.trim().toUpperCase();
-    if (!code) return;
-    setError("");
-    setSaving(true);
-    try {
-      const teams = await base44.entities.Team.filter({ join_code: code });
-      if (!teams || teams.length === 0) {
-        setError("Invalid join code. Check with your coach and try again.");
-        setSaving(false);
-        return;
-      }
-      await base44.auth.updateMe({ team_id: teams[0].id });
-      await refresh();
-    } catch (err) {
-      setError(err.message || "Failed to join team. Please try again.");
-    } finally {
-      setSaving(false);
-    }
+   e.preventDefault();
+   const code = joinCode.trim().toUpperCase();
+   if (!code) return;
+   setError("");
+   setSaving(true);
+   try {
+     const teams = await base44.entities.Team.filter({ join_code: code });
+     if (!teams || teams.length === 0) {
+       setError("Invalid join code. Check with your coach and try again.");
+       setSaving(false);
+       return;
+     }
+     toast.success(`Joined ${teams[0].name}!`);
+     await base44.auth.updateMe({ team_id: teams[0].id });
+     await refresh();
+   } catch (err) {
+     setError(err.message || "Failed to join team. Please try again.");
+   } finally {
+     setSaving(false);
+   }
   };
 
   // While saving, show a subtle spinner overlay so the user knows something is happening
@@ -187,13 +193,15 @@ export default function Onboarding() {
             />
           </div>
           {error && <p className="text-xs text-destructive">{error}</p>}
-          <Button
-            type="submit"
-            disabled={saving || !firstName.trim() || !lastName.trim()}
-            className="w-full h-10 mt-1"
-          >
-            {saving ? "Saving..." : "Continue"}
-          </Button>
+          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+            <Button
+              type="submit"
+              disabled={saving || !firstName.trim() || !lastName.trim()}
+              className="w-full h-10 mt-1"
+            >
+              {saving ? "Saving..." : "Continue"}
+            </Button>
+          </motion.div>
         </form>
       </OnboardingShell>
     );
@@ -292,9 +300,11 @@ export default function Onboarding() {
            />
          </div>
          {error && <p className="text-xs text-destructive">{error}</p>}
-         <Button type="submit" disabled={saving || !teamName.trim()} className="w-full h-10 mt-1">
-           {saving ? "Creating..." : "Create Team"}
-         </Button>
+         <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+           <Button type="submit" disabled={saving || !teamName.trim()} className="w-full h-10 mt-1">
+             {saving ? "Creating..." : "Create Team"}
+           </Button>
+         </motion.div>
        </form>
      </OnboardingShell>
    );
@@ -318,9 +328,11 @@ export default function Onboarding() {
            />
          </div>
          {error && <p className="text-xs text-destructive">{error}</p>}
-         <Button type="submit" disabled={saving || !joinCode.trim()} className="w-full h-10 mt-1">
-           {saving ? "Joining..." : "Join Team"}
-         </Button>
+         <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+           <Button type="submit" disabled={saving || !joinCode.trim()} className="w-full h-10 mt-1">
+             {saving ? "Joining..." : "Join Team"}
+           </Button>
+         </motion.div>
        </form>
      </OnboardingShell>
    );

@@ -6,6 +6,8 @@ import { TreePine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -40,10 +42,12 @@ export default function Home() {
       if (mode === "signup") {
         await base44.auth.register({ email, password });
         await base44.auth.resendOtp(email);
+        toast.success("Account created! Check your email for verification.");
         // After register, need OTP verification — redirect to OTP step
         navigate(`/verify-email?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`);
       } else {
         await base44.auth.loginViaEmailPassword(email, password);
+        toast.success("Signed in!");
         await refresh();
         // routeUser will fire via useEffect
       }
@@ -55,9 +59,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 sm:px-6 py-6">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="min-h-screen bg-background flex flex-col items-center justify-center px-4 sm:px-6 py-6">
       <div className="flex flex-col items-center gap-8 w-full max-w-sm">
-        <div className="flex flex-col items-center gap-3">
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1, duration: 0.3 }} className="flex flex-col items-center gap-3">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
             <TreePine className="w-8 h-8 text-primary" />
           </div>
@@ -65,7 +69,7 @@ export default function Home() {
           <p className="text-sm text-muted-foreground text-center">
             {mode === "login" ? "Sign in to your account" : "Create a new account"}
           </p>
-        </div>
+        </motion.div>
 
         <form onSubmit={handleSubmit} className="w-full space-y-3">
           <div className="space-y-1.5">
@@ -94,22 +98,26 @@ export default function Home() {
 
           {error && <p className="text-xs text-destructive">{error}</p>}
 
-          <Button type="submit" disabled={loading} className="w-full h-10 mt-1">
-            {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
-          </Button>
+          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+            <Button type="submit" disabled={loading} className="w-full h-10 mt-1">
+              {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
+            </Button>
+          </motion.div>
         </form>
 
         <p className="text-sm text-muted-foreground text-center">
           {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
-          <button
+          <motion.button
             type="button"
             onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="text-primary font-medium hover:underline"
           >
             {mode === "login" ? "Sign up" : "Sign in"}
-          </button>
+          </motion.button>
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }

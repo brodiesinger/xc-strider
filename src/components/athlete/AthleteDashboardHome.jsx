@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Ruler, TrendingUp, Activity, BarChart2, Lightbulb, Users, Zap, Plus, Trophy, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 import { startOfWeek, format } from "date-fns";
 import { AnimatePresence } from "framer-motion";
 import {
@@ -93,6 +94,7 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
         energy: data.energy,
         pain: data.pain,
       });
+      toast.success("Check-in saved!");
       setTodayCheckIn({ id: "temp" }); // Mark as submitted
     } catch (err) {
       console.error("Failed to submit check-in:", err);
@@ -252,10 +254,10 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
 
       {/* Log Workout CTA */}
       <motion.button
-        whileHover={{ scale: 1.02 }}
+        whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)" }}
         whileTap={{ scale: 0.98 }}
         onClick={onLogWorkout}
-        className="w-full rounded-2xl bg-primary text-primary-foreground p-5 flex items-center gap-4 shadow-md transition-transform"
+        className="w-full rounded-2xl bg-primary text-primary-foreground p-5 flex items-center gap-4 shadow-md transition-shadow"
       >
         <div className="w-12 h-12 rounded-full bg-primary-foreground/15 flex items-center justify-center shrink-0">
           <Plus className="w-6 h-6" />

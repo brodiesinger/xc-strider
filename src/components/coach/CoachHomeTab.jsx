@@ -3,6 +3,7 @@ import { Users, Activity, Megaphone, ShieldAlert, ChevronRight, CalendarDays } f
 import { getDisplayName } from "@/lib/displayName";
 import { format, startOfWeek } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import RosterDrawer from "./RosterDrawer";
 import PostAnnouncement from "./PostAnnouncement";
 import AnnouncementFeed from "@/components/shared/AnnouncementFeed";
@@ -14,22 +15,22 @@ import MeetLineupBuilder from "@/components/seasons/MeetLineupBuilder";
 
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
-    <div className="flex-1 rounded-2xl border border-border bg-card p-4 flex flex-col gap-1">
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex-1 rounded-2xl border border-border bg-card p-4 flex flex-col gap-1 hover:shadow-md transition-shadow">
       <Icon className="w-5 h-5 text-primary mb-1" />
       <p className="text-2xl font-bold text-foreground">{value}</p>
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
       {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
-    </div>
+    </motion.div>
   );
 }
 
 function QuickActionBtn({ icon: Icon, label, onClick, color = "bg-primary/10 text-primary" }) {
   return (
     <motion.button
-      whileHover={{ y: -2 }}
-      whileTap={{ y: 0 }}
+      whileHover={{ y: -2, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+      whileTap={{ y: 0, scale: 0.95 }}
       onClick={onClick}
-      className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-colors"
+      className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-colors shadow-sm"
     >
       <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center`}>
         <Icon className="w-5 h-5" />
