@@ -51,8 +51,11 @@ function ResultTable({ results, athleteMap }) {
   if (deduped.length === 0) return null;
 
   const getName = (email) => {
+    if (!email) return "Unknown";
     const athlete = athleteMap[email];
-    return athlete ? getDisplayName(athlete) : email;
+    if (athlete) return getDisplayName(athlete);
+    // Fallback: show the part before the @ to avoid exposing full email
+    return email.split("@")[0] || email;
   };
 
   return (
@@ -173,26 +176,27 @@ function GroupedMeetBlock({ meet, results, lineup, athleteMap, sections }) {
   );
 }
 
-export default function PacketMeetResults({ meets, teamId, groupBy = "none" }) {
+export default function PacketMeetResults({ meets = [], teamId, groupBy = "none" }) {
   const [resultsByMeet, setResultsByMeet] = useState({});
   const [lineupByMeet, setLineupByMeet] = useState({});
   const [athleteMap, setAthleteMap] = useState({});
   const [loaded, setLoaded] = useState(false);
 
-  const meetIdsKey = meets.map((m) => m.id).join(",");
+  const safeMeets = meets || [];
+  const meetIdsKey = safeMeets.map((m) => m.id).join(",");
 
   useEffect(() => {
-    if (!meets || meets.length === 0) { setLoaded(true); return; }
+    if (safeMeets.length === 0) { setLoaded(true); return; }
     const load = async () => {
       try {
         const isAuth = await base44.auth.isAuthenticated();
         const [resultPairs, lineupChunks, athleteRes] = await Promise.all([
           Promise.all(
-            meets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []).then((r) => [m.id, r || []]))
+            safeMeets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []).then((r) => [m.id, r || []]))
           ),
           groupBy !== "none"
-            ? Promise.all(meets.map((m) => base44.entities.MeetLineup.filter({ meet_id: m.id }).catch(() => [])))
-            : Promise.resolve(meets.map(() => [])),
+            ? Promise.all(safeMeets.map((m) => base44.entities.MeetLineup.filter({ meet_id: m.id }).catch(() => [])))
+            : Promise.resolve(safeMeets.map(() => [])),
           isAuth && teamId
             ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => ({ data: { athletes: [] } }))
             : Promise.resolve(null),
@@ -203,7 +207,7 @@ export default function PacketMeetResults({ meets, teamId, groupBy = "none" }) {
         setResultsByMeet(rmap);
 
         const lmap = {};
-        meets.forEach((m, i) => { lmap[m.id] = lineupChunks[i] || []; });
+        safeMeets.forEach((m, i) => { lmap[m.id] = lineupChunks[i] || []; });
         setLineupByMeet(lmap);
 
         const athletes = athleteRes?.data?.athletes || [];
@@ -221,7 +225,7 @@ export default function PacketMeetResults({ meets, teamId, groupBy = "none" }) {
 
   if (!loaded) return <div className="text-gray-400 text-sm py-2">Loading results...</div>;
 
-  const meetsWithData = meets.filter((m) => (resultsByMeet[m.id] || []).length > 0);
+  const meetsWithData = safeMeets.filter((m) => (resultsByMeet[m.id] || []).length > 0);
   if (meetsWithData.length === 0) return null;
 
   const sections = GROUP_SECTIONS[groupBy];

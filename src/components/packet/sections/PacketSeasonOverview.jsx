@@ -67,34 +67,39 @@ function GroupStats({ label, athleteEmails, allResults, meets }) {
   );
 }
 
-export default function PacketSeasonOverview({ season, meets, filter = "whole_team", athleteCount = 0 }) {
+export default function PacketSeasonOverview({ season, meets = [], filter = "whole_team", athleteCount = 0 }) {
   const [allResults, setAllResults] = useState([]);
   const [lineupByMeet, setLineupByMeet] = useState({}); // meetId -> [{ athlete_id, team_group }]
   const [loaded, setLoaded] = useState(false);
 
-  const meetIdsKey = meets.map((m) => m.id).join(",");
+  const meetIdsKey = (meets || []).map((m) => m.id).join(",");
 
   useEffect(() => {
-    if (!meets || meets.length === 0) { setLoaded(true); return; }
+    const safeMeets = meets || [];
+    if (safeMeets.length === 0) { setLoaded(true); return; }
+    setLoaded(false);
     Promise.all([
-      Promise.all(meets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []))),
-      Promise.all(meets.map((m) => base44.entities.MeetLineup.filter({ meet_id: m.id }).catch(() => []))),
+      Promise.all(safeMeets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []))),
+      Promise.all(safeMeets.map((m) => base44.entities.MeetLineup.filter({ meet_id: m.id }).catch(() => []))),
     ]).then(([resultChunks, lineupChunks]) => {
       setAllResults(resultChunks.flat());
       const lmap = {};
-      meets.forEach((m, i) => { lmap[m.id] = lineupChunks[i] || []; });
+      safeMeets.forEach((m, i) => { lmap[m.id] = lineupChunks[i] || []; });
       setLineupByMeet(lmap);
       setLoaded(true);
-    }).catch(() => setLoaded(true));
+    }).catch(() => { setAllResults([]); setLineupByMeet({}); setLoaded(true); });
   }, [meetIdsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (!season) return null;
   if (!loaded) return <div className="text-gray-400 text-sm py-2">Loading overview...</div>;
 
   const sections = FILTER_SECTIONS[filter] || FILTER_SECTIONS.whole_team;
 
+  const safeMeets = meets || [];
+
   // Build a map: athlete_id -> most common group across all meets
   const groupVotes = {}; // athleteEmail -> { [groupKey]: count }
-  meets.forEach((m) => {
+  safeMeets.forEach((m) => {
     (lineupByMeet[m.id] || []).forEach((r) => {
       if (!groupVotes[r.athlete_id]) groupVotes[r.athlete_id] = {};
       groupVotes[r.athlete_id][r.team_group] = (groupVotes[r.athlete_id][r.team_group] || 0) + 1;
@@ -129,7 +134,7 @@ export default function PacketSeasonOverview({ season, meets, filter = "whole_te
       {/* Season-level stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="border border-gray-200 rounded-lg p-4 text-center">
-          <p className="text-3xl font-bold text-gray-900">{meets.length}</p>
+          <p className="text-3xl font-bold text-gray-900">{safeMeets.length}</p>
           <p className="text-xs text-gray-500 mt-1">Meets</p>
         </div>
         <div className="border border-gray-200 rounded-lg p-4 text-center">
@@ -154,11 +159,11 @@ export default function PacketSeasonOverview({ season, meets, filter = "whole_te
       ))}
 
       {/* Meets list */}
-      {meets.length > 0 && (
+      {safeMeets.length > 0 && (
         <div>
           <p className="text-sm font-semibold text-gray-700 mb-2">Meets This Season</p>
           <ul className="space-y-1">
-            {meets.map((m) => (
+            {safeMeets.map((m) => (
               <li key={m.id} className="flex items-center justify-between text-sm text-gray-800 border-b border-gray-100 pb-1">
                 <span>{m.meet_name}</span>
                 {m.meet_date && <span className="text-gray-400 text-xs">{m.meet_date}</span>}

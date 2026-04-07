@@ -50,7 +50,7 @@ function BlockContent({ block, seasons, meets, teamId }) {
 
     case "season_overview": {
       if (!season) return null;
-      return <PacketSeasonOverview season={season} meets={seasonMeets} filter={block.filter} />;
+      return <PacketSeasonOverview season={season} meets={seasonMeets} filter={block.filter || "whole_team"} />;
     }
 
     case "meet_results": {

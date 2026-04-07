@@ -151,15 +151,20 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
 
 export default function MeetResultsPanel({ meet, athletes }) {
   const [results, setResults] = useState([]);
-  const [lineup, setLineup] = useState(null); // null=loading
+  const [lineup, setLineup] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchResults = useCallback(async () => {
     try {
-      const data = await base44.entities.MeetResult.filter({ meet_id: meet.id });
+      const [data, lineupData] = await Promise.all([
+        base44.entities.MeetResult.filter({ meet_id: meet.id }),
+        base44.entities.MeetLineup.filter({ meet_id: meet.id }),
+      ]);
       setResults(data || []);
+      setLineup(lineupData || []);
     } catch {
       setResults([]);
+      setLineup([]);
     } finally {
       setLoading(false);
     }
@@ -167,10 +172,6 @@ export default function MeetResultsPanel({ meet, athletes }) {
 
   useEffect(() => {
     fetchResults();
-    // Fetch lineup in parallel
-    base44.entities.MeetLineup.filter({ meet_id: meet.id })
-      .then((records) => setLineup(records || []))
-      .catch(() => setLineup([]));
   }, [fetchResults]);
 
   if (loading) {

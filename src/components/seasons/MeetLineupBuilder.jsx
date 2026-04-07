@@ -13,14 +13,19 @@ const GROUPS = [
 
 function AthleteChip({ athlete, groupKey, assignment, onAssign }) {
   const isAssigned = assignment === groupKey;
+  // Assigned to a different group in the same gender section
+  const isAssignedElsewhere = assignment && assignment !== groupKey;
   return (
     <button
       onClick={() => onAssign(athlete.email, isAssigned ? null : groupKey)}
       className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-sm font-medium transition-all ${
         isAssigned
           ? "bg-primary text-primary-foreground border-primary"
+          : isAssignedElsewhere
+          ? "bg-muted border-border text-muted-foreground opacity-50"
           : "bg-card border-border text-foreground hover:border-primary/50 hover:bg-primary/5"
       }`}
+      title={isAssignedElsewhere ? `Already assigned to ${assignment.replace("_", " ")}` : ""}
     >
       <UserRound className="w-3.5 h-3.5 shrink-0" />
       {getDisplayName(athlete)}
@@ -37,8 +42,9 @@ export default function MeetLineupBuilder({ meet, athletes, onClose }) {
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null); // "success" | "error"
 
-  const boyAthletes = (athletes || []).filter((a) => !a.team_group || a.team_group === "boys");
-  const girlAthletes = (athletes || []).filter((a) => !a.team_group || a.team_group === "girls");
+  // Strict gender split — only include athletes explicitly tagged, plus untagged shown in both
+  const boyAthletes = (athletes || []).filter((a) => a.team_group === "boys" || !a.team_group);
+  const girlAthletes = (athletes || []).filter((a) => a.team_group === "girls" || !a.team_group);
 
   const loadLineup = useCallback(async () => {
     console.log("[MeetLineupBuilder] Loading lineup for meet:", meet.id);
