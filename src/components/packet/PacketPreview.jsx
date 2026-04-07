@@ -59,7 +59,7 @@ function BlockContent({ block, seasons, meets, teamId }) {
         ? seasonMeets.filter((m) => m.id === block.meetId)
         : seasonMeets;
       if (targetMeets.length === 0) return null;
-      return <PacketMeetResults meets={targetMeets} teamId={teamId} />;
+      return <PacketMeetResults meets={targetMeets} teamId={teamId} groupBy={block.groupBy || "none"} />;
     }
 
     default:

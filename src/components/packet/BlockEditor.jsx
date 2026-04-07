@@ -56,17 +56,15 @@ export default function BlockEditor({ block, seasons, meets, onChange }) {
         <div className="space-y-2">
           <SeasonSelect seasons={seasons} value={block.seasonId} onChange={(v) => onChange({ ...block, seasonId: v })} />
           <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">Filter athletes</label>
+            <label className="text-xs text-muted-foreground">Team group</label>
             <select
               className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-              value={block.filter || "all"}
+              value={block.filter || "whole_team"}
               onChange={(e) => onChange({ ...block, filter: e.target.value })}
             >
-              <option value="all">All athletes</option>
-              <option value="varsity">Varsity only</option>
-              <option value="jv">JV only</option>
-              <option value="boys">Boys only</option>
-              <option value="girls">Girls only</option>
+              <option value="whole_team">Whole Team</option>
+              <option value="boys">Boys Team</option>
+              <option value="girls">Girls Team</option>
             </select>
           </div>
         </div>
@@ -77,19 +75,34 @@ export default function BlockEditor({ block, seasons, meets, onChange }) {
         <div className="space-y-2">
           <SeasonSelect seasons={seasons} value={block.seasonId} onChange={(v) => onChange({ ...block, seasonId: v, meetId: "" })} />
           {block.seasonId && (
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Meet (leave blank for all)</label>
-              <select
-                className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-                value={block.meetId || ""}
-                onChange={(e) => onChange({ ...block, meetId: e.target.value })}
-              >
-                <option value="">All meets in season</option>
-                {seasonMeets.map((m) => (
-                  <option key={m.id} value={m.id}>{m.meet_name}</option>
-                ))}
-              </select>
-            </div>
+            <>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Meet (leave blank for all)</label>
+                <select
+                  className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+                  value={block.meetId || ""}
+                  onChange={(e) => onChange({ ...block, meetId: e.target.value })}
+                >
+                  <option value="">All meets in season</option>
+                  {seasonMeets.map((m) => (
+                    <option key={m.id} value={m.id}>{m.meet_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Group results by</label>
+                <select
+                  className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+                  value={block.groupBy || "none"}
+                  onChange={(e) => onChange({ ...block, groupBy: e.target.value })}
+                >
+                  <option value="none">No grouping (flat list)</option>
+                  <option value="whole_team">Whole Team (Varsity/JV Boys &amp; Girls)</option>
+                  <option value="boys">Boys Team (Varsity/JV Boys)</option>
+                  <option value="girls">Girls Team (Varsity/JV Girls)</option>
+                </select>
+              </div>
+            </>
           )}
         </div>
       );

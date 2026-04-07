@@ -19,8 +19,8 @@ export function newBlock(type, preselectedSeasonId = "") {
     case "title": return { ...base, text: "" };
     case "text_block": return { ...base, title: "", body: "" };
     case "image": return { ...base, url: "", caption: "" };
-    case "season_overview": return { ...base, seasonId: preselectedSeasonId, filter: "all" };
-    case "meet_results": return { ...base, seasonId: preselectedSeasonId, meetId: "" };
+    case "season_overview": return { ...base, seasonId: preselectedSeasonId, filter: "whole_team" };
+    case "meet_results": return { ...base, seasonId: preselectedSeasonId, meetId: "", groupBy: "none" };
     default: return base;
   }
 }
