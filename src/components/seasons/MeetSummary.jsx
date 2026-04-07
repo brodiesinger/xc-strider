@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Loader2, UserRound, Medal } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
+import { deduplicateResults, deduplicateLineup, getAssignmentMap } from "@/lib/lineupValidation";
 import { ordinal } from "./TeamPlacementEditor";
 
 const GENDER_TABS = [
@@ -124,20 +125,18 @@ export default function MeetSummary({ meet, athletes }) {
         base44.entities.MeetLineup.filter({ meet_id: meet.id }),
       ]);
 
-      // Build assignment map: athlete_id -> lineup group key
-      const assignmentMap = {};
-      (lineupData || []).forEach((l) => { assignmentMap[l.athlete_id] = l.team_group; });
+      // Deduplicate and build assignment map
+      const deduped = deduplicateResults(data || []);
+      const dedupeLineup = deduplicateLineup(lineupData || []);
+      const assignmentMap = getAssignmentMap(dedupeLineup);
 
-      // Deduplicate results (one per athlete_id)
-      const seen = new Set();
-      const deduped = [];
-      for (const r of (data || [])) {
-        if (!r.athlete_id || seen.has(r.athlete_id)) continue;
-        seen.add(r.athlete_id);
-        // Attach group from lineup
-        deduped.push({ ...r, _group: assignmentMap[r.athlete_id] || null });
-      }
-      setResults(deduped);
+      // Attach group from lineup
+      const resultsWithGroups = deduped.map(r => ({
+        ...r,
+        _group: assignmentMap[r.athlete_id] || null
+      }));
+
+      setResults(resultsWithGroups);
     } catch {
       setLoadError(true);
       setResults([]);

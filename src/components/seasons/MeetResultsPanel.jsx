@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, AlertCircle, Loader2, UserRound, Medal } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
+import { deduplicateResults, deduplicateLineup } from "@/lib/lineupValidation";
 import { ordinal } from "./TeamPlacementEditor";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -234,8 +235,11 @@ export default function MeetResultsPanel({ meet, athletes }) {
         base44.entities.MeetResult.filter({ meet_id: meet.id }),
         base44.entities.MeetLineup.filter({ meet_id: meet.id }),
       ]);
-      setResults(data || []);
-      setLineup(lineupData || []);
+      // Deduplicate to ensure data integrity
+      const deduped = deduplicateResults(data || []);
+      const dedupeLineup = deduplicateLineup(lineupData || []);
+      setResults(deduped);
+      setLineup(dedupeLineup);
     } catch {
       setResults([]);
       setLineup([]);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { getDisplayName } from "@/lib/displayName";
+import { deduplicateResults, deduplicateLineup, separateResultsBySections } from "@/lib/lineupValidation";
 
 // Sections per groupBy value
 const GROUP_SECTIONS = {
@@ -30,12 +31,7 @@ function timeToSeconds(t) {
 }
 
 function ResultTable({ results, athleteMap }) {
-  const seen = new Set();
-  const deduped = results.filter((r) => {
-    if (!r.athlete_id || seen.has(r.athlete_id)) return false;
-    seen.add(r.athlete_id);
-    return true;
-  });
+  const deduped = deduplicateResults(results);
 
   const runners = deduped
     .filter((r) => !r.did_not_run)
@@ -98,12 +94,7 @@ function ResultTable({ results, athleteMap }) {
 
 // Flat (ungrouped) single meet table — original behavior
 function FlatMeetBlock({ meet, results, athleteMap }) {
-  const seen = new Set();
-  const deduped = results.filter((r) => {
-    if (!r.athlete_id || seen.has(r.athlete_id)) return false;
-    seen.add(r.athlete_id);
-    return true;
-  });
+  const deduped = deduplicateResults(results);
   if (deduped.length === 0) return null;
 
   return (
@@ -136,25 +127,25 @@ function ordStr(n) {
 function GroupedMeetBlock({ meet, results, lineup, athleteMap, sections }) {
   if (!results || results.length === 0) return null;
 
-  // Build assignment map for this meet
-  const assignmentMap = {};
-  (lineup || []).forEach((r) => { assignmentMap[r.athlete_id] = r.team_group; });
-
-  const hasLineup = Object.keys(assignmentMap).length > 0;
+  const deduped = deduplicateResults(results);
+  const dedupeLineup = deduplicateLineup(lineup || []);
+  const hasLineup = dedupeLineup.length > 0;
 
   // If no lineup data, fall back to flat rendering
   if (!hasLineup) {
-    return <FlatMeetBlock meet={meet} results={results} athleteMap={athleteMap} />;
+    return <FlatMeetBlock meet={meet} results={deduped} athleteMap={athleteMap} />;
   }
 
-  // Separate results into sections
+  // Build assignment map for this meet
+  const assignmentMap = {};
+  dedupeLineup.forEach((r) => { assignmentMap[r.athlete_id] = r.team_group; });
+
+  // Separate results into sections using utility function
   const sectionResults = {};
   sections.forEach((s) => { sectionResults[s.key] = []; });
 
-  const seen = new Set();
-  results.forEach((r) => {
-    if (!r.athlete_id || seen.has(r.athlete_id)) return;
-    seen.add(r.athlete_id);
+  deduped.forEach((r) => {
+    if (!r.athlete_id) return;
     const group = assignmentMap[r.athlete_id];
     if (group && sectionResults[group]) {
       sectionResults[group].push(r);
@@ -165,7 +156,7 @@ function GroupedMeetBlock({ meet, results, lineup, athleteMap, sections }) {
   // Check if any section has data
   const hasSectionData = sections.some((s) => sectionResults[s.key].length > 0);
   if (!hasSectionData) {
-    return <FlatMeetBlock meet={meet} results={results} athleteMap={athleteMap} />;
+    return <FlatMeetBlock meet={meet} results={deduped} athleteMap={athleteMap} />;
   }
 
   return (
@@ -215,10 +206,20 @@ export default function PacketMeetResults({ meets = [], teamId, groupBy = "none"
         const isAuth = await base44.auth.isAuthenticated();
         const [resultPairs, lineupChunks, athleteRes] = await Promise.all([
           Promise.all(
-            safeMeets.map((m) => base44.entities.MeetResult.filter({ meet_id: m.id }).catch(() => []).then((r) => [m.id, r || []]))
+            safeMeets.map((m) => 
+              base44.entities.MeetResult.filter({ meet_id: m.id })
+                .catch(() => [])
+                .then((r) => [m.id, deduplicateResults(r || [])])
+            )
           ),
           groupBy !== "none"
-            ? Promise.all(safeMeets.map((m) => base44.entities.MeetLineup.filter({ meet_id: m.id }).catch(() => [])))
+            ? Promise.all(
+                safeMeets.map((m) => 
+                  base44.entities.MeetLineup.filter({ meet_id: m.id })
+                    .catch(() => [])
+                    .then((r) => deduplicateLineup(r || []))
+                )
+              )
             : Promise.resolve(safeMeets.map(() => [])),
           isAuth && teamId
             ? base44.functions.invoke("getTeamAthletes", { team_id: teamId }).catch(() => ({ data: { athletes: [] } }))

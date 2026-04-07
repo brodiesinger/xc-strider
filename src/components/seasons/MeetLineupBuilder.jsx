@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { X, Loader2, CheckCircle2, AlertCircle, Check } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
+import { deduplicateLineup, validateNoDualAssignment } from "@/lib/lineupValidation";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Group keys — unchanged, used by MeetResults, Packet, AthleteLineupCard
@@ -83,9 +84,10 @@ export default function MeetLineupBuilder({ meet, athletes, onClose }) {
     setLoading(true);
     try {
       const records = await base44.entities.MeetLineup.filter({ meet_id: meet.id });
+      const deduped = deduplicateLineup(records || []);
       const assignMap = {};
       const recordMap = {};
-      (records || []).forEach(r => {
+      deduped.forEach(r => {
         assignMap[r.athlete_id] = r.team_group;
         recordMap[r.athlete_id] = { id: r.id, team_group: r.team_group };
       });
@@ -108,7 +110,19 @@ export default function MeetLineupBuilder({ meet, athletes, onClose }) {
         delete next[email];
         return next;
       }
-      return { ...prev, [email]: activeKey };
+      // Before assigning to activeKey, remove any other assignment for this athlete
+      // to prevent dual JV/Varsity assignments within same gender
+      const next = { ...prev, [email]: activeKey };
+      
+      // Clean up opposite level assignment (only for same gender)
+      if (next[email] === activeKey) {
+        const oppositeGroup = GROUP_KEY[gender][level === "varsity" ? "jv" : "varsity"];
+        if (next[email] === oppositeGroup) {
+          delete next[email];
+        }
+      }
+      
+      return next;
     });
   };
 
@@ -118,6 +132,30 @@ export default function MeetLineupBuilder({ meet, athletes, onClose }) {
     setSaveStatus(null);
     try {
       const ops = [];
+      
+      // Build full assignments including existing records for validation
+      const allRecords = await base44.entities.MeetLineup.filter({ meet_id: meet.id });
+      const deduped = deduplicateLineup(allRecords || []);
+      
+      // Validate no dual assignments in final state
+      for (const athlete of (athletes || [])) {
+        const email = athlete.email;
+        const newGroup = assignments[email] || null;
+        
+        if (newGroup) {
+          // Check for dual assignment: validate against ALL other groups for same gender
+          const genderGroups = gender === "boys" ? ["varsity_boys", "jv_boys"] : ["varsity_girls", "jv_girls"];
+          const otherGroup = genderGroups.find(g => g !== newGroup);
+          
+          // Remove athlete from opposite level if they're assigned there
+          const existingInOther = deduped.find(r => r.athlete_id === email && r.team_group === otherGroup);
+          if (existingInOther) {
+            ops.push(base44.entities.MeetLineup.delete(existingInOther.id));
+          }
+        }
+      }
+      
+      // Now proceed with normal CRUD operations
       for (const athlete of (athletes || [])) {
         const email    = athlete.email;
         const newGroup = assignments[email] || null;
