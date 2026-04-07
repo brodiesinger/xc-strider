@@ -160,7 +160,12 @@ export default function MeetSummary({ meet, athletes }) {
     return <p className="text-xs text-destructive text-center py-3">Unable to load results.</p>;
   }
 
-  if (results.length === 0) {
+  // Check for any placement data even if no result rows
+  const hasAnyPlacement = ["varsity_boys_place","jv_boys_place","varsity_girls_place","jv_girls_place"].some(
+    (f) => meet[f] != null
+  );
+
+  if (results.length === 0 && !hasAnyPlacement) {
     return <p className="text-xs text-muted-foreground py-3 text-center">No results yet.</p>;
   }
 

@@ -194,7 +194,7 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
                       }}
                     >
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                        {getDisplayName(a)[0].toUpperCase()}
+                        {(getDisplayName(a)[0] ?? "?").toUpperCase()}
                       </div>
                       <span className="text-sm font-medium text-foreground">{getDisplayName(a)}</span>
                     </button>

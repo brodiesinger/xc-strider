@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/lib/CurrentUserContext";
 import SeasonList from "@/components/seasons/SeasonList";
@@ -9,8 +9,6 @@ import { InlineSpinner, ErrorState, SkeletonList } from "@/components/shared/Loa
 export default function SeasonMeets() {
   const { currentUser: user } = useCurrentUser();
   const navigate = useNavigate();
-  const loadingRef = useRef(false);
-
   // If accessed as a standalone page (not embedded in CoachDashboard), redirect coaches to the dashboard
   useEffect(() => {
     // Only redirect if we're actually on the /seasons route (not embedded)

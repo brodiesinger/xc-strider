@@ -19,28 +19,10 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
   const [expandedResults, setExpandedResults] = useState({});
-  const [lineupMeet, setLineupMeet] = useState(null); // meet object for lineup builder
-  // meetsWithResults: set of meet IDs that already have final results
-  const [meetsWithResults, setMeetsWithResults] = useState(new Set());
+  const [lineupMeet, setLineupMeet] = useState(null);
 
   // Keep localMeets in sync with prop (for parent-driven refreshes)
   useEffect(() => { setLocalMeets(meets); }, [meets]);
-
-  useEffect(() => {
-    if (!isCoach || meets.length === 0) return;
-    const checkResults = async () => {
-      const checks = await Promise.all(
-        meets.map(async (m) => {
-          try {
-            const results = await base44.entities.MeetResult.filter({ meet_id: m.id }, "-created_date", 1);
-            return results && results.length > 0 ? m.id : null;
-          } catch { return null; }
-        })
-      );
-      setMeetsWithResults(new Set(checks.filter(Boolean)));
-    };
-    checkResults();
-  }, [meets, isCoach]);
 
   const toggleResults = (meetId) =>
     setExpandedResults((prev) => ({ ...prev, [meetId]: !prev[meetId] }));
