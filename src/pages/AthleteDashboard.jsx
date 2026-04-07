@@ -17,6 +17,7 @@ import CelebrationOverlay from "@/components/athlete/gamification/CelebrationOve
 import { useGamification, ALL_BADGES } from "@/components/athlete/gamification/useStreakAndBadges";
 import useTeamTheme from "@/lib/useTeamTheme";
 import useDarkMode from "@/lib/useDarkMode";
+import { PageSpinner } from "@/components/shared/LoadingSkeleton";
 
 export default function AthleteDashboard() {
   const { currentUser: user, setCurrentUser: setUser } = useCurrentUser();
@@ -141,14 +142,7 @@ export default function AthleteDashboard() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-background">
-        <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
-        <p className="text-sm text-muted-foreground">Loading your dashboard...</p>
-      </div>
-    );
-  }
+  if (loading) return <PageSpinner label="Loading your dashboard..." />;
 
   return (
     <div className="min-h-screen bg-background">
@@ -177,10 +171,10 @@ export default function AthleteDashboard() {
         )}
 
         {activeTab === "performance" && (
-          <div className="space-y-6 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
-            <div className="pt-2">
-              <h1 className="text-2xl font-bold text-foreground">Performance</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">Your PRs and goals</p>
+          <div className="space-y-5 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+            <div className="pt-2 pb-1">
+              <h1 className="text-2xl font-bold text-foreground leading-tight">Performance</h1>
+              <p className="text-sm text-muted-foreground mt-1">Your PRs and goals</p>
             </div>
             {loadingWorkouts ? (
               <div className="flex justify-center py-16">
@@ -196,10 +190,10 @@ export default function AthleteDashboard() {
         )}
 
         {activeTab === "insights" && (
-          <div className="space-y-4 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
-            <div className="pt-2">
-              <h1 className="text-2xl font-bold text-foreground">Insights</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">Recovery and injury intel</p>
+          <div className="space-y-5 pb-28 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+            <div className="pt-2 pb-1">
+              <h1 className="text-2xl font-bold text-foreground leading-tight">Insights</h1>
+              <p className="text-sm text-muted-foreground mt-1">Recovery and injury intel</p>
             </div>
             {loadingWorkouts ? (
               <div className="flex flex-col items-center justify-center py-16 gap-2">

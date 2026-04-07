@@ -237,7 +237,7 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="rounded-2xl border border-border bg-gradient-to-br from-card to-card/90 p-4 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow"
+            className="rounded-2xl border border-border bg-card p-4 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center mb-1">
               <Icon className="w-4 h-4 text-primary" />
@@ -280,12 +280,12 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
               whileHover={{ y: -2 }}
               whileTap={{ y: 0 }}
               onClick={action}
-              className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 transition-colors"
+              className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/40 transition-colors shadow-sm"
             >
-              <div className={`w-9 h-9 rounded-full ${color} flex items-center justify-center`}>
+              <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center`}>
                 <Icon className="w-4 h-4" />
               </div>
-              <span className="text-[11px] font-medium text-foreground text-center leading-tight">{label}</span>
+              <span className="text-xs font-medium text-foreground text-center leading-tight">{label}</span>
             </motion.button>
           ))}
         </div>
@@ -320,6 +320,7 @@ export default function AthleteDashboardHome({ user, team, workouts = [], announ
           <WorkoutList workouts={recentWorkouts} />
         </section>
       )}
+
     </div>
   );
 }

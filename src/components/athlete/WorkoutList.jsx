@@ -16,7 +16,7 @@ export default function WorkoutList({ workouts }) {
       {workouts.map((w) => (
         <div
           key={w.id}
-          className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2"
+          className="rounded-2xl border border-border bg-card p-4 flex flex-col gap-2 shadow-sm"
         >
           <div className="flex items-center justify-between">
             <span className="font-medium text-foreground">

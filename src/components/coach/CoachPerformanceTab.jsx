@@ -169,7 +169,7 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
+      <div className="flex justify-center items-center py-16">
         <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
       </div>
     );
@@ -189,15 +189,15 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground font-medium">Filter by team group</p>
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Filter by team group</p>
         <TeamGroupFilter value={teamGroupFilter} onChange={setTeamGroupFilter} />
       </div>
 
       {/* Boys Athletes */}
       {boys.length > 0 && (
         <div>
-          <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">👦 Boys Team</p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">👦 Boys Team</p>
           <div className="space-y-4">
             {boys.map((athlete) => (
               <AthletePerformanceCard
@@ -215,7 +215,7 @@ export default function CoachPerformanceTab({ athletes = [], teamId }) {
       {/* Girls Athletes */}
       {girls.length > 0 && (
         <div>
-          <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">👩 Girls Team</p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">👩 Girls Team</p>
           <div className="space-y-4">
             {girls.map((athlete) => (
               <AthletePerformanceCard

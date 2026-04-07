@@ -49,8 +49,11 @@ export default function EndOfSeasonPacket() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">Loading packet data...</p>
+        </div>
       </div>
     );
   }
@@ -65,9 +68,9 @@ export default function EndOfSeasonPacket() {
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
             <FileText className="w-5 h-5 text-primary" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">End-of-Season Packet</h1>
-            <p className="text-sm text-muted-foreground">Build and print a professional season summary</p>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-foreground leading-tight">End-of-Season Packet</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Build and print a professional season summary</p>
           </div>
         </div>
         <PacketBuilder

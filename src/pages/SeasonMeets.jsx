@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/lib/CurrentUserContext";
 import SeasonList from "@/components/seasons/SeasonList";
 import { CalendarRange } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { InlineSpinner, ErrorState, SkeletonList } from "@/components/shared/LoadingSkeleton";
 
 export default function SeasonMeets() {
   const { currentUser: user } = useCurrentUser();
   const navigate = useNavigate();
+  const loadingRef = useRef(false);
 
   // If accessed as a standalone page (not embedded in CoachDashboard), redirect coaches to the dashboard
   useEffect(() => {
@@ -83,21 +85,8 @@ export default function SeasonMeets() {
     await fetchMeets();
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <p className="text-sm text-muted-foreground">Unable to load seasons.</p>
-      </div>
-    );
-  }
+  if (loading) return <InlineSpinner label="Loading seasons..." className="py-16" />;
+  if (error) return <ErrorState message="Unable to load seasons." className="py-16" />;
 
   return (
     <div className="pb-28">

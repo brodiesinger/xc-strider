@@ -16,6 +16,7 @@ import SeasonMeets from "./SeasonMeets";
 import useTeamTheme from "@/lib/useTeamTheme";
 import { getDisplayName, generateDisplayName } from "@/lib/displayName";
 import useDarkMode from "@/lib/useDarkMode";
+import { PageSpinner, ErrorState } from "@/components/shared/LoadingSkeleton";
 export default function CoachDashboard() {
   const { currentUser: user, setCurrentUser: setUser } = useCurrentUser();
   const navigate = useNavigate();
@@ -113,14 +114,7 @@ export default function CoachDashboard() {
     setSchedule(sched);
   };
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-background">
-        <div className="w-8 h-8 border-4 border-border border-t-primary rounded-full animate-spin" />
-        <p className="text-sm text-muted-foreground">Loading your team...</p>
-      </div>
-    );
-  }
+  if (loading) return <PageSpinner label="Loading your team..." />;
 
   // Athlete detail view (full-screen overlay, no bottom nav)
   if (selectedAthlete) {
@@ -170,14 +164,20 @@ export default function CoachDashboard() {
               />
             )}
             {activeTab === "performance" && (
-              <div className="pb-24 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
-                <h1 className="text-2xl font-bold text-foreground mb-6">Performance</h1>
+              <div className="pb-24 space-y-5 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+                <div className="pt-2 pb-1">
+                  <h1 className="text-2xl font-bold text-foreground leading-tight">Performance</h1>
+                  <p className="text-sm text-muted-foreground mt-1">Athlete goals and race PRs</p>
+                </div>
                 <CoachPerformanceTab athletes={athletes} teamId={team.id} />
               </div>
             )}
             {activeTab === "insights" && (
-              <div className="pb-24 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
-                <h1 className="text-2xl font-bold text-foreground mb-6">Insights</h1>
+              <div className="pb-24 space-y-5 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+                <div className="pt-2 pb-1">
+                  <h1 className="text-2xl font-bold text-foreground leading-tight">Insights</h1>
+                  <p className="text-sm text-muted-foreground mt-1">Injury risk and team health</p>
+                </div>
                 <CoachInsightsTab athletes={athletes} teamId={team.id} />
               </div>
             )}

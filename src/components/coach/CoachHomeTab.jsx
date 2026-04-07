@@ -78,12 +78,12 @@ export default function CoachHomeTab({
   };
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-5 pb-24">
       {/* Header */}
-      <div className="pt-2">
+      <div className="pt-2 pb-1">
         <p className="text-sm text-muted-foreground">Good to see you,</p>
-        <h1 className="text-2xl font-bold text-foreground">{getDisplayName(user)} 👋</h1>
-        {team && <p className="text-sm text-primary font-medium mt-0.5">{team.name}</p>}
+        <h1 className="text-2xl font-bold text-foreground leading-tight">{getDisplayName(user)} 👋</h1>
+        {team && <p className="text-sm text-primary font-medium mt-1">{team.name}</p>}
       </div>
 
       {/* Team Alerts */}
@@ -96,8 +96,8 @@ export default function CoachHomeTab({
       />
 
       {/* Team Group Filter */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground font-medium">Filter by team group</p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide shrink-0">Filter</p>
         <TeamGroupFilter value={teamGroupFilter} onChange={setTeamGroupFilter} />
       </div>
 
@@ -111,7 +111,7 @@ export default function CoachHomeTab({
         />
       )}
 
-      {/* Lineup Builder Modal (opened from Next Meet card) */}
+      {/* Lineup Builder Modal */}
       {lineupMeet && (
         <MeetLineupBuilder
           meet={lineupMeet}
@@ -121,14 +121,14 @@ export default function CoachHomeTab({
       )}
 
       {/* Stats Row */}
-      <div className="flex gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <StatCard icon={Users} label="Athletes" value={filteredAthletes.length} />
         <StatCard icon={Activity} label="Team Miles" value={`${weekMiles.toFixed(1)}`} sub="this week" />
       </div>
 
       {/* Quick Actions */}
       <section>
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</h2>
         <div className="grid grid-cols-4 gap-2">
           <QuickActionBtn
             icon={Megaphone}
@@ -143,7 +143,7 @@ export default function CoachHomeTab({
           />
           <QuickActionBtn
             icon={ShieldAlert}
-            label="Injury Alerts"
+            label="Alerts"
             onClick={onOpenInsights}
             color="bg-orange-100 text-orange-500"
           />
@@ -166,32 +166,33 @@ export default function CoachHomeTab({
             transition={{ duration: 0.2 }}
             className="rounded-2xl border border-border bg-card p-5"
           >
-          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Megaphone className="w-4 h-4 text-primary" /> Post Announcement
-          </h3>
-          <PostAnnouncement
-            teamId={team.id}
-            coachName={getDisplayName(user)}
-            onPosted={() => { onAnnouncementPosted(); setShowAnnouncement(false); }}
-          />
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Megaphone className="w-4 h-4 text-primary" /> Post Announcement
+            </h3>
+            <PostAnnouncement
+              teamId={team.id}
+              coachName={getDisplayName(user)}
+              onPosted={() => { onAnnouncementPosted(); setShowAnnouncement(false); }}
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Recent Activity */}
       <section>
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Recent Activity</h2>
-        <div className="rounded-2xl border border-border bg-card divide-y divide-border">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Recent Activity</h2>
+
+        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
           {recentWorkouts.length === 0 ? (
-            <p className="text-sm text-muted-foreground p-4">No workouts logged yet.</p>
+            <p className="text-sm text-muted-foreground px-4 py-5">No workouts logged yet.</p>
           ) : (
             recentWorkouts.map((w) => (
-              <div key={w.id} className="flex items-center justify-between p-4">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{getAthleteName(w)}</p>
-                  <p className="text-xs text-muted-foreground">{w.date} · {w.distance} mi</p>
+              <div key={w.id} className="flex items-center justify-between px-4 py-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{getAthleteName(w)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{w.date} · {w.distance} mi</p>
                 </div>
-                <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
+                <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-1 rounded-full shrink-0 ml-3">
                   {w.time_minutes} min
                 </span>
               </div>
@@ -209,7 +210,7 @@ export default function CoachHomeTab({
 
       {/* Announcements Feed */}
       <section>
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Announcements</h2>
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Announcements</h2>
         <div className="rounded-2xl border border-border bg-card p-5">
           <AnnouncementFeed announcements={announcements} />
         </div>

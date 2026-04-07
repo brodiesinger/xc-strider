@@ -104,7 +104,7 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
           const seasonMeets = meets.filter((m) => m.season_id === season.id);
           const isOpen = !!expanded[season.id];
           return (
-            <div key={season.id} className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div key={season.id} className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
               <div
                 className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-muted/40 transition-colors"
                 onClick={() => toggle(season.id)}
