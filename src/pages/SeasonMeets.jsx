@@ -126,6 +126,7 @@ export default function SeasonMeets() {
             isCoach={isCoach}
             onSeasonsChanged={handleSeasonsChanged}
             onMeetsChanged={handleMeetsChanged}
+            athleteEmail={!isCoach ? user?.email : undefined}
           />
         )}
       </div>

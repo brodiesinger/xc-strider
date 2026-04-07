@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import MeetResultsPanel from "./MeetResultsPanel";
 import MeetSummary from "./MeetSummary";
 import MeetLineupBuilder from "./MeetLineupBuilder";
+import CoachLineupView from "./CoachLineupView";
+import AthleteLineupCard from "./AthleteLineupCard";
 
-export default function MeetList({ season, meets, athletes, onMeetsChanged, isCoach }) {
+export default function MeetList({ season, meets, athletes, onMeetsChanged, isCoach, athleteEmail }) {
   const [meetName, setMeetName] = useState("");
   const [meetDate, setMeetDate] = useState("");
   const [conditions, setConditions] = useState("");
@@ -139,10 +141,23 @@ export default function MeetList({ season, meets, athletes, onMeetsChanged, isCo
                   </div>
                 </div>
 
+                {/* Athlete: lineup assignment card (for upcoming meets) */}
+                {!isCoach && athleteEmail && (
+                  <div className="px-3 pb-2">
+                    <AthleteLineupCard meet={meet} athleteEmail={athleteEmail} />
+                  </div>
+                )}
+
                 {/* Results panel (coach-only, expandable) */}
                 {isCoach && resultsOpen && (
-                  <div className="border-t border-border px-3 pb-3">
-                    <MeetResultsPanel meet={meet} athletes={athletes || []} />
+                  <div className="border-t border-border px-3 pb-3 space-y-4">
+                    <div className="pt-3">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Current Lineup</p>
+                      <CoachLineupView meet={meet} athletes={athletes || []} />
+                    </div>
+                    <div className="border-t border-border pt-3">
+                      <MeetResultsPanel meet={meet} athletes={athletes || []} />
+                    </div>
                   </div>
                 )}
 

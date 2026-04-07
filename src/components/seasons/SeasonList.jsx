@@ -8,7 +8,7 @@ import MeetList from "./MeetList";
 import SeasonSummary from "./SeasonSummary";
 import { getDisplayName } from "@/lib/displayName";
 
-export default function SeasonList({ seasons, meets, athletes, teamId, coachEmail, isCoach, onSeasonsChanged, onMeetsChanged }) {
+export default function SeasonList({ seasons, meets, athletes, teamId, coachEmail, isCoach, onSeasonsChanged, onMeetsChanged, athleteEmail }) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState({});
   const [seasonName, setSeasonName] = useState("");
@@ -152,6 +152,7 @@ export default function SeasonList({ seasons, meets, athletes, teamId, coachEmai
                     athletes={athletes}
                     onMeetsChanged={onMeetsChanged}
                     isCoach={isCoach}
+                    athleteEmail={athleteEmail}
                   />
                   {seasonMeets.length > 0 && (
                     <div className="border-t border-border pt-4">

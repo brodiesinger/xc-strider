@@ -5,7 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, AlertCircle, Loader2, UserRound } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
-import TeamGroupFilter from "@/components/shared/TeamGroupFilter";
+
+const SECTIONS = [
+  { key: "varsity_boys",  label: "Varsity Boys",  emoji: "🏆" },
+  { key: "jv_boys",       label: "JV Boys",        emoji: "🔵" },
+  { key: "varsity_girls", label: "Varsity Girls",  emoji: "🏆" },
+  { key: "jv_girls",      label: "JV Girls",       emoji: "🔴" },
+  { key: "unassigned",    label: "Unassigned",     emoji: "📋" },
+];
 
 function validateResult(fields) {
   if (fields.did_not_run) {
@@ -28,10 +35,9 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
   const [didNotRun, setDidNotRun] = useState(existingResult?.did_not_run ?? false);
   const [reason, setReason] = useState(existingResult?.reason ?? "");
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState(null); // "success" | "error"
+  const [status, setStatus] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Sync if external result changes (e.g. on refresh)
   useEffect(() => {
     setTime(existingResult?.time ?? "");
     setPlace(existingResult?.place != null ? String(existingResult.place) : "");
@@ -42,7 +48,6 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
 
   const handleSave = async () => {
     if (saving) return;
-
     const fields = {
       time: typeof time === "string" ? time.trim() : "",
       place: place !== "" ? place : null,
@@ -50,13 +55,8 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
       did_not_run: didNotRun,
       reason: reason.trim(),
     };
-
     const validationError = validateResult(fields);
-    if (validationError) {
-      setErrorMsg(validationError);
-      setStatus("error");
-      return;
-    }
+    if (validationError) { setErrorMsg(validationError); setStatus("error"); return; }
 
     const payload = {
       meet_id: meetId,
@@ -68,20 +68,13 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
       reason: didNotRun ? fields.reason : "",
     };
 
-    setSaving(true);
-    setStatus(null);
-    setErrorMsg("");
-
+    setSaving(true); setStatus(null); setErrorMsg("");
     try {
       if (existingResult?.id) {
-        console.log("[MeetResults] Updating result for", athlete.email, "meet", meetId);
         await base44.entities.MeetResult.update(existingResult.id, payload);
       } else {
-        // Double-check uniqueness before create
-        console.log("[MeetResults] Saving result for", athlete.email, "meet", meetId);
         const existing = await base44.entities.MeetResult.filter({ meet_id: meetId, athlete_id: athlete.email });
         if (existing && existing.length > 0) {
-          console.log("[MeetResults] Found existing on double-check, updating instead");
           await base44.entities.MeetResult.update(existing[0].id, payload);
         } else {
           await base44.entities.MeetResult.create(payload);
@@ -89,8 +82,7 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
       }
       setStatus("success");
       onSaved();
-    } catch (err) {
-      console.error("[MeetResults] Error saving result for", athlete.email, err);
+    } catch {
       setErrorMsg("Failed to save, try again.");
       setStatus("error");
     } finally {
@@ -100,7 +92,6 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
 
   return (
     <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-3">
-      {/* Athlete name header */}
       <div className="flex items-center gap-2">
         <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
           <UserRound className="w-3.5 h-3.5 text-primary" />
@@ -108,7 +99,6 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
         <span className="text-sm font-medium text-foreground">{getDisplayName(athlete)}</span>
       </div>
 
-      {/* DNR toggle */}
       <label className="flex items-center gap-2 cursor-pointer select-none w-fit">
         <input
           type="checkbox"
@@ -132,51 +122,28 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
         <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1">
             <Label className="text-xs">Time</Label>
-            <Input
-              placeholder="e.g. 18:32"
-              value={time}
-              onChange={(e) => { setTime(e.target.value); setStatus(null); setErrorMsg(""); }}
-            />
+            <Input placeholder="e.g. 18:32" value={time} onChange={(e) => { setTime(e.target.value); setStatus(null); setErrorMsg(""); }} />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Place</Label>
-            <Input
-              type="number"
-              min="1"
-              placeholder="—"
-              value={place}
-              onChange={(e) => { setPlace(e.target.value); setStatus(null); setErrorMsg(""); }}
-            />
+            <Input type="number" min="1" placeholder="—" value={place} onChange={(e) => { setPlace(e.target.value); setStatus(null); setErrorMsg(""); }} />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Points</Label>
-            <Input
-              type="number"
-              min="0"
-              placeholder="0"
-              value={points}
-              onChange={(e) => { setPoints(e.target.value); setStatus(null); setErrorMsg(""); }}
-            />
+            <Input type="number" min="0" placeholder="0" value={points} onChange={(e) => { setPoints(e.target.value); setStatus(null); setErrorMsg(""); }} />
           </div>
         </div>
       )}
 
-      {/* Status feedback */}
       {status === "success" && (
-        <p className="flex items-center gap-1.5 text-xs text-green-600">
-          <CheckCircle2 className="w-3.5 h-3.5" /> Saved successfully
-        </p>
+        <p className="flex items-center gap-1.5 text-xs text-green-600"><CheckCircle2 className="w-3.5 h-3.5" /> Saved successfully</p>
       )}
       {status === "error" && (
-        <p className="flex items-center gap-1.5 text-xs text-destructive">
-          <AlertCircle className="w-3.5 h-3.5" /> {errorMsg}
-        </p>
+        <p className="flex items-center gap-1.5 text-xs text-destructive"><AlertCircle className="w-3.5 h-3.5" /> {errorMsg}</p>
       )}
 
       <Button size="sm" onClick={handleSave} disabled={saving} className="w-full">
-        {saving ? (
-          <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Saving...</>
-        ) : existingResult ? "Update Result" : "Save Result"}
+        {saving ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Saving...</> : existingResult ? "Update Result" : "Save Result"}
       </Button>
     </div>
   );
@@ -184,28 +151,26 @@ function AthleteResultRow({ meetId, athlete, existingResult, onSaved }) {
 
 export default function MeetResultsPanel({ meet, athletes }) {
   const [results, setResults] = useState([]);
+  const [lineup, setLineup] = useState(null); // null=loading
   const [loading, setLoading] = useState(true);
-  const [teamGroupFilter, setTeamGroupFilter] = useState("all");
 
   const fetchResults = useCallback(async () => {
     try {
       const data = await base44.entities.MeetResult.filter({ meet_id: meet.id });
       setResults(data || []);
-    } catch (err) {
-      console.error("[MeetResults] Failed to load results:", err);
+    } catch {
       setResults([]);
     } finally {
       setLoading(false);
     }
   }, [meet.id]);
 
-  // Filter athletes by team_group
-  const filteredAthletes = teamGroupFilter === "all"
-    ? athletes
-    : athletes.filter((a) => a.team_group === teamGroupFilter);
-
   useEffect(() => {
     fetchResults();
+    // Fetch lineup in parallel
+    base44.entities.MeetLineup.filter({ meet_id: meet.id })
+      .then((records) => setLineup(records || []))
+      .catch(() => setLineup([]));
   }, [fetchResults]);
 
   if (loading) {
@@ -217,71 +182,66 @@ export default function MeetResultsPanel({ meet, athletes }) {
   }
 
   if (!athletes || athletes.length === 0) {
-    return (
-      <p className="text-xs text-muted-foreground text-center py-4">
-        No athletes on this team yet.
-      </p>
-    );
+    return <p className="text-xs text-muted-foreground text-center py-4">No athletes on this team yet.</p>;
   }
 
-  // Organize by team_group — athletes without team_group default to "boys"
-  const boys = filteredAthletes.filter((a) => (a.team_group || "boys") === "boys");
-  const girls = filteredAthletes.filter((a) => a.team_group === "girls");
+  // Build assignment map: email -> section key
+  const assignmentMap = {};
+  (lineup || []).forEach((r) => { assignmentMap[r.athlete_id] = r.team_group; });
+
+  // Deduplicate: each athlete appears only once
+  const seenEmails = new Set();
+  const sectionAthletes = { varsity_boys: [], jv_boys: [], varsity_girls: [], jv_girls: [], unassigned: [] };
+
+  athletes.forEach((athlete) => {
+    if (seenEmails.has(athlete.email)) return;
+    seenEmails.add(athlete.email);
+    const group = assignmentMap[athlete.email];
+    if (group && sectionAthletes[group]) {
+      sectionAthletes[group].push(athlete);
+    } else {
+      sectionAthletes.unassigned.push(athlete);
+    }
+  });
+
+  const hasLineup = (lineup || []).length > 0;
 
   return (
-    <div className="space-y-4 pt-2">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Enter Results</p>
-        <TeamGroupFilter value={teamGroupFilter} onChange={setTeamGroupFilter} className="!gap-1" />
-      </div>
+    <div className="space-y-5 pt-2">
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Enter Results</p>
 
-      {filteredAthletes.length === 0 ? (
-        <p className="text-xs text-muted-foreground text-center py-4">No athletes in selected team group.</p>
-      ) : (
-        <>
-          {/* Boys Results */}
-          {boys.length > 0 && (
-            <div>
-              <p className="text-xs text-muted-foreground mb-2 px-1 font-medium">👦 Boys</p>
-              <div className="space-y-2">
-                {boys.map((athlete) => {
-                  const existing = results.find((r) => r.athlete_id === athlete.email) || null;
-                  return (
-                    <AthleteResultRow
-                      key={athlete.email}
-                      meetId={meet.id}
-                      athlete={athlete}
-                      existingResult={existing}
-                      onSaved={fetchResults}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Girls Results */}
-          {girls.length > 0 && (
-            <div>
-              <p className="text-xs text-muted-foreground mb-2 px-1 font-medium">👩 Girls</p>
-              <div className="space-y-2">
-                {girls.map((athlete) => {
-                  const existing = results.find((r) => r.athlete_id === athlete.email) || null;
-                  return (
-                    <AthleteResultRow
-                      key={athlete.email}
-                      meetId={meet.id}
-                      athlete={athlete}
-                      existingResult={existing}
-                      onSaved={fetchResults}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </>
+      {!hasLineup && (
+        <div className="rounded-lg bg-muted/50 border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+          No lineup saved — all athletes shown as Unassigned. Save a lineup first to organize by section.
+        </div>
       )}
+
+      {SECTIONS.map((section) => {
+        const sectionList = sectionAthletes[section.key] || [];
+        if (sectionList.length === 0) return null;
+        return (
+          <div key={section.key} className="space-y-2">
+            <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <span>{section.emoji}</span> {section.label}
+              <span className="text-muted-foreground font-normal">({sectionList.length})</span>
+            </p>
+            <div className="space-y-2">
+              {sectionList.map((athlete) => {
+                const existing = results.find((r) => r.athlete_id === athlete.email) || null;
+                return (
+                  <AthleteResultRow
+                    key={athlete.email}
+                    meetId={meet.id}
+                    athlete={athlete}
+                    existingResult={existing}
+                    onSaved={fetchResults}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
