@@ -27,13 +27,18 @@ export default function NextMeetCountdown({ teamId }) {
         const seasonMap = {};
         seasons.forEach((s) => { seasonMap[s.id] = s.season_name; });
 
-        const allMeets = await base44.entities.Meet.list("-created_date", 500);
-        const seasonIds = new Set(seasons.map((s) => s.id));
-
         const todayStr = format(new Date(), "yyyy-MM-dd");
 
-        const upcoming = (allMeets || [])
-          .filter((m) => seasonIds.has(m.season_id) && m.meet_date && m.meet_date >= todayStr)
+        // Fetch meets for each season in parallel, filtered to only future meets
+        const meetArrays = await Promise.all(
+          seasons.map((s) =>
+            base44.entities.Meet.filter({ season_id: s.id }, "meet_date", 50).catch(() => [])
+          )
+        );
+        const allMeets = meetArrays.flat();
+
+        const upcoming = allMeets
+          .filter((m) => m.meet_date && m.meet_date >= todayStr)
           .sort((a, b) => a.meet_date.localeCompare(b.meet_date));
 
         if (upcoming.length === 0) { setLoading(false); return; }
