@@ -330,8 +330,8 @@ export default function MeetResultsPanel({ meet, athletes }) {
           </div>
         ))}
 
-        {/* Unassigned athletes — only shown if lineup exists but some slipped through */}
-        {hasLineup && sectionAthletes.unassigned.length > 0 && (
+        {/* Unassigned athletes — shown whenever any athlete has no lineup assignment */}
+        {sectionAthletes.unassigned.length > 0 && (
           <div>
             <div className="border-t border-border mb-5" />
             <div className="space-y-2">

@@ -166,6 +166,9 @@ export default function MeetSummary({ meet, athletes }) {
 
   const sections = SECTIONS[activeTab];
 
+  // Athletes with no lineup assignment — show below tabs regardless of active tab
+  const unassigned = results.filter((r) => r._group === null || r._group === undefined);
+
   return (
     <div className="space-y-3 pt-2">
       {/* Boys / Girls tabs */}
@@ -198,6 +201,29 @@ export default function MeetSummary({ meet, athletes }) {
             />
           </div>
         ))}
+
+        {/* Unassigned results (no lineup match) — always visible */}
+        {unassigned.length > 0 && (
+          <div>
+            <div className="border-t border-border pt-4" />
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Unassigned <span className="font-normal">({unassigned.length})</span>
+              </p>
+              <div className="rounded-xl border border-border overflow-hidden divide-y divide-border">
+                <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-3 px-3 py-1.5 bg-muted/40">
+                  <span className="text-xs text-muted-foreground">Athlete</span>
+                  <span className="text-xs text-muted-foreground text-right">Time</span>
+                  <span className="text-xs text-muted-foreground text-right">Place</span>
+                  <span className="text-xs text-muted-foreground text-right">Pts</span>
+                </div>
+                {unassigned.map((r) => (
+                  <ResultRow key={r.athlete_id} r={r} athletes={athletes || []} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
