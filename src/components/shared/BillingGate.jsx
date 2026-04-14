@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { teamHasAccess, accessBlockedReason } from "@/lib/billing";
+import { teamHasAccess, accessBlockedReason, isDemo } from "@/lib/billing";
 
 /**
  * Wraps content that requires an active subscription.
@@ -14,7 +14,8 @@ import { teamHasAccess, accessBlockedReason } from "@/lib/billing";
  *   </BillingGate>
  */
 export default function BillingGate({ team, children }) {
-  if (teamHasAccess(team)) {
+  // Demo and active/valid-trial teams always pass through — no paywalls
+  if (isDemo(team) || teamHasAccess(team)) {
     return <>{children}</>;
   }
 

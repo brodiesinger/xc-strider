@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Settings, Copy, LogOut, ChevronRight, FileText } from "lucide-react";
+import { Settings, Copy, LogOut, ChevronRight, FileText, Zap } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import TeamCustomization from "@/components/coach/TeamCustomization";
 import DarkModeToggle from "@/components/shared/DarkModeToggle";
 import { getDisplayName, generateDisplayName } from "@/lib/displayName";
+import { isDemo } from "@/lib/billing";
 
 export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpdated, isDark, onToggleDark }) {
   const [copied, setCopied] = useState(false);
@@ -52,9 +53,16 @@ export default function CoachSettingsTab({ user, team, onTeamUpdated, onUserUpda
 
   return (
     <div className="space-y-6 pb-24">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">{getDisplayName(user)}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{getDisplayName(user)}</p>
+        </div>
+        {isDemo(team) && (
+          <span className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 mt-1 shrink-0">
+            <Zap className="w-3 h-3" /> Demo
+          </span>
+        )}
       </div>
 
       {/* Profile */}

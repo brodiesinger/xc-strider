@@ -31,6 +31,16 @@ export function teamHasAccess(team) {
 }
 
 /**
+ * Returns true if the team is in demo mode.
+ * Demo users get full access with no upgrade prompts or paywalls.
+ * @param {object} team
+ * @returns {boolean}
+ */
+export function isDemo(team) {
+  return team?.billing_status === "demo";
+}
+
+/**
  * Returns a human-readable reason string when access is blocked.
  * Returns null if access is allowed.
  * @param {object} team
