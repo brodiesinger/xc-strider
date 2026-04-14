@@ -18,6 +18,7 @@ import { useGamification, ALL_BADGES } from "@/components/athlete/gamification/u
 import useTeamTheme from "@/lib/useTeamTheme";
 import useDarkMode from "@/lib/useDarkMode";
 import { PageSpinner } from "@/components/shared/LoadingSkeleton";
+import FeatureGate from "@/components/shared/FeatureGate";
 import { AnimatePresence, motion } from "framer-motion";
 
 const tabVariants = {
@@ -190,16 +191,18 @@ export default function AthleteDashboard() {
                 <h1 className="text-2xl font-bold text-foreground leading-tight">Performance</h1>
                 <p className="text-sm text-muted-foreground mt-1">Your PRs and goals</p>
               </div>
-              {loadingWorkouts ? (
-                <div className="flex justify-center py-16">
-                  <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
-                </div>
-              ) : (
-                <>
-                  <RacePRManager userEmail={user?.email} />
-                  <GoalTracker workouts={workouts} userEmail={user?.email} />
-                </>
-              )}
+              <FeatureGate team={team} feature="performance_tracking">
+                {loadingWorkouts ? (
+                  <div className="flex justify-center py-16">
+                    <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
+                  </div>
+                ) : (
+                  <>
+                    <RacePRManager userEmail={user?.email} />
+                    <GoalTracker workouts={workouts} userEmail={user?.email} />
+                  </>
+                )}
+              </FeatureGate>
             </motion.div>
           )}
 
@@ -209,41 +212,49 @@ export default function AthleteDashboard() {
                 <h1 className="text-2xl font-bold text-foreground leading-tight">Insights</h1>
                 <p className="text-sm text-muted-foreground mt-1">Recovery and injury intel</p>
               </div>
-              {loadingWorkouts ? (
-                <div className="flex flex-col items-center justify-center py-16 gap-2">
-                  <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
-                  <p className="text-xs text-muted-foreground">Analyzing your data...</p>
-                </div>
-              ) : (
-                <>
-                  <div className="flex gap-1 bg-muted rounded-xl p-1">
-                    {[
-                      { id: "risk", label: "🛡️ Injury Risk" },
-                      { id: "chat", label: "💬 AI Chat" },
-                      { id: "recovery", label: "⚡ Recovery" },
-                    ].map((t) => (
-                      <button
-                        key={t.id}
-                        onClick={() => setInsightTab(t.id)}
-                        className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors ${
-                          insightTab === t.id ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
+              <FeatureGate team={team} feature="injury_alerts">
+                {loadingWorkouts ? (
+                  <div className="flex flex-col items-center justify-center py-16 gap-2">
+                    <div className="w-6 h-6 border-4 border-border border-t-primary rounded-full animate-spin" />
+                    <p className="text-xs text-muted-foreground">Analyzing your data...</p>
                   </div>
-                  {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user?.email} />}
-                  {insightTab === "chat" && <AIInjuryChat workouts={workouts} />}
-                  {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
-                </>
-              )}
+                ) : (
+                  <>
+                    <div className="flex gap-1 bg-muted rounded-xl p-1">
+                      {[
+                        { id: "risk", label: "🛡️ Injury Risk" },
+                        { id: "chat", label: "💬 AI Chat" },
+                        { id: "recovery", label: "⚡ Recovery" },
+                      ].map((t) => (
+                        <button
+                          key={t.id}
+                          onClick={() => setInsightTab(t.id)}
+                          className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors ${
+                            insightTab === t.id ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                    {insightTab === "risk" && <InjuryRiskTab workouts={workouts} userEmail={user?.email} />}
+                    {insightTab === "chat" && (
+                      <FeatureGate team={team} feature="ai_insights">
+                        <AIInjuryChat workouts={workouts} />
+                      </FeatureGate>
+                    )}
+                    {insightTab === "recovery" && <SmartRecoveryTab workouts={workouts} userEmail={user?.email} />}
+                  </>
+                )}
+              </FeatureGate>
             </motion.div>
           )}
 
           {activeTab === "seasons" && (
             <motion.div key="seasons" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-28">
-              <SeasonMeets />
+              <FeatureGate team={team} feature="season_overview">
+                <SeasonMeets />
+              </FeatureGate>
             </motion.div>
           )}
 

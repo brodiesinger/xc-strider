@@ -49,6 +49,76 @@ export function isDemo(team) {
 }
 
 /**
+ * Feature flags per plan.
+ * Features not listed for a plan are restricted.
+ */
+const PLAN_FEATURES = {
+  starter: [
+    "athlete_logging",
+    "basic_dashboard",
+    "team_roster",
+    "athlete_profiles",
+    "messaging",
+    "injury_reporting",
+    "schedule",
+    "announcements",
+  ],
+  team: [
+    "athlete_logging",
+    "basic_dashboard",
+    "team_roster",
+    "athlete_profiles",
+    "messaging",
+    "injury_reporting",
+    "schedule",
+    "announcements",
+    "performance_tracking",
+    "meet_results",
+    "pr_tracking",
+    "season_overview",
+    "team_separation",
+    "multi_team",
+    "injury_alerts",
+  ],
+  elite: [
+    "athlete_logging",
+    "basic_dashboard",
+    "team_roster",
+    "athlete_profiles",
+    "messaging",
+    "injury_reporting",
+    "schedule",
+    "announcements",
+    "performance_tracking",
+    "meet_results",
+    "pr_tracking",
+    "season_overview",
+    "team_separation",
+    "multi_team",
+    "injury_alerts",
+    "ai_insights",
+    "advanced_analytics",
+    "overtraining_detection",
+    "packet_builder",
+    "exportable_reports",
+  ],
+};
+
+/**
+ * Returns true if the team's plan includes the given feature.
+ * Demo teams always get all features.
+ * @param {object} team
+ * @param {string} feature - one of the PLAN_FEATURES keys
+ * @returns {boolean}
+ */
+export function planHasFeature(team, feature) {
+  if (!team) return false;
+  if (isDemo(team)) return true;
+  const plan = team.plan || "starter";
+  return (PLAN_FEATURES[plan] || PLAN_FEATURES.starter).includes(feature);
+}
+
+/**
  * Returns a human-readable reason string when access is blocked.
  * Returns null if access is allowed.
  * @param {object} team

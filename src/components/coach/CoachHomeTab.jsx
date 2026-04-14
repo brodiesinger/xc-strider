@@ -14,6 +14,9 @@ import NextMeetCountdown from "@/components/shared/NextMeetCountdown";
 import MeetLineupBuilder from "@/components/seasons/MeetLineupBuilder";
 
 import DashboardHighlight from "@/components/shared/DashboardHighlight";
+import FeatureGate from "@/components/shared/FeatureGate";
+import { planHasFeature } from "@/lib/billing";
+import { Lock } from "lucide-react";
 
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
@@ -44,7 +47,7 @@ function QuickActionBtn({ icon: Icon, label, onClick, color = "bg-primary/10 tex
 
 export default function CoachHomeTab({
   user,
-  team,
+  team = null,
   athletes = [],
   announcements = [],
   schedule = [],
@@ -110,7 +113,7 @@ export default function CoachHomeTab({
       </motion.div>
 
       {/* Next Meet Countdown - Highlighted */}
-      {team?.id && (
+      {team?.id && planHasFeature(team, "meet_results") && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
           <DashboardHighlight 
             title="Upcoming Meet"
@@ -155,11 +158,20 @@ export default function CoachHomeTab({
             label="Roster"
             onClick={() => setRosterOpen(true)}
           />
-          <QuickActionBtn
-            icon={Package}
-            label="Packet"
-            onClick={() => window.location.href = "/packet"}
-          />
+          {planHasFeature(team, "packet_builder") ? (
+            <QuickActionBtn
+              icon={Package}
+              label="Packet"
+              onClick={() => window.location.href = "/packet"}
+            />
+          ) : (
+            <QuickActionBtn
+              icon={Lock}
+              label="Packet"
+              onClick={() => window.location.href = "/pricing"}
+              color="bg-muted text-muted-foreground"
+            />
+          )}
           <QuickActionBtn
             icon={Megaphone}
             label="Announce"

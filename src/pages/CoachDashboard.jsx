@@ -19,6 +19,7 @@ import useDarkMode from "@/lib/useDarkMode";
 import { PageSpinner, ErrorState } from "@/components/shared/LoadingSkeleton";
 import { AnimatePresence, motion } from "framer-motion";
 import BillingGate from "@/components/shared/BillingGate";
+import FeatureGate from "@/components/shared/FeatureGate";
 
 const tabVariants = {
   initial: { opacity: 0, y: 10 },
@@ -191,7 +192,9 @@ export default function CoachDashboard() {
                   <h1 className="text-2xl font-bold text-foreground leading-tight">Performance</h1>
                   <p className="text-sm text-muted-foreground mt-1">Athlete goals and race PRs</p>
                 </div>
-                <CoachPerformanceTab athletes={athletes} teamId={team.id} />
+                <FeatureGate team={team} feature="performance_tracking">
+                  <CoachPerformanceTab athletes={athletes} teamId={team.id} />
+                </FeatureGate>
               </motion.div>
             )}
             {activeTab === "insights" && (
@@ -200,12 +203,16 @@ export default function CoachDashboard() {
                   <h1 className="text-2xl font-bold text-foreground leading-tight">Insights</h1>
                   <p className="text-sm text-muted-foreground mt-1">Injury risk and team health</p>
                 </div>
-                <CoachInsightsTab athletes={athletes} teamId={team.id} />
+                <FeatureGate team={team} feature="injury_alerts">
+                  <CoachInsightsTab athletes={athletes} teamId={team.id} />
+                </FeatureGate>
               </motion.div>
             )}
             {activeTab === "seasons" && (
               <motion.div key="seasons" variants={tabVariants} initial="initial" animate="animate" exit="exit" className="pb-24">
-                <SeasonMeets />
+                <FeatureGate team={team} feature="season_overview">
+                  <SeasonMeets />
+                </FeatureGate>
               </motion.div>
             )}
             {activeTab === "settings" && (
