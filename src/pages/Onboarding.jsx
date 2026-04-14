@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
 import { generateDisplayName } from "@/lib/displayName";
 import { TreePine, Users, Trophy, Users2 } from "lucide-react";
+import PlanBadge from "@/components/shared/PlanBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -171,9 +172,12 @@ export default function Onboarding() {
     return null;
   }
 
+  const pendingPlan = localStorage.getItem("selected_plan") || null;
+
   if (step === "name") {
     return (
       <OnboardingShell title="What's your name?" subtitle="Enter your first and last name so your team can recognize you.">
+        {pendingPlan && <PlanBadge plan={pendingPlan} status="trial" className="-mt-4" />}
         <form onSubmit={handleNameSubmit} className="w-full space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="first-name">First Name</Label>
@@ -216,6 +220,7 @@ export default function Onboarding() {
   if (step === "role") {
      return (
        <OnboardingShell title="Who are you?" subtitle="Select your role to get started.">
+         {pendingPlan && <PlanBadge plan={pendingPlan} status="trial" className="-mt-4" />}
          <div className="flex flex-col gap-3 w-full">
            <button
              onClick={() => handleRoleSelect("coach")}
@@ -290,14 +295,9 @@ export default function Onboarding() {
    }
 
   if (step === "create-team") {
-   const pendingPlan = localStorage.getItem("selected_plan");
    return (
      <OnboardingShell title="Create Your Team" subtitle="Set up your team so athletes can join.">
-       {pendingPlan && (
-         <div className="w-full bg-primary/10 text-primary text-xs font-semibold px-3 py-2 rounded-xl text-center capitalize -mt-4">
-           {pendingPlan} plan · 14-day free trial
-         </div>
-       )}
+       {pendingPlan && <PlanBadge plan={pendingPlan} status="trial" className="-mt-4" />}
        <form onSubmit={handleCreateTeam} className="w-full space-y-3">
          <div className="space-y-1.5">
            <Label htmlFor="team-name">Team Name</Label>
