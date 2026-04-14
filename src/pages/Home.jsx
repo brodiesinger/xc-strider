@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser, getOnboardingStep } from "@/lib/CurrentUserContext";
@@ -14,6 +15,7 @@ export default function Home() {
   const { currentUser, refresh } = useCurrentUser();
   const params = new URLSearchParams(window.location.search);
   const [mode, setMode] = useState(params.get("mode") === "signup" ? "signup" : "login");
+  // Support /login?mode=signup from pricing CTA
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -119,6 +121,10 @@ export default function Home() {
             {mode === "login" ? "Sign up" : "Sign in"}
           </motion.button>
         </p>
+
+        <Link to="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+          ← Back to plans
+        </Link>
       </div>
     </motion.div>
   );

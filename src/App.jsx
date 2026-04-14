@@ -22,7 +22,8 @@ function App() {
       <Router>
         <CurrentUserProvider>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Pricing />} />
+            <Route path="/login" element={<Home />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/coach" element={<CoachDashboard />} />

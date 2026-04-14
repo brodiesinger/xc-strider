@@ -248,7 +248,7 @@ export default function Pricing() {
     if (authed) {
       navigate("/onboarding");
     } else {
-      navigate("/?mode=signup");
+      navigate("/login?mode=signup");
     }
   };
 
@@ -258,13 +258,13 @@ export default function Pricing() {
       {/* Nav */}
       <nav className="sticky top-0 z-40 bg-background/85 backdrop-blur-md border-b border-border/60">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
+          <Link to="/pricing" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
               <TreePine className="w-4 h-4 text-primary" />
             </div>
             <span className="font-bold text-foreground text-sm tracking-tight">XC Team App</span>
           </Link>
-          <Link to="/">
+          <Link to="/login">
             <Button size="sm" className="rounded-xl font-semibold">Sign In</Button>
           </Link>
         </div>
