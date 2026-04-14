@@ -243,20 +243,50 @@ export default function Pricing() {
       </nav>
 
       {/* ─── 1. HERO ─────────────────────────────────────────────────────── */}
-      <section className="pt-20 pb-14 px-4 sm:px-6 text-center max-w-3xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
-          <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-            <Zap className="w-3 h-3" /> Simple, honest pricing
+      <section className="relative overflow-hidden pt-20 pb-20 px-4 sm:px-6 text-center">
+        {/* Background accents */}
+        <div className="absolute inset-0 -z-10 pointer-events-none">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute top-10 left-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl" />
+          <div className="absolute top-10 right-0 w-64 h-64 bg-primary/8 rounded-full blur-3xl" />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-3xl mx-auto"
+        >
+          <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-7">
+            <Zap className="w-3 h-3" /> Built for high school XC coaches
           </span>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-foreground tracking-tight leading-tight mb-4">
-            Run a smarter program.<br className="hidden sm:block" /> For less than a race entry.
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight leading-[1.1] mb-5">
+            Run Your Entire XC Program<br className="hidden sm:block" />{" "}
+            <span className="text-primary">in One Place</span>
           </h1>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-8">
-            XC Team App gives high school cross country coaches everything they need to manage athletes, meets, and schedules — in one clean tool.
+
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-9 leading-relaxed">
+            Track mileage, manage athletes, analyze performance, and keep your team organized without spreadsheets or guesswork.
           </p>
 
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
+            <Link to="/">
+              <Button size="lg" className="w-full sm:w-auto font-bold px-8 h-12 text-base shadow-md hover:shadow-lg transition-shadow">
+                Start Free Trial
+              </Button>
+            </Link>
+            <a href="#pricing">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto font-semibold px-8 h-12 text-base">
+                View Plans
+              </Button>
+            </a>
+          </div>
+
+          <p className="text-xs text-muted-foreground mb-10">No credit card required · 14-day free trial · Cancel any time</p>
+
           {/* Billing Toggle */}
-          <div className="inline-flex items-center bg-muted rounded-xl p-1 gap-1">
+          <div id="pricing" className="inline-flex items-center bg-muted rounded-xl p-1 gap-1">
             <button
               onClick={() => setAnnual(false)}
               className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${!annual ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
