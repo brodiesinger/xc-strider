@@ -150,7 +150,7 @@ function PricingCard({ plan, index }) {
       <div className={`h-px mb-6 ${plan.highlight ? "bg-white/15" : "bg-border"}`} />
 
       {/* CTA */}
-      <Link to="/" className="mb-6 block">
+      <Link to="/?mode=signup" className="mb-6 block">
         <Button
           className={`w-full font-semibold h-11 text-[13px] rounded-xl transition-all ${
             plan.highlight
@@ -215,6 +215,11 @@ function FaqItem({ faq }) {
   );
 }
 
+function scrollToPricing(e) {
+  e.preventDefault();
+  document.getElementById("pricing-cards")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 export default function Pricing() {
 
   return (
@@ -263,19 +268,19 @@ export default function Pricing() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
-            <Link to="/">
+            <Link to="/?mode=signup">
               <Button size="lg" className="w-full sm:w-auto font-bold px-8 h-12 text-[15px] rounded-xl shadow-md hover:shadow-lg transition-shadow">
                 Start Free Trial
               </Button>
             </Link>
-            <a href="#pricing">
+            <button onClick={scrollToPricing}>
               <Button size="lg" variant="outline" className="w-full sm:w-auto font-semibold px-8 h-12 text-[15px] rounded-xl">
                 View Plans
               </Button>
-            </a>
+            </button>
           </div>
 
-          <p id="pricing" className="text-xs text-muted-foreground">No credit card required · 14-day free trial · Cancel any time</p>
+          <p className="text-xs text-muted-foreground">No credit card required · 14-day free trial · Cancel any time</p>
         </motion.div>
       </section>
 
@@ -368,7 +373,7 @@ export default function Pricing() {
           <p className="text-primary-foreground/75 text-base mb-9 max-w-sm mx-auto leading-relaxed">
             Set up your team in minutes and manage everything from one place.
           </p>
-          <Link to="/">
+          <Link to="/?mode=signup">
             <Button size="lg" className="font-bold px-10 h-12 text-base bg-white text-primary hover:bg-white/90 shadow-lg">
               Start Free Trial
             </Button>

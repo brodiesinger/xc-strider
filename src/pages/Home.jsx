@@ -12,7 +12,8 @@ import { toast } from "sonner";
 export default function Home() {
   const navigate = useNavigate();
   const { currentUser, refresh } = useCurrentUser();
-  const [mode, setMode] = useState("login");
+  const params = new URLSearchParams(window.location.search);
+  const [mode, setMode] = useState(params.get("mode") === "signup" ? "signup" : "login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
