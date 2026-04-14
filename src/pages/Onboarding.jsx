@@ -120,12 +120,16 @@ export default function Onboarding() {
    setSaving(true);
    try {
      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+     const selectedPlan = localStorage.getItem("selected_plan") || "starter";
      const team = await base44.entities.Team.create({
        name,
        join_code: code,
        coach_email: currentUser.email,
+       plan: selectedPlan,
+       billing_status: "trial",
      });
      if (!team?.id) throw new Error("Team creation failed.");
+     localStorage.removeItem("selected_plan");
      await base44.auth.updateMe({ team_id: team.id });
      toast.success(`Team "${name}" created!`);
      await refresh();
@@ -286,8 +290,14 @@ export default function Onboarding() {
    }
 
   if (step === "create-team") {
+   const pendingPlan = localStorage.getItem("selected_plan");
    return (
      <OnboardingShell title="Create Your Team" subtitle="Set up your team so athletes can join.">
+       {pendingPlan && (
+         <div className="w-full bg-primary/10 text-primary text-xs font-semibold px-3 py-2 rounded-xl text-center capitalize -mt-4">
+           {pendingPlan} plan · 14-day free trial
+         </div>
+       )}
        <form onSubmit={handleCreateTeam} className="w-full space-y-3">
          <div className="space-y-1.5">
            <Label htmlFor="team-name">Team Name</Label>

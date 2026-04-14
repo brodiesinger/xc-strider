@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Check, ChevronDown, ChevronUp, TreePine, Zap, Users, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { base44 } from "@/api/base44Client";
 
 const PLANS = [
   {
@@ -116,7 +117,7 @@ const FAQS = [
   },
 ];
 
-function PricingCard({ plan, index }) {
+function PricingCard({ plan, index, onSelect }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 28 }}
@@ -166,8 +167,9 @@ function PricingCard({ plan, index }) {
       <div className={`h-px mb-6 ${plan.highlight ? "bg-white/15" : "bg-border"}`} />
 
       {/* CTA */}
-      <Link to="/?mode=signup" className="mb-6 block">
+      <div className="mb-6">
         <Button
+          onClick={() => onSelect(plan.name.toLowerCase())}
           className={`w-full font-semibold h-11 text-[13px] rounded-xl transition-all ${
             plan.highlight
               ? "bg-white text-primary hover:bg-white/92 shadow-md"
@@ -179,7 +181,7 @@ function PricingCard({ plan, index }) {
         >
           {plan.cta}
         </Button>
-      </Link>
+      </div>
 
       {/* Features */}
       <ul className="space-y-3 flex-1">
@@ -237,6 +239,18 @@ function scrollToPricing(e) {
 }
 
 export default function Pricing() {
+  const navigate = useNavigate();
+
+  const handleSelectPlan = async (planName) => {
+    localStorage.setItem("selected_plan", planName);
+    // Check if already logged in
+    const authed = await base44.auth.isAuthenticated();
+    if (authed) {
+      navigate("/onboarding");
+    } else {
+      navigate("/?mode=signup");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -284,11 +298,9 @@ export default function Pricing() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
-            <Link to="/?mode=signup">
-              <Button size="lg" className="w-full sm:w-auto font-bold px-8 h-12 text-[15px] rounded-xl shadow-md hover:shadow-lg transition-shadow">
-                Start Free Trial
-              </Button>
-            </Link>
+            <Button size="lg" onClick={() => handleSelectPlan("team")} className="w-full sm:w-auto font-bold px-8 h-12 text-[15px] rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              Start Free Trial
+            </Button>
             <button onClick={scrollToPricing}>
               <Button size="lg" variant="outline" className="w-full sm:w-auto font-semibold px-8 h-12 text-[15px] rounded-xl">
                 View Plans
@@ -304,7 +316,7 @@ export default function Pricing() {
       <section className="pt-6 pb-24 px-4 sm:px-6" id="pricing-cards">
         <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 items-center">
           {PLANS.map((plan, i) => (
-            <PricingCard key={plan.name} plan={plan} index={i} />
+            <PricingCard key={plan.name} plan={plan} index={i} onSelect={handleSelectPlan} />
           ))}
         </div>
         <p className="text-center text-xs text-muted-foreground mt-8">
@@ -389,11 +401,9 @@ export default function Pricing() {
           <p className="text-primary-foreground/75 text-base mb-9 max-w-sm mx-auto leading-relaxed">
             Set up your team in minutes and manage everything from one place.
           </p>
-          <Link to="/?mode=signup">
-            <Button size="lg" className="font-bold px-10 h-12 text-base bg-white text-primary hover:bg-white/90 shadow-lg">
-              Start Free Trial
-            </Button>
-          </Link>
+          <Button size="lg" onClick={() => handleSelectPlan("team")} className="font-bold px-10 h-12 text-base bg-white text-primary hover:bg-white/90 shadow-lg">
+            Start Free Trial
+          </Button>
           <p className="text-primary-foreground/45 text-xs mt-5">
             No credit card required · Cancel any time
           </p>
