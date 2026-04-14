@@ -21,6 +21,32 @@
     "secondary_color": {
       "type": "string",
       "description": "Hex color for team secondary color (e.g. #f59e0b)"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "team",
+        "elite"
+      ],
+      "default": "starter",
+      "description": "Subscription plan for this team"
+    },
+    "billing_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "trial",
+        "demo",
+        "inactive"
+      ],
+      "default": "trial",
+      "description": "Current billing status of the team"
+    },
+    "trial_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when the trial period ends (optional)"
     }
   },
   "required": [
