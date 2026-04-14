@@ -2,15 +2,17 @@
  * Billing utility helpers.
  * Rules:
  *   demo     → full access, no restrictions
- *   active   → full access
- *   trial    → access until trial_end_date; restricted after
+ *   active   → full access (requires plan)
+ *   trial    → access based on assigned plan (requires plan)
  *   inactive → restricted, prompt upgrade
+ *   missing plan → restricted, not fully active
  */
 
 import { parseISO, isAfter } from "date-fns";
 
 /**
  * Returns whether a team currently has access.
+ * Requires BOTH a valid billing_status AND a plan to be set.
  * @param {object} team - Team entity record
  * @returns {boolean}
  */
@@ -18,11 +20,17 @@ export function teamHasAccess(team) {
   if (!team) return false;
 
   const status = team.billing_status;
+  const plan = team.plan;
 
-  if (status === "demo" || status === "active") return true;
+  // Must have both a status and a plan
+  if (!status || !plan) return false;
+
+  if (status === "demo") return true;
+  if (status === "active") return true;
 
   if (status === "trial") {
-    if (!team.trial_end_date) return true; // no end date set = still in trial
+    // Trial requires a plan to be assigned
+    if (!team.trial_end_date) return true; // no end date = still in trial window
     return isAfter(parseISO(team.trial_end_date), new Date());
   }
 
@@ -47,9 +55,20 @@ export function isDemo(team) {
  * @returns {string|null}
  */
 export function accessBlockedReason(team) {
-  if (teamHasAccess(team)) return null;
+  if (teamHasAccess(team) || isDemo(team)) return null;
 
-  if (team?.billing_status === "trial") {
+  const status = team?.billing_status;
+  const plan = team?.plan;
+
+  if (!plan) {
+    return "No plan is assigned to your team. Please select a plan to get started.";
+  }
+
+  if (!status || status === "inactive") {
+    return "Your subscription is inactive. Upgrade to restore full access.";
+  }
+
+  if (status === "trial") {
     return "Your free trial has expired. Upgrade to continue using XC Team App.";
   }
 
