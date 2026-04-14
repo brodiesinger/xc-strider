@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/lib/CurrentUserContext";
-import { Shield, RefreshCw, Check, ChevronDown } from "lucide-react";
+import { Shield, RefreshCw, Check, ChevronDown, Zap, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const BILLING_STATUSES = ["trial", "active", "demo", "inactive"];
@@ -20,19 +20,32 @@ function TeamRow({ team, onSaved }) {
   const [plan, setPlan] = useState(team.plan || "starter");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [toggling, setToggling] = useState(false);
 
   const dirty = status !== (team.billing_status || "trial") || plan !== (team.plan || "starter");
+  const isDemo = status === "demo";
 
-  const handleSave = async () => {
+  const handleSave = async (overrideStatus, overridePlan) => {
+    const newStatus = overrideStatus ?? status;
+    const newPlan = overridePlan ?? plan;
     setSaving(true);
     try {
-      await base44.entities.Team.update(team.id, { billing_status: status, plan });
+      await base44.entities.Team.update(team.id, { billing_status: newStatus, plan: newPlan });
+      setStatus(newStatus);
+      setPlan(newPlan);
       setSaved(true);
-      onSaved(team.id, { billing_status: status, plan });
+      onSaved(team.id, { billing_status: newStatus, plan: newPlan });
       setTimeout(() => setSaved(false), 2000);
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleDemoToggle = async () => {
+    setToggling(true);
+    const next = isDemo ? "active" : "demo";
+    await handleSave(next, plan);
+    setToggling(false);
   };
 
   return (
@@ -45,6 +58,22 @@ function TeamRow({ team, onSaved }) {
 
       {/* Controls */}
       <div className="flex items-center gap-2 flex-wrap">
+
+        {/* Demo toggle — one click */}
+        <button
+          onClick={handleDemoToggle}
+          disabled={toggling}
+          title={isDemo ? "Switch to active" : "Switch to demo"}
+          className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-full border transition-all ${
+            isDemo
+              ? "bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200"
+              : "bg-muted text-muted-foreground border-border hover:bg-primary/10 hover:text-primary hover:border-primary/30"
+          }`}
+        >
+          {isDemo ? <RotateCcw className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
+          {toggling ? "..." : isDemo ? "→ active" : "demo"}
+        </button>
+
         {/* Billing Status */}
         <div className="relative">
           <select
@@ -76,14 +105,14 @@ function TeamRow({ team, onSaved }) {
         {/* Save button */}
         <Button
           size="sm"
-          onClick={handleSave}
+          onClick={() => handleSave()}
           disabled={saving || !dirty}
           className="text-xs h-7 px-3 rounded-full"
           variant={saved ? "outline" : "default"}
         >
           {saved ? (
             <><Check className="w-3 h-3 mr-1 text-green-600" /><span className="text-green-600">Saved</span></>
-          ) : saving ? "Saving..." : "Save"}
+          ) : saving ? "..." : "Save"}
         </Button>
       </div>
     </div>
