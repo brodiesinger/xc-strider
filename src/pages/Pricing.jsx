@@ -83,28 +83,20 @@ const BENEFITS = [
 
 const FAQS = [
   {
-    question: "Is there a free trial for Coach Pro?",
-    answer: "Yes — every new account gets a 14-day free trial of Coach Pro with full access to all features. No credit card required.",
-  },
-  {
-    question: "Can athletes use the app on their phones?",
-    answer: "Absolutely. Athletes have their own mobile-first dashboard where they log workouts, view schedules, check goals, and track their race PRs.",
-  },
-  {
-    question: "What happens to my data if I downgrade?",
-    answer: "Your data is always safe. If you downgrade to Free, your historical meet and workout data is preserved — you just won't be able to add new meets or use Pro features until you upgrade again.",
-  },
-  {
     question: "Can I manage both boys and girls teams?",
-    answer: "Yes. The lineup builder supports varsity and JV for both boys and girls within the same team. The Program plan supports up to 5 separate teams.",
+    answer: "Yes. All plans support multiple teams, with discounted pricing for additional teams.",
   },
   {
-    question: "Does this replace my current spreadsheets?",
-    answer: "That's the goal. XC Team App handles scheduling, meet management, lineups, athlete stats, and season summaries — everything coaches currently manage across scattered tools.",
+    question: "Is there a free trial?",
+    answer: "Yes, coaches can start with a free trial before committing to a paid plan.",
   },
   {
-    question: "How does billing work?",
-    answer: "Monthly plans bill each month. Annual plans bill once per year and save you ~25%. You can cancel any time and keep access through the end of your billing period.",
+    question: "Do athletes need to pay?",
+    answer: "No. Pricing is for the team or school, and athletes join at no extra cost.",
+  },
+  {
+    question: "Can I cancel anytime?",
+    answer: "Yes. There are no long-term contracts required.",
   },
 ];
 
