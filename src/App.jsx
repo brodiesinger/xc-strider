@@ -13,6 +13,7 @@ import TeamSettings from "./pages/TeamSettings";
 import SeasonMeets from "./pages/SeasonMeets";
 import EndOfSeasonPacket from "./pages/EndOfSeasonPacket";
 import AthletePageBuilder from "./pages/AthletePageBuilder";
+import Pricing from "./pages/Pricing";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/seasons" element={<SeasonMeets />} />
             <Route path="/packet" element={<EndOfSeasonPacket />} />
             <Route path="/athlete-page-builder" element={<AthletePageBuilder />} />
+            <Route path="/pricing" element={<Pricing />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </CurrentUserProvider>
