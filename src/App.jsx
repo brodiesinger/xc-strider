@@ -14,6 +14,7 @@ import SeasonMeets from "./pages/SeasonMeets";
 import EndOfSeasonPacket from "./pages/EndOfSeasonPacket";
 import AthletePageBuilder from "./pages/AthletePageBuilder";
 import Pricing from "./pages/Pricing";
+import AdminPanel from "./pages/AdminPanel";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/packet" element={<EndOfSeasonPacket />} />
             <Route path="/athlete-page-builder" element={<AthletePageBuilder />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/admin" element={<AdminPanel />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </CurrentUserProvider>
