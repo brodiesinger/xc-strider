@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Check, ChevronDown, ChevronUp, TreePine, Zap, Shield, Users, BarChart2, Bell, CalendarDays, Trophy, Star } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, TreePine, Zap, Users, BarChart2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const PLANS = [
@@ -65,34 +65,19 @@ const PLANS = [
 
 const BENEFITS = [
   {
-    icon: CalendarDays,
-    title: "Built for the Season",
-    description: "Plan every practice week, track meets, and manage lineups — all in one place designed around the XC calendar.",
+    icon: Zap,
+    title: "Save Time",
+    description: "No more spreadsheets or manual tracking—everything updates in one place.",
   },
   {
     icon: BarChart2,
-    title: "Data Your Athletes Can See",
-    description: "Athletes track their own mileage, PRs, and goals. Coaches see the full picture. Everyone stays motivated.",
-  },
-  {
-    icon: Shield,
-    title: "Injury Risk Before It's a Problem",
-    description: "AI-powered training load analysis flags overtraining and recovery needs before athletes break down.",
+    title: "Improve Performance",
+    description: "See who's improving, who's struggling, and make smarter training decisions.",
   },
   {
     icon: Users,
-    title: "Varsity, JV — All Managed Together",
-    description: "Assign, re-assign, and copy lineups across meets in seconds. No spreadsheets, no confusion.",
-  },
-  {
-    icon: Bell,
-    title: "Instant Team Communication",
-    description: "Post announcements that reach every athlete immediately. No missed group texts or lost emails.",
-  },
-  {
-    icon: Trophy,
-    title: "End-of-Season Packets",
-    description: "Generate a polished, printable season summary with stats, meet results, and athlete highlights in one click.",
+    title: "Stay Organized",
+    description: "Manage boys and girls teams, meet results, and communication in one place.",
   },
 ];
 
@@ -300,31 +285,35 @@ export default function Pricing() {
 
       {/* ─── 3. VALUE / BENEFITS ─────────────────────────────────────────── */}
       <section className="py-20 px-4 sm:px-6 bg-muted/30 border-y border-border">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-xs font-bold uppercase tracking-widest text-primary mb-3">
-              Why coaches choose XC Team App
-            </motion.p>
-            <motion.h2 initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.05 }} className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-              Everything your program needs.<br className="hidden sm:block" /> Nothing it doesn't.
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight"
+            >
+              Built for Coaches Who Want Results —<br className="hidden sm:block" /> Not More Work
             </motion.h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {BENEFITS.map((b, i) => (
               <motion.div
                 key={b.title}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.07, duration: 0.35 }}
-                className="bg-card rounded-2xl border border-border p-5 shadow-sm hover:shadow-md transition-shadow"
+                transition={{ delay: i * 0.08, duration: 0.35 }}
+                className="bg-card rounded-2xl border border-border p-7 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-4"
               >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                   <b.icon className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-bold text-foreground mb-1.5 text-sm">{b.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{b.description}</p>
+                <div>
+                  <h3 className="font-bold text-foreground text-base mb-2">{b.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{b.description}</p>
+                </div>
               </motion.div>
             ))}
           </div>
