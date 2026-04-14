@@ -6,63 +6,60 @@ import { Button } from "@/components/ui/button";
 
 const PLANS = [
   {
-    name: "Free",
-    price: { monthly: 0, annual: 0 },
-    description: "Get started at no cost.",
-    cta: "Start Free",
-    ctaVariant: "outline",
+    name: "Starter",
+    price: 69,
+    bestFor: "Small or developing programs",
+    cta: "Start Free Trial",
     highlight: false,
+    badge: null,
     features: [
-      "1 team",
-      "Up to 15 athletes",
-      "Workout logging",
-      "Weekly schedule",
-      "Team announcements",
-      "Basic stats",
+      "1 Team (Boys OR Girls)",
+      "Athlete logging (miles, workouts, strength)",
+      "Coach dashboard (basic)",
+      "Team roster + athlete profiles",
+      "Messaging",
+      "Injury reporting",
+      "Add additional teams for +$25/month",
     ],
-    missing: ["Meet management", "Lineup builder", "AI insights", "End-of-season packet", "Injury risk tracking"],
   },
   {
-    name: "Coach Pro",
-    price: { monthly: 12, annual: 9 },
-    description: "Everything a varsity program needs.",
+    name: "Team",
+    price: 129,
+    bestFor: "Full XC programs",
     cta: "Start Free Trial",
-    ctaVariant: "default",
     highlight: true,
     badge: "Most Popular",
     features: [
-      "1 team, unlimited athletes",
-      "Full meet management",
-      "Lineup builder (varsity & JV)",
-      "Copy previous lineups & schedules",
-      "AI injury risk & recovery insights",
-      "End-of-season packet generator",
-      "Athlete daily check-ins",
-      "Race PRs & goal tracking",
-      "Push & in-app notifications",
-      "Athlete page builder",
-      "Priority support",
+      "Everything in Starter",
+      "Performance tracking (graphs, trends)",
+      "Mileage consistency tracking",
+      "Meet results + PR tracking",
+      "Season overview dashboard",
+      "Boys & Girls team separation",
+      "Multi-team management",
+      "Basic injury alerts",
+      "Add additional teams for +$40/month",
     ],
-    missing: [],
   },
   {
-    name: "Program",
-    price: { monthly: 29, annual: 22 },
-    description: "For multi-team and large programs.",
-    cta: "Contact Us",
-    ctaVariant: "outline",
+    name: "Elite",
+    price: 189,
+    bestFor: "Competitive programs that want an edge",
+    cta: "Start Free Trial",
     highlight: false,
+    badge: null,
+    premium: true,
     features: [
-      "Everything in Coach Pro",
-      "Up to 5 teams",
-      "Unified coach dashboard",
-      "Cross-team analytics",
-      "Bulk athlete import",
-      "Custom team branding",
-      "Dedicated onboarding",
-      "Priority phone support",
+      "Everything in Team",
+      "2 Teams included",
+      "AI injury insights + recovery suggestions",
+      "Advanced performance analytics",
+      "Overtraining detection",
+      "Packet Builder",
+      "Exportable reports (PDFs)",
+      "Priority support",
+      "Add additional teams for +$30/month",
     ],
-    missing: [],
   },
 ];
 
@@ -126,70 +123,73 @@ const FAQS = [
   },
 ];
 
-function PricingCard({ plan, annual }) {
-  const price = annual ? plan.price.annual : plan.price.monthly;
+function PricingCard({ plan, index }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.4 }}
-      className={`relative flex flex-col rounded-2xl border p-6 sm:p-7 shadow-sm transition-shadow hover:shadow-lg
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+      className={`relative flex flex-col rounded-2xl border p-6 sm:p-8 transition-shadow
         ${plan.highlight
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card text-foreground"
+          ? "border-primary bg-primary text-primary-foreground shadow-2xl scale-[1.02] sm:scale-105 z-10"
+          : plan.premium
+          ? "border-border bg-card text-foreground shadow-lg ring-1 ring-border/60"
+          : "border-border bg-card text-foreground shadow-sm hover:shadow-md"
         }`}
     >
       {plan.badge && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow">
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-[11px] font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-md whitespace-nowrap">
           {plan.badge}
         </div>
       )}
 
+      {plan.premium && !plan.highlight && (
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-foreground text-background text-[11px] font-bold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-md whitespace-nowrap">
+          Best Value
+        </div>
+      )}
+
+      {/* Plan name + price */}
       <div className="mb-5">
-        <p className={`text-xs font-bold uppercase tracking-widest mb-1 ${plan.highlight ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+        <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${plan.highlight ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
           {plan.name}
         </p>
-        <div className="flex items-end gap-1 mb-1">
-          {price === 0 ? (
-            <span className="text-4xl font-extrabold">Free</span>
-          ) : (
-            <>
-              <span className="text-4xl font-extrabold">${price}</span>
-              <span className={`text-sm pb-1 ${plan.highlight ? "text-primary-foreground/70" : "text-muted-foreground"}`}>/mo</span>
-            </>
-          )}
+        <div className="flex items-end gap-1.5 mb-1.5">
+          <span className="text-4xl sm:text-5xl font-extrabold tracking-tight">${plan.price}</span>
+          <span className={`text-sm pb-1.5 font-medium ${plan.highlight ? "text-primary-foreground/65" : "text-muted-foreground"}`}>/month</span>
         </div>
-        {price > 0 && annual && (
-          <p className={`text-xs ${plan.highlight ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-            Billed annually · save ~25%
-          </p>
-        )}
-        <p className={`text-sm mt-2 ${plan.highlight ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-          {plan.description}
+        <p className={`text-xs font-medium mt-1 ${plan.highlight ? "text-primary-foreground/65" : "text-muted-foreground"}`}>
+          Best for: {plan.bestFor}
         </p>
       </div>
 
-      <Link to="/">
+      {/* CTA */}
+      <Link to="/" className="mb-6 block">
         <Button
-          variant={plan.highlight ? "secondary" : plan.ctaVariant}
-          className={`w-full mb-6 font-semibold ${plan.highlight ? "bg-white text-primary hover:bg-white/90" : ""}`}
+          className={`w-full font-semibold h-11 text-sm ${
+            plan.highlight
+              ? "bg-white text-primary hover:bg-white/90 shadow"
+              : plan.premium
+              ? "bg-foreground text-background hover:bg-foreground/90"
+              : ""
+          }`}
+          variant={plan.highlight || plan.premium ? "default" : "outline"}
         >
           {plan.cta}
         </Button>
       </Link>
 
-      <ul className="space-y-2.5 flex-1">
+      {/* Features */}
+      <ul className="space-y-3 flex-1">
         {plan.features.map((f) => (
-          <li key={f} className="flex items-start gap-2.5 text-sm">
-            <Check className={`w-4 h-4 mt-0.5 shrink-0 ${plan.highlight ? "text-primary-foreground" : "text-primary"}`} />
-            <span>{f}</span>
-          </li>
-        ))}
-        {plan.missing.map((f) => (
-          <li key={f} className="flex items-start gap-2.5 text-sm opacity-35">
-            <span className="w-4 h-4 mt-0.5 shrink-0 flex items-center justify-center text-xs">—</span>
-            <span>{f}</span>
+          <li key={f} className="flex items-start gap-2.5 text-sm leading-snug">
+            <Check className={`w-4 h-4 mt-0.5 shrink-0 ${plan.highlight ? "text-primary-foreground/80" : "text-primary"}`} />
+            <span className={plan.highlight ? "text-primary-foreground/90" : "text-foreground"}>
+              {f.startsWith("Add additional") ? (
+                <span className={`font-medium ${plan.highlight ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{f}</span>
+              ) : f}
+            </span>
           </li>
         ))}
       </ul>
@@ -222,7 +222,6 @@ function FaqItem({ faq }) {
 }
 
 export default function Pricing() {
-  const [annual, setAnnual] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -283,32 +282,15 @@ export default function Pricing() {
             </a>
           </div>
 
-          <p className="text-xs text-muted-foreground mb-10">No credit card required · 14-day free trial · Cancel any time</p>
-
-          {/* Billing Toggle */}
-          <div id="pricing" className="inline-flex items-center bg-muted rounded-xl p-1 gap-1">
-            <button
-              onClick={() => setAnnual(false)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${!annual ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setAnnual(true)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5 ${annual ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Annual
-              <span className="text-[10px] font-bold bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">Save 25%</span>
-            </button>
-          </div>
+          <p id="pricing" className="text-xs text-muted-foreground mb-10">No credit card required · 14-day free trial · Cancel any time</p>
         </motion.div>
       </section>
 
       {/* ─── 2. PRICING CARDS ────────────────────────────────────────────── */}
       <section className="pb-20 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
-          {PLANS.map((plan) => (
-            <PricingCard key={plan.name} plan={plan} annual={annual} />
+        <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-center">
+          {PLANS.map((plan, i) => (
+            <PricingCard key={plan.name} plan={plan} index={i} />
           ))}
         </div>
         <p className="text-center text-xs text-muted-foreground mt-6">
