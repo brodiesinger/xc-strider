@@ -84,19 +84,35 @@ const BENEFITS = [
 const FAQS = [
   {
     question: "Can I manage both boys and girls teams?",
-    answer: "Yes. All plans support multiple teams, with discounted pricing for additional teams.",
+    answer: "Yes. All plans support multiple teams, with discounted pricing for additional teams. You can separate rosters by gender and track each group independently.",
   },
   {
     question: "Is there a free trial?",
-    answer: "Yes, coaches can start with a free trial before committing to a paid plan.",
+    answer: "Yes, coaches can start with a 14-day free trial before committing to a paid plan. No credit card required.",
   },
   {
     question: "Do athletes need to pay?",
-    answer: "No. Pricing is for the team or school, and athletes join at no extra cost.",
+    answer: "No. Pricing is per team or school. Athletes join for free using a team code provided by their coach.",
   },
   {
     question: "Can I cancel anytime?",
-    answer: "Yes. There are no long-term contracts required.",
+    answer: "Yes. There are no long-term contracts or cancellation fees. You can cancel your subscription at any time from your account settings.",
+  },
+  {
+    question: "Which plan is right for me?",
+    answer: "If you're just getting started or have a smaller program, Starter is a great fit. For full varsity/JV tracking and meet results, go with Team. If you want AI-powered injury insights, advanced analytics, and exportable packets, Elite is the way to go.",
+  },
+  {
+    question: "Can I switch plans later?",
+    answer: "Absolutely. You can upgrade or downgrade your plan at any time and the change takes effect at the start of your next billing cycle.",
+  },
+  {
+    question: "How do athletes log workouts?",
+    answer: "Athletes log in to the app on any device and enter their mileage, time, and notes directly. Everything syncs to the coach dashboard in real time.",
+  },
+  {
+    question: "What happens to my data if I cancel?",
+    answer: "Your data is retained for 30 days after cancellation. You can export your team's records at any time before that window closes.",
   },
 ];
 
