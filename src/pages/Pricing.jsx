@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Check, ChevronDown, ChevronUp, TreePine, Zap, Users, BarChart2, Star } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, TreePine, Zap, Users, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const PLANS = [
@@ -333,39 +333,32 @@ export default function Pricing() {
       </section>
 
       {/* ─── 5. FINAL CTA ────────────────────────────────────────────────── */}
-      <section className="py-20 px-4 sm:px-6 bg-primary">
+      <section className="py-24 px-4 sm:px-6 bg-primary relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none -z-0">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-black/10 rounded-full blur-3xl" />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.45 }}
-          className="max-w-2xl mx-auto text-center"
+          className="relative z-10 max-w-xl mx-auto text-center"
         >
-          <div className="flex items-center justify-center gap-1 mb-4">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 fill-primary-foreground text-primary-foreground" />
-            ))}
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-primary-foreground tracking-tight mb-4">
-            Ready to coach smarter this season?
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-primary-foreground tracking-tight leading-tight mb-4">
+            Start Running Your Team<br className="hidden sm:block" /> Smarter Today
           </h2>
-          <p className="text-primary-foreground/75 text-base mb-8 max-w-lg mx-auto">
-            Join coaches who've replaced spreadsheets and group texts with one tool built specifically for cross country.
+          <p className="text-primary-foreground/75 text-base mb-9 max-w-sm mx-auto leading-relaxed">
+            Set up your team in minutes and manage everything from one place.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/">
-              <Button size="lg" variant="secondary" className="w-full sm:w-auto font-bold px-8 bg-white text-primary hover:bg-white/90">
-                Start Free — No Card Needed
-              </Button>
-            </Link>
-            <Link to="/">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto font-semibold px-8 border-white/30 text-primary-foreground hover:bg-white/10">
-                Sign In
-              </Button>
-            </Link>
-          </div>
-          <p className="text-primary-foreground/50 text-xs mt-5">
-            14-day free trial · Full Pro access · Cancel any time
+          <Link to="/">
+            <Button size="lg" className="font-bold px-10 h-12 text-base bg-white text-primary hover:bg-white/90 shadow-lg">
+              Start Free Trial
+            </Button>
+          </Link>
+          <p className="text-primary-foreground/45 text-xs mt-5">
+            No credit card required · Cancel any time
           </p>
         </motion.div>
       </section>
