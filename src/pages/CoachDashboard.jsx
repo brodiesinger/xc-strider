@@ -18,6 +18,7 @@ import { getDisplayName, generateDisplayName } from "@/lib/displayName";
 import useDarkMode from "@/lib/useDarkMode";
 import { PageSpinner, ErrorState } from "@/components/shared/LoadingSkeleton";
 import { AnimatePresence, motion } from "framer-motion";
+import BillingGate from "@/components/shared/BillingGate";
 
 const tabVariants = {
   initial: { opacity: 0, y: 10 },
@@ -164,6 +165,7 @@ export default function CoachDashboard() {
             <CreateTeam user={user} onTeamCreated={handleTeamCreated} />
           </div>
         ) : (
+          <BillingGate team={team}>
           <AnimatePresence mode="wait">
             {activeTab === "dashboard" && (
               <motion.div key="dashboard" variants={tabVariants} initial="initial" animate="animate" exit="exit">
@@ -212,6 +214,7 @@ export default function CoachDashboard() {
               </motion.div>
             )}
           </AnimatePresence>
+          </BillingGate>
         )}
       </main>
 
