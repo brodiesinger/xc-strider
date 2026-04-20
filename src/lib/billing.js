@@ -34,6 +34,11 @@ async function fetchPricingEnabled() {
   return _fetchPromise;
 }
 
+/** Legacy: returns true if pricing is off (everyone gets full access). */
+export function isDemo(team) {
+  return !_pricingEnabled;
+}
+
 /** Call this to bust the cache (e.g. after admin toggle). */
 export function invalidatePricingCache() {
   _pricingEnabled = null;
