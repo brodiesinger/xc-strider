@@ -301,11 +301,9 @@ export default function Pricing() {
             <Button size="lg" onClick={() => handleSelectPlan("team")} className="w-full sm:w-auto font-bold px-8 h-12 text-[15px] rounded-xl shadow-md hover:shadow-lg transition-shadow">
               Start Free Trial
             </Button>
-            <button onClick={scrollToPricing}>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto font-semibold px-8 h-12 text-[15px] rounded-xl">
-                View Plans
-              </Button>
-            </button>
+            <Button size="lg" variant="outline" onClick={scrollToPricing} className="w-full sm:w-auto font-semibold px-8 h-12 text-[15px] rounded-xl">
+              View Plans
+            </Button>
           </div>
 
           <p className="text-xs text-muted-foreground">No credit card required · 14-day free trial · Cancel any time</p>
