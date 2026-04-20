@@ -1,57 +1,46 @@
 /**
  * Billing utility helpers.
- * Rules:
- *   demo     → full access, no restrictions
- *   active   → full access (requires plan)
- *   trial    → access based on assigned plan (requires plan)
- *   inactive → restricted, prompt upgrade
- *   missing plan → restricted, not fully active
+ *
+ * When global pricing is OFF (AppConfig.pricing_enabled = false):
+ *   → everyone gets full access to all features.
+ *
+ * When global pricing is ON:
+ *   → access is gated by the team's assigned plan.
  */
 
-import { parseISO, isAfter } from "date-fns";
+import { base44 } from "@/api/base44Client";
 
-/**
- * Returns whether a team currently has access.
- * Requires BOTH a valid billing_status AND a plan to be set.
- * @param {object} team - Team entity record
- * @returns {boolean}
- */
-export function teamHasAccess(team) {
-  if (!team) return false;
+// ─── Global pricing flag ──────────────────────────────────────────────────────
+// Cached in memory so we don't hammer the DB on every feature check.
+let _pricingEnabled = null;
+let _fetchPromise = null;
 
-  const status = team.billing_status;
-  const plan = team.plan;
+async function fetchPricingEnabled() {
+  if (_pricingEnabled !== null) return _pricingEnabled;
+  if (_fetchPromise) return _fetchPromise;
 
-  // Must have both a status and a plan
-  if (!status || !plan) return false;
+  _fetchPromise = base44.entities.AppConfig.filter({ key: "global" })
+    .then((configs) => {
+      _pricingEnabled = configs?.[0]?.pricing_enabled ?? false;
+      _fetchPromise = null;
+      return _pricingEnabled;
+    })
+    .catch(() => {
+      _fetchPromise = null;
+      _pricingEnabled = false;
+      return false;
+    });
 
-  if (status === "demo") return true;
-  if (status === "active") return true;
-
-  if (status === "trial") {
-    // Trial requires a plan to be assigned
-    if (!team.trial_end_date) return true; // no end date = still in trial window
-    return isAfter(parseISO(team.trial_end_date), new Date());
-  }
-
-  // inactive or anything unknown
-  return false;
+  return _fetchPromise;
 }
 
-/**
- * Returns true if the team is in demo mode.
- * Demo users get full access with no upgrade prompts or paywalls.
- * @param {object} team
- * @returns {boolean}
- */
-export function isDemo(team) {
-  return team?.billing_status === "demo";
+/** Call this to bust the cache (e.g. after admin toggle). */
+export function invalidatePricingCache() {
+  _pricingEnabled = null;
+  _fetchPromise = null;
 }
 
-/**
- * Feature flags per plan.
- * Features not listed for a plan are restricted.
- */
+// ─── Feature flags per plan ───────────────────────────────────────────────────
 const PLAN_FEATURES = {
   starter: [
     "athlete_logging",
@@ -104,43 +93,52 @@ const PLAN_FEATURES = {
   ],
 };
 
+// ─── Sync helpers (used in components that can't be async) ────────────────────
+
 /**
- * Returns true if the team's plan includes the given feature.
- * Demo teams always get all features.
- * @param {object} team
- * @param {string} feature - one of the PLAN_FEATURES keys
- * @returns {boolean}
+ * Synchronous feature check — uses the in-memory cache.
+ * Call `initBilling()` once at app startup to warm the cache.
  */
 export function planHasFeature(team, feature) {
+  // If pricing is off (or not yet loaded), grant full access
+  if (_pricingEnabled === false || _pricingEnabled === null) return true;
   if (!team) return false;
-  if (isDemo(team)) return true;
   const plan = team.plan || "starter";
   return (PLAN_FEATURES[plan] || PLAN_FEATURES.starter).includes(feature);
 }
 
 /**
+ * Returns whether a team currently has access to the app at all.
+ */
+export function teamHasAccess(team) {
+  // If pricing is off, everyone has access
+  if (_pricingEnabled === false || _pricingEnabled === null) return true;
+  if (!team) return false;
+  const status = team.billing_status;
+  if (!status) return false;
+  return status === "active" || status === "trial" || status === "demo";
+}
+
+/**
  * Returns a human-readable reason string when access is blocked.
- * Returns null if access is allowed.
- * @param {object} team
- * @returns {string|null}
  */
 export function accessBlockedReason(team) {
-  if (teamHasAccess(team) || isDemo(team)) return null;
-
+  if (!_pricingEnabled) return null;
+  if (teamHasAccess(team)) return null;
   const status = team?.billing_status;
-  const plan = team?.plan;
-
-  if (!plan) {
-    return "No plan is assigned to your team. Please select a plan to get started.";
-  }
-
   if (!status || status === "inactive") {
     return "Your subscription is inactive. Upgrade to restore full access.";
   }
-
   if (status === "trial") {
     return "Your free trial has expired. Upgrade to continue using XC Team App.";
   }
-
   return "Your subscription is inactive. Upgrade to restore full access.";
+}
+
+/**
+ * Call once at app startup to warm the pricing cache.
+ * Components using planHasFeature synchronously will get correct results after this resolves.
+ */
+export async function initBilling() {
+  await fetchPricingEnabled();
 }
