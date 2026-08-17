@@ -40,7 +40,7 @@
         "boys",
         "girls"
       ],
-      "description": "Team group for athletes (boys or girls)"
+      "description": "Team group for athletes: boys or girls"
     }
   },
   "required": [
